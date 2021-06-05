@@ -1,0 +1,24 @@
+SQL Theory -
+
+It's a declarative language i.e you don't have to tell sql how to divide the task and get the things done. It has SQL optimizer to create sub task and do the job.
+You just need to tell SQL, get me this data and you are done.
+Concentration is what you require rather then how to find what you require.
+
+As a declarative language, it has following 4 components:
+1. DDL - Data Definition Language
+2. DML - Data Manipulation Language
+3. DCL - Data Control Language
+4. TCL - Transaction Control Language
+
+DDL
+----
+SQLs Syntax - Comprises of several types of statements that allow you to perform various commands and operations.
+
+DDL - A set of statements that allow the user to define or modify data structures and objects, such as tables.
+
+Create Statement - Create Database and Database objects like tables.
+
+Syntax :
+    CREATE OBJECT_TYPE object_name;
+
+Eg. CREATE TABLE table_name (column_name, datetype);

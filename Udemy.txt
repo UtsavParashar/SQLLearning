@@ -17,8 +17,130 @@ SQLs Syntax - Comprises of several types of statements that allow you to perform
 DDL - A set of statements that allow the user to define or modify data structures and objects, such as tables.
 
 Create Statement - Create Database and Database objects like tables.
-
+-----------------
 Syntax :
     CREATE OBJECT_TYPE object_name;
 
 Eg. CREATE TABLE table_name (column_name, datetype);
+CREATE TABLE  sales (purchare_number, INT);
+
+It is a common practise to have same name of the database and its main table.
+
+Alter Statement - Alter a table by adding removing renaming column names
+---------------
+Eg. ALTER TABLE sales
+ADD COLUMN purchase_date DATE;
+
+
+DROP/Delete a table/database:
+-----------------------------
+DROP OBJECT object_name;
+DROP TABLE sales;
+
+RENAME - To rename a table/column etc.
+-------
+RENAME TABLE sales TO customer_sales;
+
+TRUNCATE Statement:
+-------------------
+To clear all data i.e elements of the table but the keep the schema of the table, we can go with TRUNCATE statement.
+TRUNCATE OBJECT object_name;
+TRUNCATE TABLE customers;
+
+SQL Keywords: ~ RESERVED WORDS
+-------------
+ADD, RENAME, ALTER(ADD, REMOVE), DROP, TRUNCATE etc
+
+Keywords in SQL cannot be variable names - objects and databases cannot have names that coincides with SQL keywords.
+
+
+DML - Data Manipulation Language
+================================
+The statements that allows us to manipulate data in the tables of a database.
+
+SELECT Statement - used to retrieve data from db objects like tables.
+----------------- Eg: SELECT * FROM TABLE;
+SELECT * FROM sales;
+
+Generalized version
+SELECT ... FROM ... WHERE
+
+INSERT Statement - used to insert data into tables.
+-----------------
+It goes hand in hand with keywords -- INTO and VALUES
+
+Generalized version
+INSERT INTO ... VALUES
+
+Eg
+INSERT INTO sales (purchare_number, purchase_date) VALUES (1, '2021-01-01')  -- OR
+INSERT INTO sales VALUES (2, '2021-03-02') -- Since we have two columns, values will be entered in positional sequence.
+
+UPDATE Statement - allows you to update/renew existing data of your tables.
+----------------
+It goes hand in hand with
+
+Generalized version
+UPDATE .... SET .... WHERE
+
+Eg. UPDATE sales
+    SET  purchase_date='2021-03-01'
+    WHERE purchare_number=1;
+
+DELETE Statement - It works similar to the TRUNCATE statement from DDL.
+----------------
+With a diff - DELETE vs TRUNCATE
+TRUNCATE removes all the data from the table i.e clear all elements from the table whereas
+DELETE can either remove all elements or we can precisely specify what all rows are to be removed by providing the condition with where clause.
+
+DELETE FROM sale; -- works similar to TRUNCATE i.e
+TRUNCATE TABLE sales;
+
+Generalized version -- DELETE ... FROM ... WHERE
+
+But if we want to delete a row based on condition then we can go with:
+DELETE FROM sales
+WHERE purchase_date='2021-03-01'; -- This will remove only one horizontal entity from the table.
+
+Generalized versions of DML Language Statements:
+SELECT -- SELECT ... FROM ... WHERE
+INSERT -- INSERT INTO ... VALUES
+UPDATE -- UPDATE ... SET ... WHERE
+DELETE -- DELETE ... FROM ... WHERE
+
+DCL - Data Control Language
+=============================
+It includes two statements
+GRANT and REVOKE - allows us to make rights users have in a db.
+
+GRANT - GRANT gives or grants certain permissions to users
+-------
+Syntax - GRANT type_of_permission
+         ON database_name.table_name
+         TO 'username'@'localhost'
+
+From this statement a user can be granted a certain permission (SELECT/INSERT/UPDATE/DELETE/CREATE/ALTER(ADD,REMOVE)/DROP/TRUNCATE/RENAME) to one of many tables of a db.
+
+Eg. GRANT SELECT
+    ON salesDb.customers_table
+    TO 'frank'@'euhost'
+
+This statement will provide ONLY select permission to user frank on table customers_table of salesDb database.
+
+To grant all permission to frank on salesDb we can use:
+GRANT ALL
+ON salesdb.*
+TO 'frank'@'euhost'
+
+Database Admin - People who have complete rights to the db are db admin they can grant access to users and can revoke it.
+---------------
+
+REVOKE - used to revoke permissions of the users, it is the exact opposite of GRANT.
+-------
+Eg. REVOKE SELECT
+    ON salesdb.customers_table
+    FROM 'frank'@'euhost'
+
+
+
+

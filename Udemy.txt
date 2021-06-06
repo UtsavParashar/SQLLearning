@@ -142,5 +142,57 @@ Eg. REVOKE SELECT
     FROM 'frank'@'euhost'
 
 
+TCL - Transaction Control Language
+===================================
+Not every change you make to a db is saved automatically.
+
+COMMIT Statement - All the changes which you have made related to INSERT, UPDATE, DELETE will not be saved permanently until you commit them.
+----------------
+Commit will save the changes you have made and will have other users have access to the modified version of the database.
+Once Commit is run, changes cannot be undone.
+
+Eg. To Update last name of a user
+UPDATE customer_table
+SET lastname = 'Kumar'
+WHERE firstname='Ramesh';
+
+After running above statement, rest of the users using the db won't know that you have updated the lastname. In order to reflect the changes to other users, you will have to add commit to the statement.
+
+UPDATE customer_table
+SET lastname='Kumar'
+WHERE firstname='Ramesh'
+COMMIT;
+
+Now the updated information will be available to the users.
+If you are db admin, u might have to run Commit 20 times a day hence committed states can accrue.
+
+ROLLBACK clause - This clause will let you make a step back.
+---------------
+It allows you to undo any changes you have made an don't want to save permanently.
+
+eg. ROLLBACK;
+
+This will remove all changes and move to last committed state.
 
 
+Revision:
+DDL - CREATE/DESCRIBE DATA
+    CREATE - CREATE TABLE table_name;
+    ALTER - ALTER TABLE table_name ADD COLUMN column_name column_type;
+    RENAME - RENAME TABLE table_name;
+    DROP - DROP TABLE table_name;
+    TRUNCATE - TRUNCATE TABLE table_name;
+
+DML - MANIPULATE DATA
+    SELECT - SELECT * FROM table_name  WHERE condition;
+    INSERT - INSERT INTO table_name  WHERE condition;
+    UPDATE - UPDATE table_name SET values WHERE condition;
+    DELETE - DELETE cols FROM table_name WHERE condition;
+
+DCL - CONTROL DATA THROUGH ACCESS
+    GRANT - GRANT SELECT ON table_name TO 'user_name'@'hostname';
+    REVOKE - REVOKE SELECT ON table_name FROM  'user_name'@'hostname';
+
+TCL - COMMIT AND REVOKE CHANGES
+    COMMIT - COMMIT;
+    ROLLBACK - ROLLBACK;

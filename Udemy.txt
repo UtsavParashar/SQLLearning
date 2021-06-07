@@ -196,3 +196,81 @@ DCL - CONTROL DATA THROUGH ACCESS
 TCL - COMMIT AND REVOKE CHANGES
     COMMIT - COMMIT;
     ROLLBACK - ROLLBACK;
+
+Basic Database Terminology
+==========================
+The goal of the db is is to organize huge amounts of data that can be quickly retrieved.
+
+What is relational database?
+Database where there is relationship between tables also called as relations in the form of primary - foreign key. Hence when we need data from k of n tables then we work with only k tables(i.e only k tables are loaded) hence data is efficiently retrieved.
+It is based on relational algebra.
+i.e 3 tables == 3 relations
+The smallest unit in the entire system that can carry integral logical meaning.
+
+Two ways to design a DB:
+------------------------
+ER Diagram - Draw a diagram(like flowchart) showing the mappings of all tables and their connections through arrows.
+Relational Schema - Create a rectangle for each table with tablename at the top and columns in rectangle, do same for all tables in a db and connect them through arrows.
+When we combine relational schema it forms the database schema.
+
+
+Primary Key:
+============
+A column or a set of columns whose value exists and is unique for every record in a table is a candidate of primary key.
+Each table can have one and only one Primary key. In one table we cannot have 3-4 primary keys.
+That Primary key can be a single Field(Column) like Purchase_id in sales table where purchase_id will have unique sequence of numbers.
+Or two columns together can be combined to form a primary key eg purchase_number + date_of_purchase.
+Only condition being Primary key should be unique.
+Primary keys are also called unique identifiers of a table.
+Primary keys cannot contain null values.
+
+In Relational schema -
+Table Name is at the top.
+Then the primary key column is placed at the to of all other columns as is underlined.
+Relational schema for a sales table having purchase_id as a primary key.
+
+        Sales
+ =======================
+|    purchase_id        |
+|    ------------       |
+|    date_of_purchase   |
+|    customer_id        |
+|    item_code          |
+ -----------------------
+
+Not all tables you work with will have a primary key.
+
+Foreign Key:
+-----------
+Suppose we have customers info like firstname, lastname, emailaddress, numberofcomplaints which is required in more than one table then other then having redundant info in different tables we can create Customers table with a primary key as customer_id and this can be mapped to other tables where it will behave as Foreign key.
+primary key customer_id can have different column name in different tables like ID, cust_id etc but it can be mapped as Foreign key and Primary key combination.
+Eg. In sales table we same name for column customer_id for foreign key which maps to primary key customer_id of Customers table.
+
+Relational schema:
+Foreign key in one table should be shown by (FK) around the column name and it should point an arrow to the primary key of other table it is mapping.
+Eg. customer_id which is FK in Sales will point to primary key customer_id of Customer table.
+Similarly there can be other tables like Items with item_code as FK in Sales table and primary key in Items table
+
+                                             Customers
+                                      =================================
+        Sales              |-------> |      customer_id                 |
+ =======================   |         |      ------------                |
+|    purchase_id        |  |         |      first_name                  |
+|    ------------       |  |         |      last_name                   |
+|    date_of_purchase   |  |         |      email_address               |
+|    customer_id  (FK)  |--          |      number_of_complaints        |
+|    item_code    (FK)  |--|          ----------------------------------
+ -----------------------   |
+                           |
+                           |                    Items
+                           |         ===================================
+                           |------->|           item_code               |
+                                    |           ----------              |
+                                    |           item                    |
+                                    |           unit_price              |
+                                    |           company_id              |
+                                     -----------------------------------
+
+ if the foreign key inserted in the Sales table does not have a corresponding value in Customers table then sql will raise an error.
+
+ HENCE, FOREIGN KEYS ARE IDENTIFIERS THAT IDENTIFIES RELATIONS BETWEEN TABLES BUT NOT THE TABLES THEMSELVES.

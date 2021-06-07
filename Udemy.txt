@@ -274,3 +274,75 @@ Similarly there can be other tables like Items with item_code as FK in Sales tab
  if the foreign key inserted in the Sales table does not have a corresponding value in Customers table then sql will raise an error.
 
  HENCE, FOREIGN KEYS ARE IDENTIFIERS THAT IDENTIFIES RELATIONS BETWEEN TABLES BUT NOT THE TABLES THEMSELVES.
+
+ Relational Schema - Unique Keys and Null Values
+ ================================================
+ Unique key is used whenever you would like to specify that you don't want to see duplicate data in a given field.
+ Unique keys are columns which should have unique values but unlike primary key
+ 1. It can contain null values
+ 2. There can be more than one unique columns in a table.
+
+ Similar to primary key:- Unique key can be formed by combination of one or more columns.
+
+                                             Customers
+                                       =================================
+         Sales              |-------> |      customer_id                 |
+  =======================   |         |      ------------                |
+ |    purchase_id        |  |         |      first_name                  |
+ |    ------------       |  |         |      last_name                   |
+ |    date_of_purchase   |  |         |      email_address               |
+ |    customer_id  (FK)  |--          |      number_of_complaints        |
+ |    item_code    (FK)  |--|          ----------------------------------
+  -----------------------   |
+                            |
+                            |                    Items
+                            |         ===================================
+                            |------->|           item_code               |                      Companies
+                                     |           ----------              |               ===================================
+                                     |           item                    |      |--->   |       company_id                  |
+                                     |           unit_price              |      |       |       -----------                 |
+                                     |           company_id   (FK)       |------|       |       headquarters_phone_number   |
+                                      -----------------------------------               |       company_name                |
+                                                                                         -----------------------------------
+
+Relationships
+==============
+Relationships tell you how much of the data from a foreign key field can be seen in the primary key column of the table the data is related to and vice versa.
+
+customer_id column in Sales can have many duplicates as a customer can buy many items but each customer can have a single entry(customer_id) in Customers table.
+Hence Customers to Sales is - One to Many relationship AND
+Sales to Customers is - Many to One relationship
+
+In relational diagram, one to many relationship is shown as >| AND
+many to one relationship is shown as ||
+
+                                             Customers
+                               Many-One  =================================
+         Sales                 |---||->|      customer_id                 |
+  =======================      |       |      ------------                |
+ |    purchase_id        |     |       |      first_name                  |
+ |    ------------       |     |       |      last_name                   |
+ |    date_of_purchase   |     |       |      email_address               |
+ |    customer_id  (FK)  |\|---|       |      number_of_complaints        |
+ |    item_code    (FK)  |/|             ----------------------------------
+  ----------------------- One-Many
+
+These are called cardinality constraints.
+ > | define max and min relationship respectively.
+ M N - define infinite relationship
+ O - Optional Relationship which in this case when it was not necessary for a registered person to purchase an item.
+
+ Few types of relationship-
+ one to one
+ one to many
+ many to many
+ many to one
+
+Hence, Relational Schemas
+- represents the concept db admins must implement
+- depict how a database is organized
+- blueprints, or a plan for a db
+
+Relational Schemas will help you immensely while writing your queries.
+
+

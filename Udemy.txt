@@ -371,4 +371,76 @@ make a habit of using semi colon.
 There can be many db when working through Workbench, in that case we can apply USE command to use a particular db.
 USE Sales;
 
+Introduction to Datatypes:
+--------------------------
+We must specify the type of the data that will be inserted in each column of the table.
+Different datatypes represent different types of information that can be contained in a specific column.
+
+String Data Types: The text format is sql is called string.
+Datatypes containing strings are also called alphanumeric datatypes.
+Eg. James will be treated a string datatype.
+
+CHAR - character string - Fixed length string or called FIXED STORAGE DATATYPE
+    max (size)limit is 255
+    For CHAR(5) - Here 5 means the max symbols(chars) we are allowed to use in writing a value in this format.
+    if a string -
+        'James' is stored, it will take 5 bytes storage
+        'Bob' is stored, it will also take 5 bytes storage
+    Then why use CHAR when it takes fixed bytes?
+        Two reasons -
+            It is around 50% faster compared to VARCHAR.
+            It can be used in situations where we need to store company acronyms with 4 chars like GOOG, AMZN, MSFT then we can go with CHAR(4).
+
+VARCHAR - Variable Character - Variable length string
+    Max (size)limit is 65535
+    For VARCHAR(5)
+    if a string -
+            'James' is stored, it will take 5 bytes storage
+            'Bob' is stored, it will also take 3 bytes storage
+    Example - Store password which is not more than 10 chars, we can use VARCHAR as it will use storage based on size of password.
+
+ENUM - Enumerate - It is particularly useful when we know beforehand what type of column are we going to deal with.
+    It is same as choice, like to insert the Gender of a person you can define ENUM('M', 'F') then mysql will show error if you want to store value other than M or F.
+    MySql will show an error if you attempt to insert any value different from M or F.
+
+Numeric Types -
+===============
+INTEGERS
+FIXED-POINT
+FLOATING-POINT
+
+INTEGERS - When we want to store whole numbers with no decimal points. Eg - 5, 15, -200, 1000
+--------
+Integers(signed/unsigned) signed includes negative values, then we can go with Integers.
+Integers are further divided into few types based on size.
+By default, INTEGER type are signed.
+If we want to use a range containing only positive, 'unsigned' values, we will have to specify this in our query.
+
+INT Type       size(bytes)              minimum value(signed/unsigned)                     maximum value(signed/unsigned)
+TINYINT         1                           -128                                                127
+                                               0                                                255
+SMALLINT        2                         -32768                                              32767
+                                               0                                              65535
+MEDIUMINT       3                     -8,388,608                                          8,388,607
+                                               0                                         16,777,215
+INT             4                 -2,147,483,648                                      2,147,483,647
+                                               0                                      4,294,967,295
+BIGINT          8     -9,223,372,036,854,775,808                          9,223,372,036,854,775,807
+                                               0                         18,446,744,073,709,551,615
+
+Why not just use BIGINT all the time?
+Answers comes in computer's processing speed, if in a field you are sure that you won't need an integer smaller than 0 and greater than 100, TINYINT will do the job perfectly and you would not need more storage space per data point.
+A smaller integer type may suffice and increase the processing speed.
+
+
+FIXED-POINT
+-----------
+DECIMAL
+NUMERIC
+
+Let's first get used to two concepts -
+precision and scale.
+precision - refers to number of digits in a number.
+scale - number of digits right to the decimal point in a number.
+
 

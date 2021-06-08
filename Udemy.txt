@@ -443,4 +443,41 @@ precision and scale.
 precision - refers to number of digits in a number.
 scale - number of digits right to the decimal point in a number.
 
+Eg. DECIMAL(5,3) has precision 5 and scale 3 i.e it can have 5 values and 3 of to the right of decimal.
 
+Fixed Point data represents exact values i.e in case of
+
+DECIMAL(5,3) if the value 10.5 is inserted then mysql will convert it to 10.500.
+DECIMAL(5,3) if the value is 10.5247516 then it will be rounded to 10.525 and a warning will be raised for FIXED POINT Number.
+
+When only one digit is placed inside the parentheses, it will be treated as the precision of that data type.
+Like DECIMAL(7) will be treated as DECIMAL(7,0) Eg - 1234567
+
+NUMERIC is also defined as
+NUMERIC(p,s) -- where p is precision and s is scale
+These are good for storing salaries like
+NUMERIC(8,2) - 300000.50
+
+FLOATING-POINT
+--------------
+FLOAT
+DOUBLE
+
+It is used for approximate values only
+Aims to balance between range and precision ( ==> floating)
+
+When we have FLOAT(5,3) then 10.5 will be stored as is an not 10.500
+and 10.524678 will be stored as 10.525 without any warning.
+
+Hence the main difference between the fixed and floating point type is in the way the value is represented in the memory of the computer.
+Where fixed point will raise a warning when its structure is not respected but floating point won't.
+
+FLOAT and DOUBLE diff
+
+Floating Point Type     size(bytes)         precision       maximum number of digits
+FLOAT                   4                   single          23
+DOUBLE                  8                   double          43
+
+Questions:
+Why is char faster than varchar?
+How can I store a variable scale and fixed precision in mysql?

@@ -345,4 +345,30 @@ Hence, Relational Schemas
 
 Relational Schemas will help you immensely while writing your queries.
 
+Section 5 - First Steps in SQL
+------------------------------
+Let's create a db first.
+
+Syntax: CREATE DATABASE [IF NOT EXISTS] dbname; -- OR
+CREATE SCHEMA IF NOT EXISTS dbname;
+
+
+Let's dissect the above statement.
+
+CREATE DATABASE - Creates a db as an abstract unit it means after this statement db will not create any data but act as an object which is ready to persist information.
+
+IF NOT EXISTS - verifies if the db with the same name exists already.
+This won't prevent(impede) us from creating a db with the same name. The bracket around mean the statement is optional (we can either type or omit the statement),even if we don't include it, it will run anyway. It is always useful to include it because when we are working with large amount of datasets it reduces potential errors
+
+dbname - It is always suggested to give a short name but at the same time as related to content of data as possible.
+
+The SQL code is not case sensitive.
+We can use quotes around dbname or without quotes.
+
+; - Semi colon is the statement terminator. It is often true that the statement will run properly without it but in longer scripts when the code contains more than one statement. The semi colon is indispensable.
+make a habit of using semi colon.
+
+There can be many db when working through Workbench, in that case we can apply USE command to use a particular db.
+USE Sales;
+
 

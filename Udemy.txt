@@ -478,6 +478,128 @@ Floating Point Type     size(bytes)         precision       maximum number of di
 FLOAT                   4                   single          23
 DOUBLE                  8                   double          43
 
+
+What is the difference between DECIMAL and NUMERIC FIXED POINT type? OR
+How can I store a variable precision and fixed precision in mysql?
+There is a small difference between NUMERIC(p,s) and DECIMAL(p,s) SQL numeric data type. NUMERIC determines the exact precision and scale. DECIMAL specifies only the exact scale; the precision is equal or greater than what is specified by the coder. DECIMAL columns can have a larger-than-specified precision if this is more convenient or efficient for the database system.
+In other words, DECIMAL gives you some leeway.
+Keep in mind that financial data such as account balances must be stored as NUMERIC or DECIMAL data types.
+
+In statistics numerals are of 4 types:
+Nominal - Like customer id, phone numbers etc These numbers are labelled but we don't do calculations on them like we cannot say that id 100 is better then id 90 or by adding two phone numbers we generate an amazing phone number.
+
+Ordinal - These numbers have orders/categories attached to them like on the scale of 1-5, 1 being satisfied 5 being unsatisfied etc
+
+Interval - Interval values shows the exact difference like yesterday the share volume was 100, today its 60 hence the difference is 40.
+
+Ratio - Ratio values are intervals with a defined value as zero.
+
+Each SQL numeric data type is used to represent all of the above values, especially intervals and ratios. You can compare character values in SQL, so one could argue that character values can also represent interval data. However, that's a topic for another article.
+
+In SQL, numbers are defined as either exact or approximate.
+
+The exact numeric data types are SMALLINT, INTEGER, BIGINT, NUMERIC(p,s), and DECIMAL(p,s). Exact SQL numeric data type means that the value is stored as a literal representation of the number's value.
+
+The approximate numeric data types are FLOAT(p), REAL, and DOUBLE PRECISION. These represent real numbers, but they are not represented as exact numbers in the database. Rather, they are an approximation of the real number because of the way that computer systems represent numbers. If this sounds confusing, rest assured that we'll explain it in detail later.
+
+Other Data types:
+-----------------
+Temporal Types
+DATE
+DATETIME
+TIMESTAMP
+
+DATE - Stores Date is YYYY-MM-DD Format, Range is 1000-01-01 To 9999-12-31. Eg - 2021-06-09
+DATETIME - Stores Date + Time in YYYY-MM-DD HH:MM:SS[.MICROS] precision. Eg. - 2021-06-09 10:32:45.36945
+TIMESTAMP - Unix timestamps - Epoch time stamps, Range - 1970-01-01 - 2038-01-19.   Useful in time calculations like subtracting one time from another. It is more capable of storing timezones which datetime in not very capable of doing.
+
+Hence -
+STRING AND TEMPORAL - CHAR, VARCHAR, DATE, DATETIME, TIMESTAMP might be written in quotes.
+NUMERIC - TINYINT, SMALLINT, MIDINT, INT, BIGINT, DECIMAL, NUMERIC, FLOAT, DOUBLE can be written without quotes.
+
+
+BLOB - Binary Large OBject
+For File objects, jpegs, wav etc
+Refers to a file of binary data with 1s and 0s.
+Involves saving files in a record.
+Eg. *.doc, *.xlsx, *.xml, *.jpg, *.wav
+
+
+Constraints -
+NOT NULL - Defines the constraint that column should not be null else an error will be thrown.
+AUTO INCREMENT - Increment the values of the column automatically like i column in kdb.
+Frees you from having to insert all purchase numbers manually through the INSERT command at the later stage,
+assign 1 to the first record of the table and automatically increments by 1 for every subsequent row.
+
+Creating a table in Sales DB
+----------------------------
+We will create tables as we have created in Relational Schema i.e sales, customers, items, companies.
+Let's start with sales table.
+
+Compulsory requirement - While creating a table we must provide atleast one column name, else we will get an error.
+
+Syntax:
+CREATE TABLE table_name
+(
+    col1 datatype constraint,
+    col2 datatype constraint,
+
+    coln datatype constraint
+);
+
+Eg:
+CREATE TABLE sales
+(
+	purchase_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    date_of_purchase DATE NOT NULL,
+    customer_id INT,
+    item_code VARCHAR(10) NOT NULL
+);
+
+
+CREATE TABLE customers
+(
+	customer_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255),
+    email_address VARCHAR(255),
+    number_of_complaints SMALLINT
+);
+
+Queries:
+========
+query - a command to write in SQL with the idea of either retrieving information from db on which you are working, or, alternatively, to insert, delete, update data from it.
+Semi-colon acts as a terminator.
+After creating a db Sales, we used 'Use Sales' to let mysql know that we want to use mysql objects(like tables) from Sales db and run query over them.
+
+queries -
+one of the main feature of the query is to manipulate data within database.
+eg.
+USE Sales;
+SELECT * FROM customers;
+
+When using multiple databases and tables:
+Whenever we want to refer to a SQL object in our queries, we must specify to the db it is applied.
+SQL objects are like tables, indexes, views, stored procedures, functions.
+We can do it in two ways:
+1. set a default db:
+    USE Sales;
+    SELECT * FROM customers;
+2. Call a dbobject directly from dbname using dot operator.
+    Syntax: dbname.dbobject
+    dot operator - signals the existence of a connection between the two object types.
+Eg. SELECT * FROM Sales.customers;
+
+
+To delete a table:
+DROP TABLE table_name;
+DROP TABLE sales;
+
+
+MYSQL Constraints:
+------------------
+
+
+
 Questions:
 Why is char faster than varchar?
-How can I store a variable scale and fixed precision in mysql?

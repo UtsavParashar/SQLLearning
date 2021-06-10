@@ -639,7 +639,78 @@ PRIMARY KEY(customer_id)
 );
 
 
+FOREIGN KEY
+===========
+Points to a column of another table and thus links the two tables.
 
+It is a column in one table(Child table / referencing table) which refers to a column in another table(Parent table / referenced table)
+In our example child table in sales and parent table in customers when customer_id column(foreign key) of sales table is referred by customer_id(Primary key) of customers table.
+
+Remember, it is not an obligatory requirement - these two keys can have completely different names. What's imp is that the data types and the information match! It's just common practice to use, if not the same, then similar names for both keys.
+
+A foreign key in sql is defined through a foreign key constraint.
+Hence the connection between two tables is maintained using foreign keys.
+The foreign key maintains the referential integrity within the database.
+
+SYNTAX -
+    FOREIGN KEY(foreign key col) REFERENCE parent_table_name(primary key col) ON DELETE CASCADE
+
+ON DELETE CASCADE constraint is used in practice which means if the primary key record os deleted from referenced table then its corresponding records will be deleted from referencing tables.
+
+
+Three ways to add foreign key constraint:
+1. While creating the table:
+
+CREATE TABLE sales
+(
+    purchase_id         INT NOT NULL AUTO_INCREMENT,
+    date_of_purchase    DATE NOT NULL,
+    customer_id         INT,
+    item_code           INT NOT NULL,
+PRIMARY KEY(purchase_id),
+FOREIGN KEY(customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE
+);
+
+2. ADD foreign key constraint by altering the table
+ALTER TABLE sales
+ADD FOREIGN KEY(customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE;
+
+Internally ddl for Sales.sales table looks like this
+CREATE TABLE `sales` (
+  `purchase_id` int NOT NULL AUTO_INCREMENT,
+  `date_of_purchase` date NOT NULL,
+  `customer_id` int DEFAULT NULL,
+  `item_code` int NOT NULL,
+  PRIMARY KEY (`purchase_id`),
+  KEY `customer_id` (`customer_id`),
+  CONSTRAINT `sales_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+we can use the foreign key CONSTRAINT name sales_ibfk_1 to drop the foreign key
+
+DROP foreign key
+-----------------
+ALTER table sales
+DROP FOREIGN KEY `sales_ibfk_1`;
+
+OR without backtick
+ALTER table sales
+DROP FOREIGN KEY sales_ibfk_1;
+
+3. From MySql Workbench
+Right click on table name and click 'Alter table' -- Foreign key tab -- Reference table customers --referenced column -- On DELETE cascade - apply
+IF you want there is option for on update cascade as well
+
+DDL -
+CREATE TABLE `sales` (
+  `purchase_id` int NOT NULL AUTO_INCREMENT,
+  `date_of_purchase` date NOT NULL,
+  `customer_id` int DEFAULT NULL,
+  `item_code` int NOT NULL,
+  PRIMARY KEY (`purchase_id`),
+  KEY `Constraint_1` (`customer_id`),
+  CONSTRAINT `Constraint_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 Questions:
 Why is char faster than varchar?

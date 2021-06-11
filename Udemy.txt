@@ -701,16 +701,111 @@ DROP FOREIGN KEY sales_ibfk_1;
 Right click on table name and click 'Alter table' -- Foreign key tab -- Reference table customers --referenced column -- On DELETE cascade - apply
 IF you want there is option for on update cascade as well
 
-DDL -
-CREATE TABLE `sales` (
-  `purchase_id` int NOT NULL AUTO_INCREMENT,
-  `date_of_purchase` date NOT NULL,
-  `customer_id` int DEFAULT NULL,
-  `item_code` int NOT NULL,
-  PRIMARY KEY (`purchase_id`),
-  KEY `Constraint_1` (`customer_id`),
-  CONSTRAINT `Constraint_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`) ON DELETE CASCADE ON UPDATE CASCADE
+
+UNIQUE KEY
+===========
+Used whenever we would like to specify that we don't want duplicate records in a given field.
+It ensures that all values in a column or a set of columns are different.
+Just like Primary key and foreign key, unique keys are implemented in SQL through a constraint - UNIQUE KEY.
+Hence, if we try to insert a duplicate value in a unique key column then sql with display an error.
+
+Eg. email_address in customers table should be unique.
+
+CREATE TABLE customers
+(
+	customer_id INT NOT NULL AUTO_INCREMENT,
+	first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    email_address VARCHAR(255),
+    number_of_complaints SMALLINT,
+PRIMARY KEY(customer_id),
+UNIQUE KEY(email_address)
+);
+
+Another way is through ALTER table, to add unique key constraint to an existing table.
+ALTER TABLE customers
+ADD UNIQUE KEY(email_address);
+
+To drop a unique key constraint -
+Unique key in mysql has same role as indexes but reverse isn't true.
+
+Index of a table - an organizational unit which helps retrieve data more easily.
+Unique key is same as an index to a column which supports faster searching of elements hence to drop unique key we use INDEX.
+Indexing comes with a cost, it takes more time to update a table with indexes because indexes must be updated too and it is time consuming.
+ALTER TABLE customers
+DROP INDEX email_address;
+
+If we will try to add a unique key constraint to an existing table which already have unique key on same Field then mysql will not display an error rather it will just show a warning like below and add one more unique key constaint.
+"0 row(s) affected, 1 warning(s): 1831 Duplicate index 'email_address_2' defined on the table 'sales.customers'. This is deprecated and will be disallowed in a future release. Records: 0  Duplicates: 0  Warnings: 1"
+
+DDL
+CREATE TABLE `customers` (
+  `customer_id` int NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(255) DEFAULT NULL,
+  `last_name` varchar(255) DEFAULT NULL,
+  `email_address` varchar(255) DEFAULT NULL,
+  `number_of_complaints` smallint DEFAULT NULL,
+  PRIMARY KEY (`customer_id`),
+  UNIQUE KEY `email_address` (`email_address`),
+  UNIQUE KEY `email_address_2` (`email_address`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+After dropping index email_address
+ALTER TABLE customers
+DROP INDEX email_address;
+
+Still one unique key constraint(email_address_2) is applied, let remove that as well
+
+DDL
+CREATE TABLE `customers` (
+  `customer_id` int NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(255) DEFAULT NULL,
+  `last_name` varchar(255) DEFAULT NULL,
+  `email_address` varchar(255) DEFAULT NULL,
+  `number_of_complaints` smallint DEFAULT NULL,
+  PRIMARY KEY (`customer_id`),
+  UNIQUE KEY `email_address_2` (`email_address`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_c
+
+ALTER TABLE customers
+DROP INDEX email_address_2;
+
+DDL
+CREATE TABLE `customers` (
+  `customer_id` int NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(255) DEFAULT NULL,
+  `last_name` varchar(255) DEFAULT NULL,
+  `email_address` varchar(255) DEFAULT NULL,
+  `number_of_complaints` smallint DEFAULT NULL,
+  PRIMARY KEY (`customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+Let's play a little with customers table.
+CREATE TABLE customers (
+    customer_id INT NOT NULL AUTO_INCREMENT,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    email_address VARCHAR(255),
+    number_of_complaints INT,
+PRIMARY KEY (customer_id)
+);
+
+ALTER TABLE customers
+ADD COLUMN gender ENUM('M','F') AFTER last_name;
+
+INSERT INTO customers (first_name, last_name, gender, email_address, number_of_complaints)
+VALUES ('Ramesh', 'Kumar', 'M', 'rameshk@ramesha.com',1000);
+
+SELECT * FROM customers;
+
+To get a list of columns in mysql use INFORMATION.SCHEMA
+SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME='customers';
+
+or to get an empty table with just column names
+SELECT * FROM customers WHERE 1=0; -- quick and dirty
 
 Questions:
 Why is char faster than varchar?

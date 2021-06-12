@@ -1001,6 +1001,98 @@ WHERE
     first_name = 'Saniya'
         OR first_name = 'Elvis';
 
+Operator Precedence:
+--------------------
+AND has precedence over OR.
+
+SELECT
+    *
+FROM
+    employees
+WHERE
+    last_name = 'Denis'
+        AND (gender = 'M' OR gender = 'F');
+
+IN and NOT IN
+----------------
+IN operator can be used along with list to fetch elements IN a column.
+We can use OR operator but if there are more than 2 elements to check then we can go with IN operator.
+Also, using IN is faster than using OR.
+
+Eg. select all employees whose first name is Cathie, Mark or Nathan.
+
+SELECT
+    *
+FROM
+    employees
+WHERE
+    first_name IN ('Cathie' , 'Mark', 'Nathan');
+
+
+Eg of NOT IN:
+SELECT
+    *
+FROM
+    employees
+WHERE
+    first_name NOT IN ('Cathie' , 'Mark', 'Nathan');
+
+LIKE or NOT LIKE
+================
+It is used for pattern matching.
+% - is used for matching 0 or more chars
+_ - is used for matching one character
+
+Also, mysql is case insensitive meaning, you can pass 'Mar%' or 'mar%' to search for all strings starting with 'Mar'
+
+Eg:
+SELECT
+    *
+FROM
+    employees
+WHERE
+    first_name LIKE 'Mar%';
+
+SELECT
+    *
+FROM
+    employees
+WHERE
+    first_name LIKE 'Mar_';
+
+Eg. - Not like
+SELECT
+    *
+FROM
+    employees
+WHERE
+    first_name NOT LIKE '%Ma%';
+
+Retrieve a list with all employees who have been hired in the year 2000.
+SELECT
+    *
+FROM
+    employees
+WHERE
+    hire_date LIKE '2000%';
+
+Retrieve a list with all employees whose employee number is written with 5 characters, and starts with “1000”.
+SELECT
+    *
+FROM
+    employees
+WHERE
+    emp_no LIKE '1000_';
+
+Wildcard Characters:
+====================
+% - 0 or more matches
+_ - 1 match
+* - for selecting all columns, can be used to count all rows of a table.
+
+
+
+
 
 
 Questions:

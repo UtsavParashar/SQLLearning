@@ -887,5 +887,20 @@ If a record had NONE value its a valid value like in feedback column if a person
 
 If the record in no_of_complaints or feedback is empty then we can say it as NULL.
 
+
+Coding Practices:
+Good code is not what computers understand, it's the one that humans understand.
+
+When assigning names to variables or SQL objects, always choose shorter, meaningful names, conveying specific information.
+meaningful means pronounceable - where one word per concept has been picked.
+
+[column] names will constitute more then 80% of your code, choose them wisely.
+
+Use uppercase for SQL keywords.
+
+
+
+
+
 Questions:
 Why is char faster than varchar?

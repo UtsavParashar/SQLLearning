@@ -898,7 +898,108 @@ meaningful means pronounceable - where one word per concept has been picked.
 
 Use uppercase for SQL keywords.
 
+=================
+DML Statements===
+=================
+SELECT
+========
+It allows to extract complete or a fraction of a dataset.
+It is used to retrieve data from db objects, like tables.
+Used to query data from a db.
 
+Basic select statement:(But it can become very complex if you are a pro)
+select col1, col2.... coln
+from tablename;
+
+Practically from keyword is mandatory, it tells us from which table the data is to be retrieved.
+
+When extracting info, SELECT always goes with FROM.
+
+To select first and last name from the employees table.
+USE employees;
+SELECT
+    first_name, last_name
+FROM
+    employees;
+
+
+select all records and cols from employees table.
+'*' is a wildcard characters which mean all 'all' or 'everything'.
+SELECT
+    *
+FROM
+    employees;
+
+Exercise:
+-- departments table  dept_name
+SELECT
+    dept_name
+FROM
+    departments;
+
+WHERE Clause
+-------------
+It allows us to set a condition upon which we will specify what part of the data we want to retrieve from the database.
+
+Syntax
+SELECT col1, col2.... coln
+FROM tablename WHERE condition;
+
+Eg. Select employees from employees table whose first name is Denis.
+SELECT
+    *
+FROM
+    employees
+WHERE
+    first_name = 'Denis';
+
+
+In above where clause we have use equal '=' operator to match a string.
+In SQL, there are many other linking keywords and symbols, called operators, that you can use with the where clause.
+
+Eg:
+AND         OR
+IN          NOT IN
+LIKE        NOT LIKE
+BETWEEN
+EXISTS      NOT EXISTS
+IS NULL     IS NOT NULL
+comparison operators etc
+
+
+AND Operator
+============
+allows you to logically combine two statements in the condition code block.
+It allows us to narrow the output we would like to extract from the data. Hence
+AND binds SQL to meet both conditions enlisted in the WHERE clause simultaneously.
+
+Syntax:
+SELECT col1, col2.... coln
+FROM tablename WHERE condition1 AND cond2;
+
+Eg: Find all employees name 'Saniya' and have gender 'F'
+SELECT
+    *
+FROM
+    employees
+WHERE
+    first_name = 'Saniya' AND gender = 'F';
+
+OR Operator
+===========
+Applies OR condition
+
+SELECT col1, col2.... coln
+FROM tablename WHERE condition1 OR cond2;
+
+Eg: Select emps with firstname as Elvis or Saniya
+SELECT
+    *
+FROM
+    employees
+WHERE
+    first_name = 'Saniya'
+        OR first_name = 'Elvis';
 
 
 

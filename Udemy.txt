@@ -1221,6 +1221,70 @@ FROM
 WHERE
     hire_date >= '2000.01.01' AND Gender = 'F';
 
+SELECT Distinct
+================
+To select distinct values from a column we can use
+Syntax: SELECT DISTINCT col1, col2, col3...coln
+from table where condition
+
+SELECT DISTINCT
+    gender
+FROM
+    employees;
+
+Exercise: Obtain a list with all different “hire dates” from the “employees” table.
+SELECT DISTINCT
+    hire_date
+FROM
+    employees;
+
+Aggregate Functions:
+---------------------
+They are applied on multiple rows of a single column of a table and return an output of a single value.
+
+COUNT() - counts the number of non-null records in a field.
+    It is frequency used with the combination of reserved word DISTINCT.
+    Imp Note - The parentheses after COUNT should start right after the keyword and not after white space. This condition is related to clean code i.e if a column is related to COUNT keyword it should be applied without space in between.
+    SYNTAX: SELECT COUNT(col)
+            FROM table;
+    Eg. : SELECT
+              COUNT(DISTINCT hire_date)
+          FROM
+              employees;
+    Eg. How many employees are registered in our db when emp_no is primary key
+    SELECT
+        COUNT(emp_no)
+    FROM
+        employees;
+    Eg. Get distinct names from employees
+    SELECT
+        COUNT(DISTINCT first_name, last_name)
+    FROM
+        employees;
+    Eg. Get count of first name from employees
+    SELECT
+        COUNT(DISTINCT first_name)
+    FROM
+        employees;
+
+    Exercise: How many annual contracts with a value higher than or equal to $100,000 have been registered in the salaries table?
+    SELECT
+        COUNT(salary)
+    FROM
+        salaries
+    WHERE
+        salary > 100000;
+
+    How many managers do we have in the “employees” database? Use the star symbol (*) in your code to solve this exercise.
+    SELECT
+        COUNT(*)
+    FROM
+        dept_manager;
+
+SUM() - sums all the non-null values of a column.
+MIN() - returns the min value from the entire list.
+MAX() - returns the max value from the entire list.
+AVG() - calculates the avg of all non-null values belonging to a certain column of a table.
 
 
 

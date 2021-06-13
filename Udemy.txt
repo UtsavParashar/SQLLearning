@@ -1382,7 +1382,80 @@ ORDER BY salary;
 
 HAVING
 ========
+Whenever we want to apply an aggregate function over a groupby clause, we have to use HAVING.
+Sometimes HAVING can be used instead of where clause but that's not what it is designed to be used for.
+Having clause is to be placed between group by and order by clause.
+Syntax:
+Select col1, col2..coln
+from table
+where condition
+group by col
+having condition
+order by col;
 
+Eg. List all employees first name whose first name appreared more than 250 times in the table and arrange them by names_count in desc order.
+SELECT
+    first_name, COUNT(first_name) AS names_count
+FROM
+    employees
+where hire_date < '1999-01-01'
+GROUP BY first_name
+HAVING names_count > 250
+ORDER BY names_count DESC;
+
+Exercise:
+Select all employees whose average salary is higher than $120,000 per annum.
+SELECT
+    emp_no, AVG(salary) AS avg_sal
+FROM
+    salaries
+GROUP BY emp_no
+HAVING AVG(salary) > 120000
+ORDER BY avg_sal;
+
+WHere vs Having
+---------------
+Where allows us to set conditions that refer to subsets of individual rows, these conditions are applied before re-organizing the output into groups.
+Once records are filtered using where clause then they can be grouped using distinct values of a column and then a condition can be applied on the aggregate values of the grouped elements using HAving clause.
+
+having can be applied to non-aggregated data also as a filter but there can't be two conditions applied in having one being aggregated and other being non-aggregated.
+Eg. SELECT
+        first_name, COUNT(first_name) AS names_count
+    FROM
+        employees
+    WHERE
+        hire_date > '1999-01-01'
+    GROUP BY first_name
+    HAVING names_count < 200
+    ORDER BY first_name;
+
+Exercise: Select the employee numbers of all individuals who have signed more than 1 contract after the 1st of January 2000.
+SELECT
+    emp_no, COUNT(emp_no) AS emp_no_counts
+FROM
+    dept_emp
+WHERE
+    from_date > '2000-01-01'
+GROUP BY emp_no
+having emp_no_counts > 1;
+
+LIMIT
+=====
+Limit the no of records in the output.
+No matter how long the query is, the LIMIT statement is placed at the end.
+Syntax:
+Select col1, col2 .. coln
+from tab
+where condition
+LIMIT INT;
+
+Eg. Get details of emps who get max salary
+SELECT
+    *
+FROM
+    salaries
+ORDER BY salary DESC
+LIMIT 10;
 
 Questions:
 Why is char faster than varchar?

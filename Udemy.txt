@@ -1287,6 +1287,101 @@ MAX() - returns the max value from the entire list.
 AVG() - calculates the avg of all non-null values belonging to a certain column of a table.
 
 
+ORDER BY
+--------
+We want to sort a table by a column in ascending or descending order, we can use ORDER BY.
+ASC for ascending which is default.
+DESC is used for descending order.
+
+Eg: Get all the employees in the ascending order of their first name
+SELECT
+    *
+FROM
+    employees
+ORDER BY first_name ;
+
+Eg: Get all the employees in the descending order of their hire date
+SELECT
+    *
+FROM
+    employees
+ORDER BY hire_date DESC;
+
+descending emp_no
+SELECT
+    *
+FROM
+    employees
+ORDER BY emp_no DESC;
+
+Order by can be applied on more than one columns
+Eg. Order all employees by their first and last name
+SELECT
+    *
+FROM
+    employees
+ORDER BY first_name, last_name;
+
+GROUP BY - Very useful
+========
+When working in sql, results can be grouped together according to a specific field or fields.
+groupby must be placed exactly after the where clause(if any) and before order by clause (if any)
+It is a common practise to place the group by column also with the select column.
+
+Syntax: select col1, col2, .. coln
+        from table
+        where conditions
+        group by column name(s)
+        order by column name(s);
+
+Eg. Get count of distinct employees by their first name
+SELECT
+    first_name, COUNT(first_name)
+FROM
+    employees
+GROUP BY first_name;
+
+Eg. get count of names by first_name, last_name where hiredate is after 1998-01-01
+SELECT
+    first_name, last_name, COUNT(first_name)
+FROM
+    employees
+WHERE
+    hire_date > '1998-01-01'
+GROUP BY first_name , last_name
+ORDER BY first_name DESC;
+
+Using Aliases - AS keyword
+-------------
+When we look at the ouput of count(colname) the output column name is also COUNT(colname) which has two issues:
+1. It is not very clear to the person looking the output as to what the column contains.
+2. Using that output column name as is (like Count(fist_name)) will raise an error 'Error Code: 1248. Every derived table must have its own alias
+'
+
+This issue can be solved using AS keyword through which we can assign the output col a new name.
+Eg:
+SELECT
+    first_name, COUNT(first_name) AS name_counts
+FROM
+    employees
+WHERE
+    hire_date > '1998-01-01'
+GROUP BY first_name
+ORDER BY name_counts DESC;
+
+Exercise:
+Write a query that obtains two columns. The first column must contain annual salaries higher than 80,000 dollars. The second column, renamed to “emps_with_same_salary”, must show the number of employees contracted to that salary. Lastly, sort the output by the first column.
+SELECT
+    salary, COUNT(emp_no) AS 'emps_with_same_salary'
+FROM
+    salaries
+WHERE
+    salary > 80000
+GROUP BY salary
+ORDER BY salary;
+
+HAVING
+========
 
 
 Questions:

@@ -1457,5 +1457,114 @@ FROM
 ORDER BY salary DESC
 LIMIT 10;
 
+INSERT Statement
+=================
+Insert statement is used to insert values to an existing table.
+
+Syntax: INSERT INTO table (col1, col2 ... coln)
+        VALUES (val1, va2 ... valn);
+
+Eg: Insert an element in employees table
+INSERT INTO employees
+(
+	emp_no,
+    birth_date,
+    first_name,
+    last_name,
+    gender,
+    hire_date
+)
+VALUES
+(	999901,
+	'1986-04-01',
+    'John',
+    'Smith',
+    'M',
+    '2011-01-01'
+);
+
+Test if the record is entered
+SELECT
+    *
+FROM
+    employees
+ORDER BY emp_no DESC
+LIMIT 10;
+
+Integers in Mysql can be placed within quotes, if the column is of int type even if you try to insert ints within quotes then mysql will convert it to int and store it as int.
+BUT it is alway good to type ints as plain numbers, without using quotes. It save mysql time to do the conversion and is a good practise to have ints as plain text.
+
+When inserting a row in a table, it is not necessary to provide column names in order like we can put birth_date before emp_no while inserting a row in employees table.
+INSERT INTO employees
+(
+	birth_date,
+	emp_no,
+    first_name,
+    last_name,
+    gender,
+    hire_date
+)
+VALUES
+(
+	'1973-3-26',
+	999902,
+    'Patricia',
+    'Lawrence',
+    'F',
+    '2005-01-01'
+);
+
+When inserting a record to a table without providing the column names, 2 things should be kept in mind.
+- specify as many data values as there are columns in the data table.
+- add them in the same order in which they appear in the table.
+Else Mysql will raise an error:
+Error Code: 1136. Column count doesn't match value count at row 1
+
+Correct statement will be:
+INSERT INTO employees
+VALUES
+(
+	999903,
+    '1977-9-14',
+    'Johnathan',
+    'Creek',
+    'M',
+    '1999-1-1'
+);
+
+Insert data into a table from another table:
+--------------------------------------------
+We can insert data into a table from another table directly using insert and select.
+Syntax:
+INSERT INTO table2 (col1, col2)
+SELECT (col1, col2)
+FROM table 1
+WHERE cond;
+
+Eg: Create a new table departments_dup and insert into it values from departments table where dept_no < 'd005'
+SELECT * FROM departments;
+
+CREATE TABLE departments_dup
+(
+    dept_no CHAR(4) NOT NULL PRIMARY KEY,
+    dept_name VARCHAR(40) NOT NULL
+);
+
+INSERT INTO departments_dup (dept_no, dept_name)
+select * from departments where dept_no < 'd005'; -- OR
+
+INSERT INTO departments_dup
+select * from departments where dept_no < 'd005';
+
+SELECT * FROM departments_dup;
+
+Exercise:
+Create a new department called “Business Analysis”. Register it under number ‘d010’.
+INSERT INTO departments
+VALUES ('d010', 'Business Analysis');
+
+
+
+
 Questions:
 Why is char faster than varchar?

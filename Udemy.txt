@@ -1686,6 +1686,213 @@ TRUNCATE VS DELETE WITHOUT WHERE
 
 Aggregation Functions:
 ======================
+Gather data from many rows of a table, then aggregate it into a single value.
+Input - the information contained in multiple rows
+Output -  single value.
+Also called summarizing function.
+
+Why do these functions exist?
+They are a response to the information requirements of a company's different organizational levels.
+Top Management executives are typically interested in summarized figures and rarely in detailed data.
+
+COUNT -
+--------
+Count the number of non-null(null values can also be counted) values in a column of a table.
+Count is applicable to both numeric and non-numeric data.
+Eg:
+SELECT
+    COUNT(DISTINCT salary)
+FROM
+    salaries;
+
+If we want null values also to be counted, then we can use COUNT(*)
+COUNT(*) - returns the number of all rows of the table, NULL values included.
+SELECT
+    COUNT(*)
+FROM
+    salaries;
+
+Exercise:
+How many departments are there in the “employees” database? Use the ‘dept_emp’ table to answer the question.
+SELECT
+    COUNT(DISTINCT dept_no)
+FROM
+    dept_emp;
+
+SUM()
+-----
+Sum all the values of rows in a column of a table.
+Works only with numeric data.
+Eg: Sum all the salaries from salaries table to know how much money company spends in salary.
+SELECT
+    SUM(salary)
+FROM
+    salaries;
+
+Can we pass SUM(*)?
+No, we cannot sum null values hence why include it, so we can say that (*) goes well with COUNT but not with SUM.
+
+Exercise: What is the total amount of money spent on salaries for all contracts starting after the 1st of January 1997?
+SELECT
+    SUM(salary)
+FROM
+    salaries
+WHERE
+    from_date > '1997-01-01';
+
+MIN() and MAX() -
+-----------------
+Returns min and max value of a column.
+Eg: Find the max and min salary from salaries table.
+SELECT
+    MAX(salary) as max_sal, MIN(salary) as min_sal
+FROM
+    salaries;
+Exercise:
+1. Which is the lowest employee number in the database?
+2. Which is the highest employee number in the database?
+SELECT
+    MAX(emp_no), MIN(emp_no)
+FROM
+    employees;
+
+AVG() -
+-------
+extracts the average value of all non-null values in a field.
+Eg: Average annual salary the company employees received
+SELECT
+    from_date, AVG(salary)
+FROM
+    salaries
+GROUP BY from_date;
+
+Aggregate functions can be applied to any group of data values within a certain column. Frequently used together with GROUPBY clause.
+
+Exercise: What is the average annual salary paid to employees who started after the 1st of January 1997?
+SELECT
+    AVG(salary)
+FROM
+    salaries
+WHERE
+    from_date = '1997-01-01';
+
+ROUND(#, decimal places)
+-------------------------
+numeric, or math, function can be used
+usually applied to the single values that aggregate function returns
+If we want to round to the closest integer.
+SELECT
+    ROUND(AVG(salary))
+FROM
+    salaries;
+
+If we want to round the number to n decimal places
+SELECT
+    ROUND(AVG(salary), 2) as rounded_sal
+FROM
+    salaries;
+
+Exercise: Round the average amount of money spent on salaries for all contracts that started after the 1st of January 1997 to a precision of cents.
+SELECT
+    ROUND(AVG(salary), 2) AS rounded_sal
+FROM
+    salaries
+WHERE
+    from_date > '1997-01-01';
+
+IFNULL and COALESCE:
+======================
+Below setup is required to have null values in department_dup table with NULL values to work with IF NULL and COALESCE:
+SELECT
+    *
+FROM
+    departments_dup
+ORDER BY dept_no ASC;
+
+ALTER TABLE departments_dup
+CHANGE COLUMN dept_name dept_name VARCHAR(40) NULL;
+
+INSERT INTO departments_dup(dept_no)
+VALUES ('d010'), ('d011');
+
+ALTER TABLE departments_dup
+ADD COLUMN dept_manager VARCHAR(255) NULL AFTER dept_name;
+
+COMMIT;
+
+Now, we need to change NULL values in dept_name column with 'Department Name Not Provided' string, IF NULL we come to rescue.
+
+IFNULL(expr_1, expr_2)
+returns the first of the two indicated values if the data value found in the table is not null, and returns the second value if there is a null value.
+
+SELECT
+    dept_no,
+    IFNULL(dept_name,
+            'Department Name Not Provided') as dept_name
+FROM
+    departments_dup;
+
+IFNULL Limitations - It cannot contain more than 2 parameters. This is where COALESCE comes in.
+
+COALESCE(expr_1, expr_2,... expr_N) - allows you to insert N arguments in the parentheses.
+-------------------------------------
+    We can think of COALESCE() as IFNULL with more than two parameters.
+    COALESCE() will always return a single value of the ones we have within parentheses, and this value will be the first non-null value of this list, reading teh values from left to right.
+    If COALESCE() has two args, it will works precisely like IFNULL().
+
+Eg: SELECT
+        dept_no,
+        COALESCE(dept_name,
+                'Department Name Not Provided') AS dept_name
+    FROM
+        departments_dup;
+
+Eg: dept_manager IFNULL fill it with dept_name else 'N/A'
+SELECT
+    dept_no,
+    dept_name,
+    COALESCE(dept_manager, dept_name, 'N/A') AS dept_manager
+FROM
+    departments_dup
+ORDER BY dept_no ASC;
+
+IMP NOTE - IFNULL and COALESCE do not make changes to the original dataset. They merely create an output(returns a copy) where certain data values appear in place of NULL values.
+
+Another intereseting way if which we can use COALESCE
+COALESCE(expr_1) - We can pass just a single value to COALESCE, how is it interpreted. Create new cols with dummy values.
+SELECT
+    dept_no,
+    dept_name,
+    COALESCE('dept manager name') AS fake_col,
+    COALESCE('dept name') AS another_fake_col
+FROM
+    departments_dup
+ORDER BY dept_no ASC;
+
+Exercise: Select the department number and name from the ‘departments_dup’ table and add a third column where you name the department number (‘dept_no’) as ‘dept_info’. If ‘dept_no’ does not have a value, use ‘dept_name’.
+SELECT
+    dept_no,
+    dept_name,
+    COALESCE(dept_no, dept_name) AS dept_info
+FROM
+    departments_dup
+ORDER BY dept_no ASC;
+
+Exercise: Modify the code obtained from the previous exercise in the following way. Apply the IFNULL() function to the values from the first and second column, so that ‘N/A’ is displayed whenever a department number has no value, and ‘Department name not provided’ is shown if there is no value for ‘dept_name’.
+SELECT
+    IFNULL(dept_no, 'N/A') as dept_no,
+    IFNULL(dept_name,'Dept Name Not Provided') as dept_name,
+    COALESCE(dept_no, dept_name) AS dept_info
+FROM
+    departments_dup
+ORDER BY dept_no ASC;
+
+
+
+
+
+
+
 
 
 

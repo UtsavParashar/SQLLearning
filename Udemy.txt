@@ -1951,13 +1951,201 @@ SELECT
 FROM
     employees e
         JOIN
+    dept_manager m ON e.emp_no = m.emp_no
+ORDER BY e.emp_no;
+
+
+Duplicate Records:
+------------------
+Duplicate Records, also known as duplicate rows are identical rows in an SQL table.
+    - for a pair of duplicate records, the values in each column coincide.
+Duplicate rows are not always allowed in a database or a data table.
+    - they are sometimes encountered, especially in new, raw and uncontrolled data.
+
+Adding duplicate rows in tables:
+select * from dept_manager_dup order by emp_no;
+select * from departments_dup order by dept_no;
+
+insert into dept_manager_dup
+values ('110228', 'd003', '1992-03-21', '9999-01-01');
+
+insert into departments_dup
+values ('d009', 'Customer Service');
+
+
+To remove duplicate orders, use Group by
+SELECT
+    m.dept_no, m.emp_no, d.dept_name
+FROM
+    departments_dup d
+        JOIN
+    dept_manager_dup m ON d.dept_no = m.dept_no
+GROUP BY m.emp_no
+ORDER BY dept_no;
+
+If you get error while group non aggregated columns like:
+Error Code: 1055. Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'employees.m.dept_no' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+
+Then use below code:
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+
+Note - When dealing with millions of rows or even small dataset, it is always preferable to use group by to remove any duplicate record other than assuming that there are no duplicate rows in your data.
+
+LEFT JOIN
+==========
+Get all matching values from the two table +
+all values from the left table that match no values from the right table.
+
+When working with left join, the order of the table on which tables are join matter A LOT.
+
+When working with left join, keep in mind to select the common column(on which equals is operated) to be fetched from the left table
+
+Removing duplicates:
+# Delete dupes
+delete from dept_manager_dup where emp_no='110228';
+delete from departments_dup where dept_no = 'd009';
+
+# Add back initial records
+insert into departments_dup
+values ('d009', 'Customer Service');
+
+insert into dept_manager_dup
+values ('110228', 'd003', '1992-03-21', '9999-01-01');
+
+Left Join Ex:
+SELECT
+    m.emp_no, m.dept_no, d.dept_name
+FROM
+    dept_manager_dup m
+        LEFT JOIN
+    departments_dup d ON m.dept_no = d.dept_no
+GROUP BY m.emp_no
+ORDER BY dept_no;
+
+Interchange the table(fetch dept_no from d table now)
+SELECT
+    m.emp_no, d.dept_no, d.dept_name
+FROM
+    departments_dup d
+        LEFT JOIN
+    dept_manager_dup m ON m.dept_no = d.dept_no
+GROUP BY m.emp_no
+ORDER BY dept_no;
+
+Why is inner join, called inner join?
+Because the result set is in the inner part of the Venn diagram.
+
+Why is left join, called left join?
+Because the result set is output obtained from the outer (left) too along with inner(common) part of the Venn diagram.
+Hence, we can use LEFT OUTER JOIN instead of left join and we will obtain same result.
+Remember, LEFT JOIN and LEFT OUTER JOIN are same, hence professionally there is no option to use OUTER keyword.
+
+SELECT
+    m.emp_no, d.dept_no, d.dept_name
+FROM
+    departments_dup d
+        LEFT OUTER JOIN
+    dept_manager_dup m ON m.dept_no = d.dept_no
+GROUP BY m.emp_no
+ORDER BY dept_no;
+
+With Left join, we can also fetch only the records from the left table that do not match any rows from the right table. Hence excluding the inner part of venn diagram.
+The trick here is to apply WHERE clause passing the column of right table as IS NULL (dept_name in below example).
+
+SELECT
+    m.emp_no, m.dept_no, d.dept_name
+FROM
+    dept_manager_dup m
+        LEFT JOIN
+    departments_dup d ON m.dept_no = d.dept_no
+WHERE
+    dept_name IS NULL
+GROUP BY m.emp_no
+ORDER BY dept_no;
+
+Exercise: Join the 'employees' and the 'dept_manager' tables to return a subset of all the employees whose last name is Markovitch. See if the output contains a manager with that name.
+          Hint: Create an output containing information corresponding to the following fields: ‘emp_no’, ‘first_name’, ‘last_name’, ‘dept_no’, ‘from_date’. Order by 'dept_no' descending, and then by 'emp_no'.
+
+SELECT
+    e.emp_no, e.first_name, e.last_name, m.dept_no
+FROM
+    employees e
+        LEFT JOIN
+    dept_manager m ON e.emp_no = m.emp_no
+WHERE
+    e.last_name = 'Markovitch'
+GROUP BY e.emp_no
+ORDER BY m.dept_no DESC, e.emp_no;
+
+
+RIGHT JOIN
+----------
+Their functionality is identical to LEFT JOINs, with the only difference being that the direction of the operation is inverted.
+Same as RIGHT OUTER JOIN.
+RIGHT JOINs are seldom used in practise.
+
+SELECT
+    m.emp_no, e.first_name, e.last_name, m.dept_no
+FROM
+    employees e
+        RIGHT JOIN
+    dept_manager m ON e.emp_no = m.emp_no
+WHERE
+    e.last_name = 'Markovitch'
+GROUP BY e.emp_no
+ORDER BY m.dept_no DESC, e.emp_no;
+
+Left and Right join are examples of one to many relationships.
+Entries which are common to two tables are called connection points.
+
+OLD JOIN syntax where join keyword was not used, the output is generated using where: PRACTICALLY NOT USED AS IT IS TIME CONSUMING
+-------------------------------------------------
+Syntax:
+SELECT
+    t1.col1, t1.col2, t2.col1
+FROM
+    tab1 t1,
+    tab2 t2
+WHERE t1.col = t2.col;
+
+Eg: Inner Join can replaced by
+SELECT
+    d.dept_no,
+    d.dept_name,
+    m.emp_no,
+    m.from_date
+FROM
+    departments_dup d, # Here we have a comma
+    dept_manager_dup m
+WHERE
+	d.dept_no = m.dept_no;
+
+IT IS NOT USED IN PRACTICE:
+It is the same as JOIN as the retreived output is identical.
+For small tables Where can be faster but for large tables always use JOIN as it is much faster.
+The WHERE syntax is perceived as morally old and is rately employed by professionals.
+The Join syntax allows you to modify the connection between tables easily.
+It can be used from more than two tables.
+WHERE + EXIST will be used in future which will do wonders.
+
+Exercise:
+Extract a list containing information about all managers’ employee number, first and last name, department number, and hire date. Use the old type of join syntax to obtain the result.
+Old Join method
+select
+	e.emp_no, e.first_name, e.last_name, m.dept_no, m.from_date
+from
+employees e,
+dept_manager m
+where
+e.emp_no = m.emp_no;
+
+New Join method
+SELECT
+    e.emp_no, e.first_name, e.last_name, m.dept_no, m.from_date
+FROM
+    employees e
+        JOIN
     dept_manager m ON e.emp_no = m.emp_no;
-
-
-
-
-
-
 
 
 Questions:

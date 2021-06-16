@@ -2286,6 +2286,30 @@ WHERE
     e.emp_no < '10011'
 ORDER BY e.emp_no , d.dept_no;
 
+Aggregate functions with Joins:
+-------------------------------
+Find avg salaries of men aand women in the company.
+SELECT
+    e.gender, ROUND(AVG(s.salary),2) AS avg_salary
+FROM
+    employees e
+        JOIN
+    salaries s ON e.emp_no = s.emp_no
+GROUP BY gender;
+
+Just be careful with the select statement column, if you would have used e.emp_no as well then mysql would have returned first emp_no of each gender in output. Other sql servers would have raised error.
+Which is not what you would have expected.
+SELECT
+    e.emp_no, e.gender, AVG(s.salary) AS avg_salary
+FROM
+    employees e
+        JOIN
+    salaries s ON e.emp_no = s.emp_no
+GROUP BY gender;
+
+# emp_no, gender, avg_salary
+'10001', 'M', '63755.9134'
+'10002', 'F', '63769.1222'
 
 
 

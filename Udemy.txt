@@ -2515,6 +2515,65 @@ ORDER BY  -a.emp_no DESC;
 
 -ve support start of emp_no from non-null value. i.e it basically ignores nulls and place them at the end.
 
+SQL Subqueries
+---------------
+subqueries - queries embedded in a query.
+These are also called nested queries or inner queries or inner select and they are part of another query called an outer query or outer select.
+In most cases sub-query is embedded in where clause of select statement.
+
+Eg:
+SELECT
+    e.first_name, e.last_name
+FROM
+    employees e
+WHERE
+    e.emp_no IN (SELECT
+            dm.emp_no
+        FROM
+            dept_manager dm)
+
+a subquery should always be placed within parentheses.
+From processing points of view, the sql engine:
+1. The sql engine starts by running the inner query.
+2. Then it uses its returned output, which is intermediate, to execute the outer query.
+
+A subquery main return a single value(a scaler), a single row, a single column or and entire table.
+We can have lot many queries in the outer query.
+it is possible to nest inner queries within other inner queries - in that case the SQL engine would execute the innermost query first, and then each subsequent query, until it runs the outermost query last.
+
+Exercise: Extract the information about all department managers who were hired between the 1st of January 1990 and the 1st of January 1995.
+SELECT
+    *
+FROM
+    dept_manager
+WHERE
+    emp_no IN (SELECT
+            emp_no
+        FROM
+            employees
+        WHERE
+            hire_date BETWEEN '1990-01-01' AND '1994-12-31');
+
+Select the entire information for all employees whose job title is “Assistant Engineer” - USE EXISTS
+SELECT
+    *
+FROM
+    employees e
+WHERE
+    EXISTS( SELECT
+            *
+        FROM
+            titles t
+        WHERE
+            t.emp_no = e.emp_no
+                AND title = 'Assistant Engineer');
+
+
+
+
+
+
+
 
 
 

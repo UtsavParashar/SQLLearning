@@ -2752,6 +2752,73 @@ JOIN emp_manager e2
 ON e1.emp_no = e2.manager_no
 where e2.emp_no IN (select manager_no from emp_manager);
 
+SQL Views
+----------
+A virtual table whose contents are obtained from an existing table or tables, called base tables.
+The retrieval happens through an SQL statement, incorporated into the view.
+
+Think of the view object as a view into the base table.
+The view itself does not contain any real data; the data is physically stored in the base table.
+The view simply shos the data contained in the base table.
+
+Syntax of View -
+CREATE [OR REPLACE] VIEW view_name AS ## general practise to start view names as v_ or w_
+SELECT
+    col1, col2, ... coln
+from
+    tablename;
+
+Create a view of dept_emp table, with max from_date and to_date.
+CREATE OR REPLACE VIEW v_dept_emp_latest_date AS
+    SELECT
+        emp_no, MAX(from_date) AS from_date, MAX(to_date) AS to_date
+    FROM
+        dept_emp
+    GROUP BY emp_no;
+
+SELECT
+    *
+FROM
+    v_dept_emp_latest_date;
+
+Why do we need views in general, can't we just select statement and obtain a desired output?
+Imagine your db is used by a web app in turn used by billions of users if you would like to allow each user to see this table instead of typing and running sql select statement each time a user request appears, the view can allow each user to see the result set on their user space.
+A view acts as a short cu for witing the same SELECT statement each time a new request has been made.
+
+It save a lot of coding time.
+Occupies no extra memory.
+
+Acts as a dynamic table because it instantly reflects data and structural changes in the base table.
+
+Eg. If we modify the to_date of emp_no 10001 in dept_emp table the same changed value will appear in view.
+UPDATE dept_emp
+SET
+    to_date = '2025-06-05'
+WHERE
+    emp_no = 10001;
+
+SELECT
+    *
+FROM
+    v_dept_emp_latest_date  where emp_no=10001;
+
+Don't forget they are not real physical data sets meaning we cannot insert or update the information that has already been extracted.
+They should be seen as temporary virtual data tables retrieving information from base tables.
+
+Exercise - Create a view that will extract the average salary of all managers registered in the database. Round this value to the nearest cent.
+           If you have worked correctly, after executing the view from the “Schemas” section in Workbench, you should obtain the value of 66924.27.
+CREATE OR REPLACE VIEW v_avg_manager_sal AS
+    SELECT
+        ROUND(AVG(s.salary), 2) as avg_mngr_sal
+    FROM
+        salaries s
+            JOIN
+        dept_manager m ON s.emp_no = m.emp_no;
+
+select * from v_avg_manager_sal; # '66924.27'
+
+
+
 
 
 

@@ -2568,7 +2568,189 @@ WHERE
             t.emp_no = e.emp_no
                 AND title = 'Assistant Engineer');
 
+The SQL EXISTS Operator
+------------------------
+The EXISTS operator is used to test for the existence of any record in a subquery.
+The EXISTS operator returns TRUE if the subquery returns one or more records.
 
+Syntax:
+SELECT column_name(s)
+FROM table_name
+WHERE EXISTS
+(SELECT column_name FROM table_name WHERE condition);
+
+Subqueries can be placed in Select and From clause as well
+-----------------------------------------------------------
+Make emp_id 110022 as manager of 110001 to 110020 and emp_id 110039 as manager of 110021 to 110040
+SELECT
+    A.*
+FROM
+    (SELECT
+        e.emp_no AS employee_ID,
+            MIN(de.dept_no) AS department_code,
+            (SELECT
+                    emp_no
+                FROM
+                    dept_manager
+                WHERE
+                    emp_no = '110022') AS manager_ID
+    FROM
+        employees e
+    JOIN dept_emp de ON e.emp_no = de.emp_no
+    WHERE
+        e.emp_no <= 10020
+    GROUP BY e.emp_no
+    ORDER BY e.emp_no) AS A
+UNION SELECT
+    B.*
+FROM
+    (SELECT
+        e.emp_no AS employee_ID,
+            MIN(de.dept_no) AS department_code,
+            (SELECT
+                    emp_no
+                FROM
+                    dept_manager
+                WHERE
+                    emp_no = '110039') AS manager_ID
+    FROM
+        employees e
+    JOIN dept_emp de ON e.emp_no = de.emp_no
+    WHERE
+        e.emp_no > 10020
+    GROUP BY e.emp_no
+    ORDER BY e.emp_no
+    LIMIT 20) AS B;
+
+Exercise - Starting your code with “DROP TABLE”, create a table called “emp_manager” (emp_no – integer of 11, not null; dept_no – CHAR of 4, null; manager_no – integer of 11, not null).
+
+DROP TABLE IF EXISTS emp_manager;
+
+Create table emp_manager (
+	emp_no INT NOT NULL,
+    dept_no CHAR(4) NULL,
+    manger_no INT NOT NULL
+);
+
+Exercise -
+SQL Subqueries nested in SELECT and FROM - exercise 2
+Fill emp_manager with data about employees, the number of the department they are working in, and their managers.
+Your query skeleton must be:
+Insert INTO emp_manager SELECT
+U.*
+FROM
+(A)
+UNION (B) UNION (C) UNION (D) AS U;
+A and B should be the same subsets used in the last lecture (SQL Subqueries Nested in SELECT and FROM). In other words, assign employee number 110022 as a manager to all employees from 10001 to 10020 (this must be subset A), and employee number 110039 as a manager to all employees from 10021 to 10040 (this must be subset B).
+Use the structure of subset A to create subset C, where you must assign employee number 110039 as a manager to employee 110022.
+Following the same logic, create subset D. Here you must do the opposite - assign employee 110022 as a manager to employee 110039.
+Your output must contain 42 rows.
+
+INSERT INTO emp_manager
+(SELECT
+    U.*
+FROM
+    ((SELECT
+        A.*
+    FROM
+        (SELECT
+        e.emp_no AS employee_ID,
+            MIN(de.dept_no) AS department_code,
+            (SELECT
+                    emp_no
+                FROM
+                    dept_manager
+                WHERE
+                    emp_no = 110022) AS manager_ID
+    FROM
+        employees e
+    JOIN dept_emp de ON e.emp_no = de.emp_no
+    WHERE
+        e.emp_no <= 10020
+    GROUP BY e.emp_no
+    ORDER BY e.emp_no) AS A) UNION (SELECT
+        B.*
+    FROM
+        (SELECT
+        e.emp_no AS employee_ID,
+            MIN(de.dept_no) AS department_code,
+            (SELECT
+                    emp_no
+                FROM
+                    dept_manager
+                WHERE
+                    emp_no = '110039') AS manager_ID
+    FROM
+        employees e
+    JOIN dept_emp de ON e.emp_no = de.emp_no
+    WHERE
+        e.emp_no > 10020
+    GROUP BY e.emp_no
+    ORDER BY e.emp_no
+    LIMIT 20) AS B) UNION (SELECT
+        C.*
+    FROM
+        (SELECT
+        e.emp_no AS employee_ID,
+            MIN(de.dept_no) AS department_code,
+            (SELECT
+                    emp_no
+                FROM
+                    dept_manager
+                WHERE
+                    emp_no = 110039) AS manager_ID
+    FROM
+        employees e
+    JOIN dept_emp de ON e.emp_no = de.emp_no
+    WHERE
+        e.emp_no = 110022
+    GROUP BY e.emp_no
+    ORDER BY e.emp_no) AS C) UNION (SELECT
+        D.*
+    FROM
+        (SELECT
+        e.emp_no AS employee_ID,
+            MIN(de.dept_no) AS department_code,
+            (SELECT
+                    emp_no
+                FROM
+                    dept_manager
+                WHERE
+                    emp_no = 110022) AS manager_ID
+    FROM
+        employees e
+    JOIN dept_emp de ON e.emp_no = de.emp_no
+    WHERE
+        e.emp_no = 110039
+    GROUP BY e.emp_no
+    ORDER BY e.emp_no) AS D)) AS U);
+
+select * from emp_manager;
+
+SQL Self Join:
+---------------
+Applied when a table must join itself.
+If you'd like to combine certain rows of a table with other rows of the same table, you need a self-join.
+It is same as inner join which will be applied on same table.
+The 2 tables will be identical to the table you'll be using the self-join.
+You can think of them as virtual projections of the underlying base table.
+The data use will come from a single source, which is the underlying table that stores data physically.
+In this case using alias(like employees as e1 or employees as e2) is obligatory.
+These reference(e1 and e2) to the original table let you use different blocks of the available data. You can either filter both in the join or you can filter on of them in WHERE clause and the other one, in the join.
+
+Task - From emp_manager table, extract the record data only of those employees who are managers as well.
+select e1.* from
+emp_manager e1
+JOIN emp_manager e2
+ON e1.emp_no = e2.manager_no
+where e2.emp_no IN (select manager_no from emp_manager);
+
+Another way - less sophisticated
+select e1.* from
+emp_manager e1
+JOIN emp_manager e2
+ON e1.emp_no = e2.manager_no
+where e2.emp_no IN (select manager_no from emp_manager);
 
 
 

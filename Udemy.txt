@@ -2878,10 +2878,125 @@ There are 3 ways to call a procedure:
 2. use dbname; call proc_name() # call select_employees()
 3. Lighting symbol besides procedure name in workbench.
 
+Exercise - Create a procedure that will provide the average salary of all employees.
+DROP Procedure if exists avg_salary;
+DELIMITER $$
+Create Procedure avg_salary()
+BEGIN
+	select avg(salary) as avg_salary from salaries;
+END$$
+Delimiter ;;
+
+call avg_salary();
+
+We can also create a stored proc using work bench tools -
+Right Click on StoredProcedure drop down in employees table
+Click on Option 'Create Stored Procedure'
+New tab will be opened with the Procedure structure.
+You just need to change the name and insert the logic.
+This process helps with the boiler plate code.
+
+How can we drop a procedure?
+DROP PROCEDURE procedure_name;
+Eg. - DROP PROCEDURE select_employees;
+Or Right click on procedure and select 'Drop Stored Procedure'
+
+Stored Procedures with IN parameters:
+----------------------------------
+A stored routine can perform calculation that transforms an input value in an output value.
+Stored Procedures can take an input value and then use it in the query, or queries, written in the body pf the procedure.
+    This value is represented by the IN parameter.
+    After the calculation is ready, a result will be returned.
+
+With the IN parameter, the passed value is used as a variable in stored proc and then the output of the query/queries is returned.
+But sometimes we need to return the output as a variable which can be used in other functions or other parts of the code, for that we can use out param.
+
+DELIMITER $$
+CREATE PROCEDURE procedure_name(in parameter)
+BEGIN
+    SELECT * FROM employees
+    LIMIT 1000;
+END$$
+DELIMITER ;
 
 
+Eg - select first_name, last_name, salary, from_date, to_date of the specified employee
+DROP PROCEDURE IF EXISTS emp_salary;
+DELIMITER $$
+CREATE PROCEDURE emp_salary(IN p_emp_no INT)
+BEGIN
+	SELECT
+		e.first_name, e.last_name, s.salary, s.from_date, s.to_date
+	FROM
+		employees e
+			JOIN
+		salaries s ON e.emp_no = s.emp_no
+	WHERE
+		e.emp_no = p_emp_no;
+END$$
+DELIMITER ;
 
+call emp_salary(10001);
 
+Eg - Select Avg Salary along with first and last name of the employee.
+DROP PROCEDURE IF EXISTS emp_avg_salary;
+
+DELIMITER $$
+CREATE PROCEDURE emp_avg_salary(IN p_emp_no INT)
+BEGIN
+	SELECT
+		e.first_name, e.last_name, AVG(s.salary) as avg_sal
+	FROM
+		employees e
+		JOIN
+		salaries s ON e.emp_no = s.emp_no
+	WHERE e.emp_no = p_emp_no
+    GROUP BY e.emp_no;
+END$$
+DELIMITER ;
+
+call emp_avg_salary(10300);
+
+Stored Procedures with IN and OUT parameters
+============================================
+With the IN parameter, the passed value is used as a variable in stored proc and then the output of the query/queries is returned.
+But sometimes we need to return the output as a variable which can be used in other functions or other parts of the code, for that we can use out param.
+OUT parameter will represent the variable containing the output value o the operation executed by the query of the stored procedure.
+
+CREATE PROCEDURE procedure_name(in parameter, out parameter)
+
+Eg:
+DROP PROCEDURE IF EXISTS emp_avg_sal_out;
+DELIMITER $$
+CREATE PROCEDURE emp_avg_sal_out(IN p_emp_no INT, OUT p_avg_sal DECIMAL(10,2))
+BEGIN
+	SELECT AVG(s.salary) INTO p_avg_sal
+	FROM
+		employees e
+	JOIN
+		salaries s ON e.emp_no = s.emp_no
+	WHERE e.emp_no=p_emp_no
+	GROUP BY e.emp_no;
+END$$
+DELIMITER ;
+
+set @p_avg_sal = 0;
+call emp_avg_sal_out(10001, @p_avg_sal);
+select @p_avg_sal;
+
+Exercise - Create a procedure called ‘emp_info’ that uses as parameters the first and the last name of an individual, and returns their employee number.
+
+DROP PROCEDURE IF EXISTS emp_info;
+DELIMITER $$
+CREATE PROCEDURE emp_info(IN p_first_name VARCHAR(20), IN p_last_name VARCHAR(20), OUT p_emp_no INT)
+BEGIN
+    SELECT emp_no INTO p_emp_no FROM employees WHERE p_first_name=first_name AND  last_name=p_last_name;
+END$$
+DELIMITER ;
+
+SET @p_emp_no=0;
+CALL emp_info('Parto', 'Bamford', @p_emp_no);
+SELECT @p_emp_no;
 
 
 

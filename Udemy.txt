@@ -2817,10 +2817,66 @@ CREATE OR REPLACE VIEW v_avg_manager_sal AS
 
 select * from v_avg_manager_sal; # '66924.27'
 
+Stored Routines
+===============
+Routine definition - A usual, fixed action, or series of actions, repeated periodically.
 
+Stored Routine - an SQL statement, or a set of SQL statements, that can be stored on the database server.
+Whenever a user needs to run the query in question, they can call, reference or invoke the routine.
 
+Stored Routines are of two types -
+    Stored Procedures -- also called procedures
+    Functions   -- User defined functions / built-in functions.
 
+semi-colons - they function as a statement terminator.
+    - technically, they can also be called delimiters.
 
+by typing DELIMTER $$, we'll be able to use the dollar symbols as the delimiter.
+DELIMITER $$
+The semi-colon won't be our delimiter anymore.
+
+Why would we want to set a temporary delimiter?
+In your long sheet of code, each query is terminated by a semi-colon.
+Then if we call a stored procedure that uses the semi-colon as a delimiter. In that case SQL engine will run only the first query in the stored procedure delimited by semi-colon and will come out of the procedure without running other queries.
+
+Query1;
+Query2;
+call stored_proc1;      --> p_Query1;
+                            p_Query2; ## won't be called
+Query3;
+
+To avoid this problem, we need a temporary delimiter different from the standard semi-colon.
+There are various temp delimiter which can be used like $$ or //
+
+Query1;
+Query2;
+call stored_proc1;      --> DELIMTER $$
+                            p_Query1$$
+                            p_Query2$$
+Query3;
+
+Syntax:
+DELIMITER $$
+CREATE PROCEDURE procedure_name([param1, param2])      # Parameters represent certain values that the procedure will use to complete the calculation,        BEGIN                                             #  it is suppose to execute
+        SELECT * FROM employees                         # For this query we are creating the stored procedure
+        LIMIT 100;
+     END$$
+DELIMITER ;                                             ## From this line ; will again act as a delimtier
+
+Eg: Create a non-parameterized procedure which returns first 100o rows from the employees table.
+DROP PROCEDURE IF EXISTS select_employees;
+DELIMITER $$
+CREATE PROCEDURE select_employees()
+	BEGIN
+		SELECT * FROM employees
+        LIMIT 1000;
+	END$$
+DELIMITER ;
+
+There are 3 ways to call a procedure:
+1. call dbname.proc_name(); # call employees.select_employees(); # can be called without () but it is general practise to use ()
+2. use dbname; call proc_name() # call select_employees()
+3. Lighting symbol besides procedure name in workbench.
 
 
 

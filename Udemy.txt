@@ -655,7 +655,7 @@ The foreign key maintains the referential integrity within the database.
 SYNTAX -
     FOREIGN KEY(foreign key col) REFERENCE parent_table_name(primary key col) ON DELETE CASCADE
 
-ON DELETE CASCADE constraint is used in practice which means if the primary key record os deleted from referenced table then its corresponding records will be deleted from referencing tables.
+ON DELETE CASCADE constraint is used in practice which means if the primary key record is deleted from referenced table then its corresponding records will be deleted from referencing tables.
 
 
 Three ways to add foreign key constraint:
@@ -2980,9 +2980,9 @@ BEGIN
 END$$
 DELIMITER ;
 
-set @p_avg_sal = 0;
-call emp_avg_sal_out(10001, @p_avg_sal);
-select @p_avg_sal;
+set @v_avg_sal = 0;
+call emp_avg_sal_out(10001, @v_avg_sal);
+select @v_avg_sal;
 
 Exercise - Create a procedure called ‘emp_info’ that uses as parameters the first and the last name of an individual, and returns their employee number.
 
@@ -2994,9 +2994,191 @@ BEGIN
 END$$
 DELIMITER ;
 
-SET @p_emp_no=0;
-CALL emp_info('Parto', 'Bamford', @p_emp_no);
-SELECT @p_emp_no;
+SET @v_emp_no=0;
+CALL emp_info('Parto', 'Bamford', @v_emp_no);
+SELECT @v_emp_no;
+
+Variables:
+----------
+When we are defining a program, such as a stored procedure for instance, we can say that we are using parameters.
+One the stored proc structure has been solidified(signature is set) then it will be applied to the database. The input value you inser is typically referred to as the argument, while the obtained value is stored in a variable.
+SET keyword is used to define a variable.
+For SQL engine to understand that a text is a variable, it should be prefixed with @
+Normal practice is to use v as the prefix.
+Eg: SET v_emp_no=0 # Initially variable is assigned with value 0
+
+IN-OUT PARAMETER -
+We can pass IN-OUT parameter to a stored proc where the in and out values will be same.
+
+Exercise - Create a variable, called ‘v_emp_no’, where you will store the output of the procedure you created in the last exercise.
+           Call the same procedure, inserting the values ‘Aruna’ and ‘Journel’ as a first and last name respectively.
+           Finally, select the obtained output.
+
+ SET @v_emp_no=0;
+ CALL emp_info('Aruna', 'Journel', @v_emp_no);
+ SELECT @v_emp_no;
+
+ User Defined Functions in MySQL
+ -------------------------------
+ Syntax:
+
+ DELIMTER $$
+ CREATE FUNCTION func_name(parameter datatype) RETURNS datatype
+ DETERMINISTIC NO SQL READS SQL DATA
+  BEGIN
+ DECLARE variable_name datatype
+    SELECT .... INTO out_var ....
+ RETURN variable_name
+ END$$
+ DELIMITER ;
+
+ Difference between stored proc and func?
+ Function does not have OUT parameters to define between the parentheses after the object's name.
+ All parameters are IN, and since this well known, we need not explicitly indicate it with the word IN.
+ Althoughm there are no OUT paramters, there is a return value.
+ It is obtained after running the query contained in the body of the function. It can be of any datatype.
+
+ Eg - Function to Get Avg Salary by providing an empno
+ DROP FUNCTION IF EXISTS f_emp_avg_salary;
+ DELIMITER $$
+ CREATE FUNCTION f_emp_avg_salary (p_emp_no INT) RETURNS DECIMAL(10,2)
+ DETERMINISTIC NO SQL READS SQL DATA
+ BEGIN
+ 	DECLARE v_avg_sal DECIMAL(10,2);
+ 	select ROUND(AVG(salary)) INTO v_avg_sal from
+     employees e
+     join salaries s on e.emp_no = s.emp_no
+     where e.emp_no=p_emp_no
+     group by e.emp_no;
+     RETURN v_avg_sal;
+ END $$
+ DELIMITER ;
+
+ #Calling function
+ SELECT f_emp_avg_salary(10001);
+
+ To get rid of Error 1418
+ SET @@global.log_bin_trust_function_creators := 1;
+
+ Error Code: 1418.
+ Error Code: 1418. This function has none of DETERMINISTIC, NO SQL, or READS SQL DATA in its declaration and binary logging is enabled…
+
+ Let’s begin by saying that a log is a software component where you can save information about some events or errors that happened during the execution of a certain application. A log is preserved for traceability or debugging reasons and this is how it is used in MySQL as well.
+
+ Consequently, a Binary Log is a log that contains database changes. This type of logging affects the way in which we need to structure our code when creating MySQL functions.
+
+ When the Binary Log has been enabled, it will always check whether a function is changing the data in the database and what is the result to be produced. The situation can be described like this.
+
+ Unless we specify what the exact behavior of our function should be, our code will lead to an error. This error is with code 1418 and states that the function has none of the following characteristics in its declaration: DETERMINISTIC, NO SQL, or READS SQL DATA.
+
+ To solve this error, we must include one (or more) of these characteristics in our code in the way shown in the previous video. They must be placed right after we ‘ve specified the return type of the function. Here’s the syntax to use:
+
+ create function <function name> <function parameters> returns <type> <characteristics> …
+ Let’s check the meaning of these characteristics:
+ · DETERMINISTIC – it states that the function will always return identical result given the same input
+ · NO SQL – means that the code in our function does not contain SQL (rarely the case)
+ · READS SQL DATA – this is usually when a simple SELECT statement is present
+
+ When none of those is present in our code, MySQL assumes that our function is non deterministic and that it changes data. This might not be the case, but still, in the end, an error is raised just because MySQL cannot know a priori what our function will do. Adding one of those to our code will prevent this error of showing up.
+
+ That said, there is another way to stop the error - by disabling the binary log when creating functions. And we can achieve this by executing the following command:
+
+ SET @@global.log_bin_trust_function_creators := 1;
+
+ Technically speaking, this operation isn’t the safest one out there. Nevertheless, for the purposes of this course, it is the one that will solve the potential problems regardless of the version of MySQL.
+
+ In conclusion, remember that sometimes the Binary Log may be disabled anyway and you don’t have to take any of the above actions. In that case, we simply hope you’ve enjoyed reading this article! Thank you!
+
+Exercise - Create a function called ‘emp_info’ that takes for parameters the first and last name of an employee, and returns the salary from the newest contract of that employee.
+           Hint: In the BEGIN-END block of this program, you need to declare and use two variables – v_max_from_date that will be of the DATE type, and v_salary, that will be of the DECIMAL (10,2) type.
+           Finally, select this function.
+
+DROP function if exists f_emp_info;
+DELIMITER $$
+CREATE FUNCTION f_emp_info(p_first_name VARCHAR(30), p_last_name VARCHAR(30)) RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+	DECLARE v_max_date DATE;
+	DECLARE v_sal DECIMAL(10,2);
+
+    select MAX(from_date) INTO v_max_date from employees e join salaries s on e.emp_no=s.emp_no
+    where e.first_name = p_first_name AND e.last_name = p_last_name
+    group by e.emp_no;
+
+    select ROUND(s.salary,2) INTO v_sal from employees e join salaries s on e.emp_no=s.emp_no
+    where e.first_name = p_first_name AND e.last_name = p_last_name AND s.from_date=v_max_date;
+
+    RETURN v_sal;
+END$$
+DELIMITER ;
+
+select f_emp_info('Aruna', 'Journel');
+
+Stored Routines - Conclusions
+------------------------------
+Technical Difference
+SP - Does not return a value, but stores value in a out variable similar to global variable which is assigned a value in function.
+Func - Returns a value.
+
+SP - Called using CALL keyword;
+Func - It can be invoked from a SELECT statement.
+
+Conceptual Difference:
+SP - Can have No params, single IN OUT or multiple IN OUT params
+Function - Can return a single value only.
+
+If you need to obtain more than one value as a result of a calculation, you are better off using a procedure.
+If you need to return a single value, then you can use a function, you can use proc as well but it is more common to use function.
+
+How about involving an INSERT, UPDATE or a DELETE statement in a proc or func?
+In those cases, the operation performed will apply changes to the data in your database.
+There will be no value, or values to be returned and displayed to the user.
+
+SP - can be used for INSERT, UPDATE DELETE without a OUT param but not a function because function should always return a value.
+
+SP - Called using CALL keyword;
+Func - It can be invoked from a SELECT statement.
+This means we can easily include a function as one of the columns inside a SELECT statement. BUT we cannot include a proc in a SELECT statement.
+Eg -
+SET @v_emp_no = 11300;
+SELECT
+    emp_no,
+    first_name,
+    last_name,
+    F_EMP_AVG_SALARY(@v_emp_no) AS avg_sal
+FROM
+    employees
+WHERE
+    emp_no = @v_emp_no;
+
+Once you become an advanced SQL user, and have gained a lot of practice, you will appreciate the advantages and disadvantages of both types of programs.
+You will encounter many cases where you should choose between procedures and functions.
+
+Advanced SQL Topics
+--------------------
+Scope = Visibility = The region of a computer program where a phenomenon, such as a variable, is considered valid.
+
+Types of Variables in SQL -
+    Local
+    Session
+    Global
+
+Local variable - A variable that is visible only in the BEGIN-END block in which it is created.
+    DECLARE keyword is used to create local variables only within BEGIN-END Block.
+
+Session Variables:
+------------------
+
+
+
+
+
+
+
+
+
+
+
 
 
 

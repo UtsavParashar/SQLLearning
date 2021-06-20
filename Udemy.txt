@@ -3168,6 +3168,64 @@ Local variable - A variable that is visible only in the BEGIN-END block in which
 
 Session Variables:
 ------------------
+Session - A series of information exchange interactions, or a dialogue, between a computer and a user.
+Eg. A dialogue between the MYSQL server and a client application like MySQL Workbench.
+A session begins at a certain point in time and terminated at another, later point.
+A session starts after a successful connection between a client(like workbench) and a mysql server.
+
+Session variable - is a variable that exists only for the session in which you are operating.
+It is defined on a server and it lives there.
+It is visible only to the connection being used.
+
+Two points to create a sessions variable.
+1. It is defined using SET keyword.
+2. variable name has @ as the prefix.
+Eg. SET @s_var1 = 3;
+    SET @s_var2 = 4;
+    SET SESSION s_var3 = 5;
+    select @s_var1, @s_var2;
+
+Global Variables: (Also called System variables)
+-----------------
+Global Variables apply to all connections related to a specific server.
+Syntax - SET GLOBAL var_name = value;
+SET @@global.var_name = value;
+
+We cannot set any variable as global. A specific group of pre-defined variables in MySQL is suitable for this job. They are called system variables.
+Eg. .max_connections; - indicates the max number of connections to a server that can be established at a certain point in time.
+.max_join_size; - sets the max memory space allocated for the joins created by a certain connection.
+Eg.
+SET GLOBAL max_connections = 150; # OR
+SET @@global.max_connections = 151;
+select @@global.max_connections;
+
+User defined vs System Variables:
+---------------------------------
+Variables in mysql can be characterized according to the way they have been created:
+User defined - Variables that can bse set by the user manually
+system - Variables that are predefined on our system - the MySQL server.
+
+Local Variables - User defined Only.
+Global Variables - System Only.
+Session Variables - Both user defined and system variables can be set as session variables but there are limitations to this rule.
+Not all Existing Global variables cannot be re defined as system variables like max_connections.
+Some global variables can be set as Session variables - SET SESSION sql_mode='NO_ZERO_DATE';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

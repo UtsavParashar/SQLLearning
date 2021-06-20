@@ -3526,7 +3526,37 @@ ROLLBACK;
 
 
 
+Combining SQL and Tableau -
+---------------------------
+SQL - specifically designed for the domain of the RDBMS.
+Python/R - complex mathematical computations (business, statistics, Finance)
+Tableau - Used massively for Business Intelligence and Analytics, Visualizations of datesets.
 
+Integration - We can integrate two or more programming langages and tools, with the idea of extracting a particular type of output.
+
+Tableau - can create -graphs, charts, reports, dashboards
+Tableau is - highly intuitive, easy to understand.
+goal - to help users project their data by offering a huge variety of data visualization tools to choose from.
+
+Tableau has Custom SQL option to access your db and to extract the exact query output. You can apply joins on your sql data using tableau.
+
+SQL stored proc provide better performace when used on SQL server compared to running it from Tableau.
+The Tableau in-memory engine is also suitable for similar types of calculations when only using a smaller dataset.
+Stored Procs knowledge is useful when working with Tableau.
+
+Re-organize your data in a proper format for analysis -
+    - Tableau is not the best place to complete the pre-processing step.
+    - Pre-processing on a db level instead, is associated with much better performance.
+  Hence knowledge in SQL can help you a great deal while working with Tableau when preparing your data for analysis.
+
+Custom Tableau option is present only in Tableau Desktop which is the paid version.
+But we can work with Tableau public and MySql workbench.
+
+How we will work?
+1. Receive a business task.
+2. Use SQL to execure a query retrieving a relevant dataset from the database.
+3. Export the newly obtained data in a csv file to be used in Tableau.
+4. Create a professional and understandable visualization in Tableau.
 
 
 Questions:

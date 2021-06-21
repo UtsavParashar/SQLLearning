@@ -3491,10 +3491,84 @@ ROLLBACK;
 
 # End.
 
+MySQL Triggers
+---------------
+A type of stored program, associated with a table, that will be activated automatically once a specific event occurs.
+This event must be related to the associated table and represented by one of the following three DML statements:
+    - INSERT
+    - UPDATE
+    - DELETE
+A trigger is a MySQL object that can trigger a specific action or calculation 'before' or 'After' and INSERT, UPDATE or DELETE statement has been executed.
 
+System/Built In functions
+--------------------------
+Often applied in practice, they provide data about the moment of the execution of a certain query.
 
+How to drop a trigger?
+DROP TRIGGER before_salaries_update;
 
+Exercise - Create a trigger that checks if the hire date of an employee is higher than the current date. If true, set this date to be the current date. Format the output appropriately (YY-MM-DD).
+DELIMITER $$
+CREATE TRIGGER before_hire_date
+BEFORE INSERT ON employees
+FOR EACH ROW
+BEGIN
+	IF NEW.hire_date >  DATE_FORMAT(SYSDATE(), '%Y-%m-%d') THEN
+		SET NEW.hire_date = DATE_FORMAT(SYSDATE(), '%Y-%m-%d');
+    END IF;
+END $$
+DELIMITER ;
 
+INSERT INTO employees
+VALUES (199029, '1992-01-01', 'Ramesh', 'Chandoo', 'M', '2022-01-01');
+
+select * from employees where emp_no=199029;
+
+## Output
+# emp_no, birth_date, first_name, last_name, gender, hire_date
+# '199029', '1992-01-01', 'Ramesh', 'Chandoo', 'M', '2021-06-21'
+
+Indexes -
+---------
+Consider a library where book are kept at random, it will be difficult to find a book.
+But if there is an index which indexes the books by genres and then alphabets then it will be much easier to find a book.
+
+The index of a table functions like index of a book.
+Data is taken from a column of the table and is stored in a certain order in a distinct place, called an index.
+Normally the datasets will typically contain 100,000+ or even 1,000,000+ records.
+The larger the db, the slower the process of finding the record or records you need.
+We can use an index that will increase the speed of searches related to a table.
+
+SYNTAX - CREATE INDEX index_name
+         ON TABLE (col1, col2...)
+
+The parentheses serves us to indicate the column names on which our search will be based. It will speed up the search and the data will be fetched in a quicker way.
+These cols should be the cols of the table where the search is done frequently.
+
+select * from employees where hire_date > '2000-01-01'; # 0.177 sec / 0.000012 sec
+Create Index i_hire_date ON employees(hire_date);
+select * from employees where hire_date > '2000-01-01'; # 0.0013 sec / 0.000021 sec
+
+Composite Index - Index applied on more than one cols not just a single one.
+CREATE INDEX index_name
+ON TABLE (col1, col2...)
+
+Eg. select * from employees where first_name='Aruna' and last_name='Motley'; # 0.134 sec / 0.000010 sec
+    create index i_composite_emp_name ON employees(first_name, last_name);
+    select * from employees where first_name='Aruna' and last_name='Motley'; # 0.0010 sec / 0.000020 sec
+
+DB Admin should carefully pick the columns that would optimize the search.
+
+There are other Indexes in MySQL.
+We have come across many indexes previously like Primary key, unique key.
+    They represent columns on which a person would typically base their search.
+Eg- emp_no is employees table is Primary key, this column represents unique values an analyst could take advantage of to extract distinct values from the data table.
+
+We can get the existing indexes details in two way -
+1. Workbench -- db/table -- info -- Indexes
+2. #show index from table [from db];
+   show index from dept_emp from employees;
+   show index from dept_manager;
 
 
 

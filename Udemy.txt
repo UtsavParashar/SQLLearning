@@ -3570,12 +3570,88 @@ We can get the existing indexes details in two way -
    show index from dept_emp from employees;
    show index from dept_manager;
 
+SQL specialists are always aiming for a good balance between the improvement of speed search and the resources used for its execution.
+Index requires a lot of memory and can be redundant hence it would be wise to have a good balance between time and space complexities.
 
+In general,
+For Small Datasets - the cost of having an index might be higher than the benefits.
+For large Datasets - a well optimized index can make a positive impact on the search process.
 
+Exercise - Drop the ‘i_hire_date’ index.
+ALTER TABLE employees
+DROP INDEX i_hire_date;
 
+Exercise - Select all records from the ‘salaries’ table of people whose salary is higher than $89,000 per annum.
+           Then, create an index on the ‘salary’ column of that table, and check if it has sped up the search of the same SELECT statement.
+select * from salaries where salary > 89000; # 0.0083 sec / 0.310 sec
+create index i_salary on salaries(salary);
+select * from salaries where salary > 89000; # 0.0049 sec / 1.030 sec
 
+CASE Statement - Conditional Statements
+----------------
+Syntax -
+SELECT
+    col_name(s)
+    CASE conditional_field
+        WHEN con_field_val1 THEN result1
+        WHEN con_field_val2 THEN result2
+        ...
+        ELSE
+    END [AS colName]
+FROM
+    table_name;
 
+Eg. Return 'M' and 'F' with Male and Female.
+SELECT  emp_no, first_name, last_name,
+	CASE
+		WHEN gender = 'M' THEN 'Male'
+		ELSE 'Female'
+    END AS gender
+FROM
+	employees
+limit 100;
 
+# OR shorthand - use colname gender with case -- won't always work
+SELECT  emp_no, first_name, last_name,
+	CASE gender
+		WHEN 'M' THEN 'Male'
+		ELSE 'Female'
+    END AS gender
+FROM
+	employees
+limit 100;
+
+left Join employees and dept_manager, fill matched values as manager and non-matched values as employees.
+select e.emp_no, e.first_name, e.last_name,
+	case
+		when d.emp_no is not null then 'Manager'
+        else 'Employee'
+	end as is_manager
+from employees e
+left join dept_manager d ON e.emp_no = d.emp_no
+where e.emp_no > 109990;
+
+Below code will give wrong output(each row as employee) as d.emp_no is passed with case
+select e.emp_no, e.first_name, e.last_name,
+	case d.emp_no
+		when  not null then 'Manager'
+        else 'Employee'
+	end as is_manager
+from employees e
+left join dept_manager d ON e.emp_no = d.emp_no
+where e.emp_no > 109990;
+
+Why above code failed ?
+Because IS NULL and IS NOT NULL are not values whta something can be compared to.
+
+IF() can also be used -
+select emp_no,
+	IF(gender='M', 'Male', 'Female') AS gender
+from employees;
+
+IF has some limitations compared to case:
+
+With case we can have multiple conditional expressions but with if we can have just one conditional expression.
 
 
 

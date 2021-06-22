@@ -3644,7 +3644,7 @@ where e.emp_no > 109990;
 Why above code failed ?
 Because IS NULL and IS NOT NULL are not values whta something can be compared to.
 
-IF() can also be used -
+IF() can also be used - ## Same as $ or ? in kdb
 select emp_no,
 	IF(gender='M', 'Male', 'Female') AS gender
 from employees;
@@ -3653,28 +3653,84 @@ IF has some limitations compared to case:
 
 With case we can have multiple conditional expressions but with if we can have just one conditional expression.
 
+Below query can be formed only with case and not if
+Eg. Get the salary diff of an employee from start till date and provide salary_increase category
+select e.emp_no, e.first_name, e.last_name,MAX(s.salary) As max_sal, MIN(s.salary) as min_sal,
+	MAX(s.salary) - MIN(s.salary) AS salary_diff,
+    CASE
+		WHEN MAX(s.salary) - MIN(s.salary) > 30000 THEN 'Salary raised by 30000+'
+        WHEN MAX(s.salary) - MIN(s.salary) BETWEEN 20000 AND 30000  THEN 'Salary raised between 20000 and 30000'
+        ELSE 'Salary raised less than 20000'
+	END AS salary_increase
+FROM
+	employees e
+	JOIN salaries s ON e.emp_no = s.emp_no
+    group by e.emp_no;
 
+Another example:
+select salary_increase, count(salary_increase) from salary_diff group by salary_increase;
 
+create table salary_diff (
+emp_no	INT NOT NULL,
+first_name VARCHAR(30) NOT NULL,
+last_name VARCHAR(30) NOT NULL,
+salary_diff FLOAT,
+salary_increase VARCHAR(100)
+);
 
+INSERT INTO salary_diff
+select e.emp_no, e.first_name, e.last_name,
+	MAX(s.salary) - MIN(s.salary) AS salary_diff,
+    CASE
+		WHEN MAX(s.salary) - MIN(s.salary) > 30000 THEN 'Salary raised by 30000+'
+        WHEN MAX(s.salary) - MIN(s.salary) BETWEEN 20000 AND 30000  THEN 'Salary raised between 20000 and 30000'
+        ELSE 'Salary raised less than 20000'
+	END AS salary_increase
+FROM
+	employees e
+	JOIN salaries s ON e.emp_no = s.emp_no
+    group by e.emp_no;
 
+Exercise - Similar to the exercises done in the lecture, obtain a result set containing the employee number, first name, and last name of all employees with a number higher than 109990. Create a fourth column in the query, indicating whether this employee is also a manager, according to the data provided in the dept_manager table, or a regular employee.
 
+select e.emp_no, e.first_name, e.last_name,
+	case
+    when m.emp_no IS NULL THEN 'Employee'
+    else 'Manager'
+    end as is_manager
+from employees e
+LEFT JOIN dept_manager m on e.emp_no = m.emp_no
+where e.emp_no < 109990;
 
+Using IF
+select e.emp_no, e.first_name, e.last_name,
+	IF(m.emp_no IS NULL, 'EMPLOYEE', 'MANAGER') as is_manager
+from employees e
+LEFT JOIN dept_manager m on e.emp_no = m.emp_no
+where e.emp_no < 109990;
 
+Exercise - Extract the employee number, first name, and last name of the first 100 employees, and add a fourth column, called “current_employee” saying “Is still employed” if the employee is still working in the company, or “Not an employee anymore” if they aren’t.
+           Hint: You’ll need to use data from both the ‘employees’ and the ‘dept_emp’ table to solve this exercise.
+# Using IF
+select e.emp_no, e.first_name, e.last_name,
+	if(max(d.to_date) < date_format(sysdate(), '%Y-%m-%d'), 'Not an employee anymore', 'Current Employee') as is_emp
+from employees e
+join dept_emp d
+on e.emp_no = d.emp_no
+group by e.emp_no
+limit 100;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Using Case
+select e.emp_no, e.first_name, e.last_name,
+	case
+    when max(d.to_date) < date_format(sysdate(), '%Y-%m-%d') THEN 'Not an employee anymore'
+    ELSE 'Current Employee'
+    end as is_emp
+from employees e
+join dept_emp d
+on e.emp_no = d.emp_no
+group by e.emp_no
+limit 100;
 
 Combining SQL and Tableau -
 ---------------------------
@@ -3707,6 +3763,26 @@ How we will work?
 2. Use SQL to execure a query retrieving a relevant dataset from the database.
 3. Export the newly obtained data in a csv file to be used in Tableau.
 4. Create a professional and understandable visualization in Tableau.
+
+
+Task 1 - Create a visualization that provides a breakdown between the male and female employees working in the company each year, starting from 1990.
+SELECT
+    YEAR(d.from_date) AS calendar_year,
+    e.gender,
+    COUNT(e.emp_no) AS num_of_employees
+FROM
+    t_employees e
+JOIN t_dept_emp d ON e.emp_no = d.emp_no
+GROUP BY calendar_year , e.gender
+HAVING calendar_year>= 1990
+ORDER BY calendar_year;
+
+Task 2 -
+Area Chart - A type of graph which can be perceived as a line chart where the area between the lines and the between the lowest line in the horizontal axis has been filled with colors thus the result allows us to visually compare the propotional relationships between the quantities examined.
+
+Compare the number of male managers to the number of female managers from different departments for each year, starting from 1990.
+
+
 
 
 Questions:

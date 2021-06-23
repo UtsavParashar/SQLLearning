@@ -3782,7 +3782,11 @@ Area Chart - A type of graph which can be perceived as a line chart where the ar
 
 Compare the number of male managers to the number of female managers from different departments for each year, starting from 1990.
 
-
+select e.gender, m.dept_no, count(e.gender)
+from t_employees e
+join t_dept_manager m
+on e.emp_no = m.emp_no
+group by e.gender, m.dept_no;
 
 
 Questions:

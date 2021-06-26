@@ -3778,16 +3778,50 @@ HAVING calendar_year>= 1990
 ORDER BY calendar_year;
 
 Task 2 -
-Area Chart - A type of graph which can be perceived as a line chart where the area between the lines and the between the lowest line in the horizontal axis has been filled with colors thus the result allows us to visually compare the propotional relationships between the quantities examined.
+Area Chart - A type of graph which can be perceived as a line chart where the area between the lines and the between the lowest line in the horizontal axis has been filled with colors thus the result allows us to visually compare the proportional relationships between the quantities examined.
 
 Compare the number of male managers to the number of female managers from different departments for each year, starting from 1990.
 
-select e.gender, m.dept_no, count(e.gender)
-from t_employees e
-join t_dept_manager m
-on e.emp_no = m.emp_no
-group by e.gender, m.dept_no;
+SELECT
+    d.dept_name,
+    ee.gender,
+    dm.emp_no,
+    dm.from_date,
+    dm.to_date,
+    e.calendar_year,
+    CASE
+        WHEN YEAR(dm.to_date) >= e.calendar_year AND YEAR(dm.from_date) <= e.calendar_year THEN 1
+        ELSE 0
+    END AS active
+FROM
+    (SELECT
+        YEAR(hire_date) AS calendar_year
+    FROM
+        t_employees
+    GROUP BY calendar_year) e
+        CROSS JOIN
+    t_dept_manager dm
+        JOIN
+    t_departments d ON dm.dept_no = d.dept_no
+        JOIN
+    t_employees ee ON dm.emp_no = ee.emp_no
+ORDER BY dm.emp_no, calendar_year;
 
+Task 3 - Compare the average salary of female versus male employees in the entire company until year 2002, and add a filter allowing you to see that per each department.
+select e.gender, d.dept_name, avg(s.salary) as sal, year(s.from_date) as cal_year
+from
+	t_employees e
+join
+	t_salaries s on e.emp_no = s.emp_no
+join
+	t_dept_emp de on e.emp_no = de.emp_no
+join
+	t_departments d on de.dept_no = d.dept_no
+group by d.dept_no, e.gender, cal_year
+having cal_year < 2002
+order by d.dept_no;
+
+Task 4 -
 
 Questions:
 Why is char faster than varchar?

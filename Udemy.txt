@@ -3035,7 +3035,7 @@ Exercise - Create a variable, called ‘v_emp_no’, where you will store the ou
  Difference between stored proc and func?
  Function does not have OUT parameters to define between the parentheses after the object's name.
  All parameters are IN, and since this well known, we need not explicitly indicate it with the word IN.
- Althoughm there are no OUT paramters, there is a return value.
+ Although there are no OUT paramters, there is a return value.
  It is obtained after running the query contained in the body of the function. It can be of any datatype.
 
  Eg - Function to Get Avg Salary by providing an empno
@@ -3822,6 +3822,20 @@ having cal_year < 2002
 order by d.dept_no;
 
 Task 4 -
+
+
+Stored Proc Syntax:
+DROP PROCEDURE IF EXISTS proc_name;
+DELIMITER $$
+CREATE PROCEDURE proc_name([IN p_par1, IN p_par2, OUT p_parn])
+BEGIN
+    select insert update any statement
+END$$
+DELIMITER ;
+
+set v_out_var = 0
+v_out_var = call proc_name(in_Val1, in_Val2)
+select v_out_var;
 
 Questions:
 Why is char faster than varchar?

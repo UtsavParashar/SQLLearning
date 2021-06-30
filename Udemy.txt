@@ -3822,8 +3822,6 @@ having cal_year < 2002
 order by d.dept_no;
 
 Task 4 -
-
-
 Stored Proc Syntax:
 DROP PROCEDURE IF EXISTS proc_name;
 DELIMITER $$
@@ -3836,6 +3834,69 @@ DELIMITER ;
 set v_out_var = 0
 v_out_var = call proc_name(in_Val1, in_Val2)
 select v_out_var;
+
+
+Questions -
+Exercise 1
+Find the average salary of the male and female employees in each department.
+select d.dept_name, e.gender, round(avg(s.salary),2) as average_sal
+from employees e
+join salaries s on e.emp_no = s.emp_no
+join dept_manager m on e.emp_no = m.emp_no
+join departments d on m.dept_no = d.dept_no
+group by d.dept_name, e.gender
+order by d.dept_name;
+
+Exercise 2
+Find the lowest department number encountered in the 'dept_emp' table. Then, find the highest department number.
+select MIN(dept_no) as lowest_dept_no from dept_emp;
+select MAX(dept_no) as highest_dept_no from dept_emp;
+OR
+select MIN(dept_no) as lowest_dept_no, max(dept_no) as highest_dept_no from dept_emp;
+
+Exercise 3
+Obtain a table containing the following three fields for all individuals whose employee number is not greater than 10040:
+- employee number
+- the lowest department number among the departments where the employee has worked in (Hint: use
+a subquery to retrieve this value from the 'dept_emp' table)
+- assign '110022' as 'manager' to all individuals whose employee number is lower than or equal to 10020, and '110039' to those whose number is between 10021 and 10040 inclusive.
+Use a CASE statement to create the third field.
+If you've worked correctly, you should obtain an output containing 40 rows
+
+My solution:
+select e.emp_no, min(d.dept_no),
+case when e.emp_no < 10020 then 110022
+else 110039
+end as manager
+from employees e
+join dept_emp d on d.emp_no = e.emp_no
+where e.emp_no <= 10040
+group by e.emp_no;
+
+Provided solution:
+SELECT
+    emp_no,
+    (SELECT
+            MIN(dept_no)
+        FROM
+            dept_emp de
+        WHERE
+            e.emp_no = de.emp_no) dept_no,
+    CASE
+        WHEN emp_no <= 10020 THEN '110022'
+        ELSE '110039'
+    END AS manager
+FROM
+    employees e
+WHERE
+    emp_no <= 10040;
+
+Which solution is faster? My solution
+My solution - 0.00065 sec / 0.000016 sec
+Provided Solution - 0.0011 sec / 0.000025 sec
+
+
+
 
 Questions:
 Why is char faster than varchar?

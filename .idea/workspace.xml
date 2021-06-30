@@ -15,7 +15,7 @@
     <session id="372817092">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="27" />
+          <entry key="project.closed" value="29" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.1" value="2" />
           <entry key="project.open.time.10" value="2" />
@@ -23,9 +23,9 @@
           <entry key="project.open.time.12" value="1" />
           <entry key="project.open.time.14" value="2" />
           <entry key="project.open.time.17" value="1" />
-          <entry key="project.open.time.8" value="13" />
-          <entry key="project.open.time.9" value="5" />
-          <entry key="project.opened" value="28" />
+          <entry key="project.open.time.8" value="14" />
+          <entry key="project.open.time.9" value="6" />
+          <entry key="project.opened" value="30" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -40,12 +40,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="txt" value="76782" />
+          <entry key="txt" value="76828" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="76782" />
+          <entry key="PLAIN_TEXT" value="76828" />
         </counts>
       </usages-collector>
     </session>
@@ -55,8 +55,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Udemy.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="465">
-              <caret line="3832" column="5" selection-start-line="3832" selection-start-column="5" selection-end-line="3832" selection-end-column="5" />
+            <state relative-caret-position="595">
+              <caret line="3875" lean-forward="true" selection-start-line="3875" selection-end-line="3875" />
             </state>
           </provider>
         </entry>
@@ -72,6 +72,7 @@
       <find>DELETE</find>
       <find>UPDATE</find>
       <find>stored procedure</find>
+      <find>values</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -94,11 +95,7 @@
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes>
-      <pane id="Scope" />
-      <pane id="ProjectPane" />
-      <pane id="PackagesPane" />
-    </panes>
+    <panes />
   </component>
   <component name="PropertiesComponent">
     <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1623159119731" />
@@ -149,7 +146,7 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="KDBStudio" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.37460318" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.37333333" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="10" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -168,8 +165,8 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Udemy.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="465">
-          <caret line="3832" column="5" selection-start-line="3832" selection-start-column="5" selection-end-line="3832" selection-end-column="5" />
+        <state relative-caret-position="595">
+          <caret line="3875" lean-forward="true" selection-start-line="3875" selection-end-line="3875" />
         </state>
       </provider>
     </entry>

@@ -32,10 +32,15 @@ Here is a simple multiple-line statement:
 SELECT user()
 ,
 current_time(),
+current_time,
+current_timestamp,
 current_timestamp(),
+current_date,
 current_date(),
 current_user(),
-curtime();
+curtime(),
+curdate()
+curtime;
 
 In this example, notice how the prompt changes from mysql> to -> after you enter the first line of a multiple-line query. This is how mysql indicates that it has not yet seen a complete statement and is waiting for the rest. The prompt is your friend, because it provides valuable feedback. If you use that feedback, you can always be aware of what mysql is waiting for.
 

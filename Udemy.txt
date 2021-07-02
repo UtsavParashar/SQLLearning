@@ -3897,6 +3897,87 @@ Provided Solution - 0.0011 sec / 0.000025 sec
 
 
 
+Leet code:
+Mary is a teacher in a middle school and she has a table seat storing students' names and their corresponding seat ids.
+The column id is continuous increment.
+Mary wants to change seats for the adjacent students.
+Can you write a SQL query to output the result for Mary?
+
++---------+---------+
+|    id   | student |
++---------+---------+
+|    1    | Abbot   |
+|    2    | Doris   |
+|    3    | Emerson |
+|    4    | Green   |
+|    5    | Jeames  |
++---------+---------+
+
+For the sample input, the output is:
+
++---------+---------+
+|    id   | student |
++---------+---------+
+|    1    | Doris   |
+|    2    | Abbot   |
+|    3    | Green   |
+|    4    | Emerson |
+|    5    | Jeames  |
++---------+---------+
+Note:
+
+If the number of students is odd, there is no need to change the last one's seat.
+
+Below 3 solutions:
+
+create database if not exists test;
+
+use test;
+drop table if exists students;
+create table students (
+id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+student varchar(20) not null
+);
+
+insert into students (student)
+values ('Abbot'),('Doris'), ('Green'),('Emerson'), ('Jeames');
+
+select * from students;
+
+Optimized solution -
+SELECT
+    s1.id, COALESCE(s2.student, s1.student) AS student
+FROM
+    students s1
+LEFT JOIN
+    students s2 ON ((s1.id + 1) ^ 1) - 1 = s2.id
+ORDER BY s1.id;
+
+2nd Optimized -
+
+select
+	(case
+		when MOD(id,2) != 0 AND id=(select count(*) from students) then id
+		when MOD(id,2) != 0 then id + 1
+        else id - 1
+        end) as id, student
+    from students
+order by id;
+
+3rd Optimized -
+select
+	(case
+		when MOD(id,2) != 0 AND id = tc then id
+		when MOD(id,2) != 0 then id + 1
+        else id - 1
+        end) as id, student
+    from students, (select count(*) as tc from students) as total_counts
+order by id;
+
+
+
+
+
 
 Questions:
 Why is char faster than varchar?

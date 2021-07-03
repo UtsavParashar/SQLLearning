@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="14007636-fa3b-426e-b482-0fe40d24cf85" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/MySQLDoc.txt" beforeDir="false" afterPath="$PROJECT_DIR$/MySQLDoc.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Udemy.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Udemy.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -39,32 +40,32 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="txt" value="77377" />
+          <entry key="txt" value="77402" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="77377" />
+          <entry key="PLAIN_TEXT" value="77402" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Udemy.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="346">
-              <caret line="3966" column="15" selection-start-line="3966" selection-start-column="15" selection-end-line="3966" selection-end-column="15" />
+            <state relative-caret-position="456">
+              <caret line="4006" lean-forward="true" selection-start-line="4006" selection-end-line="4006" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="595">
-              <caret line="227" lean-forward="true" selection-start-line="227" selection-end-line="227" />
+            <state relative-caret-position="538">
+              <caret line="229" lean-forward="true" selection-start-line="229" selection-end-line="229" />
             </state>
           </provider>
         </entry>
@@ -89,8 +90,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Udemy.txt" />
         <option value="$PROJECT_DIR$/MySQLDoc.txt" />
+        <option value="$PROJECT_DIR$/Udemy.txt" />
       </list>
     </option>
   </component>
@@ -186,17 +187,17 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Udemy.txt">
+    <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="346">
-          <caret line="3966" column="15" selection-start-line="3966" selection-start-column="15" selection-end-line="3966" selection-end-column="15" />
+        <state relative-caret-position="538">
+          <caret line="229" lean-forward="true" selection-start-line="229" selection-end-line="229" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
+    <entry file="file://$PROJECT_DIR$/Udemy.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="595">
-          <caret line="227" lean-forward="true" selection-start-line="227" selection-end-line="227" />
+        <state relative-caret-position="456">
+          <caret line="4006" lean-forward="true" selection-start-line="4006" selection-end-line="4006" />
         </state>
       </provider>
     </entry>

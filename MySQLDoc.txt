@@ -226,3 +226,4 @@ DESCRIBE pet;
 'birth', 'date', 'YES', '', NULL, ''
 'death', 'date', 'YES', '', NULL, ''
 
+3.3.3 Loading Data into a Table

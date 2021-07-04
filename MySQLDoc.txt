@@ -227,3 +227,16 @@ DESCRIBE pet;
 'death', 'date', 'YES', '', NULL, ''
 
 3.3.3 Loading Data into a Table
+After creating your table, you need to populate it. The LOAD DATA and INSERT statements are useful for this.
+
+Suppose that your pet records can be described as shown here. (Observe that MySQL expects dates in 'YYYY-MM-DD' format; this may differ from what you are used to.)
+
+Because you are beginning with an empty table, an easy way to populate it is to create a text file containing a row for each of your animals, then load the contents of the file into the table with a single statement.
+
+You could create a text file pet.txt containing one record per line, with values separated by tabs, and given in the order in which the columns were listed in the CREATE TABLE statement. For missing values (such as unknown sexes or death dates for animals that are still living), you can use NULL values. To represent these in your text file, use \N (backslash, capital-N). For example, the record for Whistler the bird would look like this (where the whitespace between values is a single tab character):
+
+To load a file:
+start the mysql server as - (base) Utsavs-MacBook-Air:LaunchDaemons utsav$ mysql -u root -p --local-infile menagerie
+mysql> SET GLOBAL local_infile = 1;
+mysql> LOAD DATA LOCAL INFILE '/Users/utsav/Desktop/repos/SQLLearning/te.txt' INTO TABLE pet;
+

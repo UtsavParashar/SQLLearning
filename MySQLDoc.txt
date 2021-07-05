@@ -279,3 +279,431 @@ mysql> select * from test_csv_load;
 
 3.3.4 Retrieving Information from a Table
 ------------------------------------------
+The SELECT statement is used to pull information from a table. The general form of the statement is:
+
+SELECT what_to_select
+FROM which_table
+WHERE conditions_to_satisfy;
+what_to_select indicates what you want to see. This can be a list of columns, or * to indicate “all columns.” which_table indicates the table from which you want to retrieve data. The WHERE clause is optional. If it is present, conditions_to_satisfy specifies one or more conditions that rows must satisfy to qualify for retrieval.
+
+3.3.4.1 Selecting All Data
+
+The simplest form of SELECT retrieves everything from a table:
+SELECT * FROM pet;
+
+This form of SELECT uses *, which is shorthand for “select all columns.” This is useful if you want to review your entire table, for example, after you've just loaded it with your initial data set. For example, you may happen to think that the birth date for Bowser doesn't seem quite right. Consulting your original pedigree papers, you find that the correct birth year should be 1989, not 1979.
+
+There are at least two ways to fix this:
+
+Edit the file pet.txt to correct the error, then empty the table and reload it using DELETE and LOAD DATA:
+
+mysql> select * from pet;                                                                                            +----------+--------+---------+------+------------+------------+
+| name     | owner  | species | sex  | birth      | death      |
++----------+--------+---------+------+------------+------------+
+| Fluffy   | Harold | cat     | F    | 1993-02-04 | NULL       |
+| Claws    | Gwen   | cat     | M    | 1994-03-17 | NULL       |
+| Buffy    | Harold | dog     | F    | 1989-05-13 | NULL       |
+| Fang     | Benny  | dog     | M    | 1990-08-27 | NULL       |
+| Bowser   | Diane  | dog     | M    | 1989-08-31 | 1995-07-29 |
+| Chirpy   | Gwen   | bird    | F    | 1998-09-11 | NULL       |
+| Whistler | Gwen   | bird    | NULL | 1997-12-09 | NULL       |
+| Slim     | Benny  | snake   | M    | 1996-04-29 | NULL       |
++----------+--------+---------+------+------------+------------+
+
+mysql> DELETE FROM pet;
+mysql> LOAD DATA LOCAL INFILE 'pet.txt' INTO TABLE pet;
+However, if you do this, you must also re-enter the record for Puffball.
+
+Fix only the erroneous record with an UPDATE statement:
+
+mysql> UPDATE pet SET birth = '1989-08-31' WHERE name = 'Bowser';
+The UPDATE changes only the record in question and does not require you to reload the table.
+
+There is an exception to the principle that SELECT * selects all columns. If a table contains invisible columns, * does not include them. For more information, see Section 13.1.20.10, “Invisible Columns”.
+
+3.3.4.2 Selecting Particular Rows
+
+As shown in the preceding section, it is easy to retrieve an entire table. Just omit the WHERE clause from the SELECT statement. But typically you don't want to see the entire table, particularly when it becomes large. Instead, you're usually more interested in answering a particular question, in which case you specify some constraints on the information you want. Let's look at some selection queries in terms of questions about your pets that they answer.
+
+You can select only particular rows from your table. For example, if you want to verify the change that you made to Bowser's birth date, select Bowser's record like this:
+
+mysql> SELECT * FROM pet WHERE name = 'Bowser';
++--------+-------+---------+------+------------+------------+
+| name   | owner | species | sex  | birth      | death      |
++--------+-------+---------+------+------------+------------+
+| Bowser | Diane | dog     | m    | 1989-08-31 | 1995-07-29 |
++--------+-------+---------+------+------------+------------+
+The output confirms that the year is correctly recorded as 1989, not 1979.
+
+String comparisons normally are case-insensitive, so you can specify the name as 'bowser', 'BOWSER', and so forth. The query result is the same.
+
+You can specify conditions on any column, not just name. For example, if you want to know which animals were born during or after 1998, test the birth column:
+
+mysql> SELECT * FROM pet WHERE birth >= '1998-1-1';
++----------+-------+---------+------+------------+-------+
+| name     | owner | species | sex  | birth      | death |
++----------+-------+---------+------+------------+-------+
+| Chirpy   | Gwen  | bird    | f    | 1998-09-11 | NULL  |
+| Puffball | Diane | hamster | f    | 1999-03-30 | NULL  |
++----------+-------+---------+------+------------+-------+
+You can combine conditions, for example, to locate female dogs:
+
+mysql> SELECT * FROM pet WHERE species = 'dog' AND sex = 'f';
++-------+--------+---------+------+------------+-------+
+| name  | owner  | species | sex  | birth      | death |
++-------+--------+---------+------+------------+-------+
+| Buffy | Harold | dog     | f    | 1989-05-13 | NULL  |
++-------+--------+---------+------+------------+-------+
+The preceding query uses the AND logical operator. There is also an OR operator:
+
+mysql> SELECT * FROM pet WHERE species = 'snake' OR species = 'bird';
++----------+-------+---------+------+------------+-------+
+| name     | owner | species | sex  | birth      | death |
++----------+-------+---------+------+------------+-------+
+| Chirpy   | Gwen  | bird    | f    | 1998-09-11 | NULL  |
+| Whistler | Gwen  | bird    | NULL | 1997-12-09 | NULL  |
+| Slim     | Benny | snake   | m    | 1996-04-29 | NULL  |
++----------+-------+---------+------+------------+-------+
+AND and OR may be intermixed, although AND has higher precedence than OR. If you use both operators, it is a good idea to use parentheses to indicate explicitly how conditions should be grouped:
+
+mysql> SELECT * FROM pet WHERE (species = 'cat' AND sex = 'm')
+       OR (species = 'dog' AND sex = 'f');
++-------+--------+---------+------+------------+-------+
+| name  | owner  | species | sex  | birth      | death |
++-------+--------+---------+------+------------+-------+
+| Claws | Gwen   | cat     | m    | 1994-03-17 | NULL  |
+| Buffy | Harold | dog     | f    | 1989-05-13 | NULL  |
++-------+--------+---------+------+------------+-------+
+
+3.3.4.3 Selecting Particular Columns
+------------------------------------
+If you do not want to see entire rows from your table, just name the columns in which you are interested, separated by commas. For example, if you want to know when your animals were born, select the name and birth columns:
+
+mysql> SELECT name, birth FROM pet;
++----------+------------+
+| name     | birth      |
++----------+------------+
+| Fluffy   | 1993-02-04 |
+| Claws    | 1994-03-17 |
+| Buffy    | 1989-05-13 |
+| Fang     | 1990-08-27 |
+| Bowser   | 1989-08-31 |
+| Chirpy   | 1998-09-11 |
+| Whistler | 1997-12-09 |
+| Slim     | 1996-04-29 |
+| Puffball | 1999-03-30 |
++----------+------------+
+To find out who owns pets, use this query:
+
+mysql> SELECT owner FROM pet;
++--------+
+| owner  |
++--------+
+| Harold |
+| Gwen   |
+| Harold |
+| Benny  |
+| Diane  |
+| Gwen   |
+| Gwen   |
+| Benny  |
+| Diane  |
++--------+
+Notice that the query simply retrieves the owner column from each record, and some of them appear more than once. To minimize the output, retrieve each unique output record just once by adding the keyword DISTINCT:
+
+mysql> SELECT DISTINCT owner FROM pet;
++--------+
+| owner  |
++--------+
+| Benny  |
+| Diane  |
+| Gwen   |
+| Harold |
++--------+
+You can use a WHERE clause to combine row selection with column selection. For example, to get birth dates for dogs and cats only, use this query:
+
+mysql> SELECT name, species, birth FROM pet
+       WHERE species = 'dog' OR species = 'cat';
++--------+---------+------------+
+| name   | species | birth      |
++--------+---------+------------+
+| Fluffy | cat     | 1993-02-04 |
+| Claws  | cat     | 1994-03-17 |
+| Buffy  | dog     | 1989-05-13 |
+| Fang   | dog     | 1990-08-27 |
+| Bowser | dog     | 1989-08-31 |
++--------+---------+------------+
+
+3.3.4.4 Sorting Rows
+
+You may have noticed in the preceding examples that the result rows are displayed in no particular order. It is often easier to examine query output when the rows are sorted in some meaningful way. To sort a result, use an ORDER BY clause.
+
+Here are animal birthdays, sorted by date:
+
+mysql> SELECT name, birth FROM pet ORDER BY birth;
++----------+------------+
+| name     | birth      |
++----------+------------+
+| Buffy    | 1989-05-13 |
+| Bowser   | 1989-08-31 |
+| Fang     | 1990-08-27 |
+| Fluffy   | 1993-02-04 |
+| Claws    | 1994-03-17 |
+| Slim     | 1996-04-29 |
+| Whistler | 1997-12-09 |
+| Chirpy   | 1998-09-11 |
+| Puffball | 1999-03-30 |
++----------+------------+
+On character type columns, sorting—like all other comparison operations—is normally performed in a case-insensitive fashion. This means that the order is undefined for columns that are identical except for their case. You can force a case-sensitive sort for a column by using BINARY like so: ORDER BY BINARY col_name.
+
+mysql> select * from pet order by BINARY name;
++----------+--------+---------+------+------------+------------+
+| name     | owner  | species | sex  | birth      | death      |
++----------+--------+---------+------+------------+------------+
+| Bowser   | Diane  | dog     | M    | 1989-08-31 | 1995-07-29 |
+| Buffy    | Harold | dog     | F    | 1989-05-13 | NULL       |
+| Chirpy   | Gwen   | bird    | F    | 1998-09-11 | NULL       |
+| Claws    | Gwen   | cat     | M    | 1994-03-17 | NULL       |
+| Fang     | Benny  | dog     | M    | 1990-08-27 | NULL       |
+| Fluffy   | Harold | cat     | F    | 1993-02-04 | NULL       |
+| Slim     | Benny  | snake   | M    | 1996-04-29 | NULL       |
+| Whistler | Gwen   | bird    | NULL | 1997-12-09 | NULL       |
+| bruzo    | Chinku | dog     | M    | 2019-01-04 | NULL       |
++----------+--------+---------+------+------------+------------+
+9 rows in set (0.00 sec)
+
+You can sort on multiple columns, and you can sort different columns in different directions. For example, to sort by type of animal in ascending order, then by birth date within animal type in descending order (youngest animals first), use the following query:
+
+mysql> select name, species, birth from pet
+    -> order by species, birth desc;
++----------+---------+------------+
+| name     | species | birth      |
++----------+---------+------------+
+| Chirpy   | bird    | 1998-09-11 |
+| Whistler | bird    | 1997-12-09 |
+| Claws    | cat     | 1994-03-17 |
+| Fluffy   | cat     | 1993-02-04 |
+| bruzo    | dog     | 2019-01-04 |
+| Fang     | dog     | 1990-08-27 |
+| Bowser   | dog     | 1989-08-31 |
+| Buffy    | dog     | 1989-05-13 |
+| Slim     | snake   | 1996-04-29 |
++----------+---------+------------+
+
+NOTE - The DESC keyword applies only to the column name immediately preceding it (birth); it does not affect the species column sort order.
+
+If we need both species and birth in descending order, then desc with each col
+mysql> select name, species, birth from pet  order by species desc, birth desc;
++----------+---------+------------+
+| name     | species | birth      |
++----------+---------+------------+
+| Slim     | snake   | 1996-04-29 |
+| bruzo    | dog     | 2019-01-04 |
+| Fang     | dog     | 1990-08-27 |
+| Bowser   | dog     | 1989-08-31 |
+| Buffy    | dog     | 1989-05-13 |
+| Claws    | cat     | 1994-03-17 |
+| Fluffy   | cat     | 1993-02-04 |
+| Chirpy   | bird    | 1998-09-11 |
+| Whistler | bird    | 1997-12-09 |
++----------+---------+------------+
+9 rows in set (0.00 sec)
+
+
+mysql> describe pet;
++---------+---------------+------+-----+---------+-------+
+| Field   | Type          | Null | Key | Default | Extra |
++---------+---------------+------+-----+---------+-------+
+| name    | varchar(20)   | YES  |     | NULL    |       |
+| owner   | varchar(20)   | YES  |     | NULL    |       |
+| species | varchar(20)   | YES  |     | NULL    |       |
+| sex     | enum('M','F') | YES  |     | NULL    |       |
+| birth   | date          | YES  |     | NULL    |       |
+| death   | date          | YES  |     | NULL    |       |
++---------+---------------+------+-----+---------+-------+
+6 rows in set (0.01 sec)
+
+NOTE - describe is equivalent to meta in kdb
+
+3.3.4.5 Date Calculations
+-------------------------
+
+MySQL provides several functions that you can use to perform calculations on dates, for example, to calculate ages or extract parts of dates.
+
+To determine how many years old each of your pets is, use the TIMESTAMPDIFF() function. Its arguments are the unit in which you want the result expressed, and the two dates for which to take the difference. The following query shows, for each pet, the birth date, the current date, and the age in years. An alias (age) is used to make the final output column label more meaningful.
+
+mysql> select name, birth, curdate(), timestampdiff(YEAR,birth,curdate()) as age from pet order by age desc;
++----------+------------+------------+------+
+| name     | birth      | curdate()  | age  |
++----------+------------+------------+------+
+| Buffy    | 1989-05-13 | 2021-07-05 |   32 |
+| Bowser   | 1989-08-31 | 2021-07-05 |   31 |
+| Fang     | 1990-08-27 | 2021-07-05 |   30 |
+| Fluffy   | 1993-02-04 | 2021-07-05 |   28 |
+| Claws    | 1994-03-17 | 2021-07-05 |   27 |
+| Slim     | 1996-04-29 | 2021-07-05 |   25 |
+| Whistler | 1997-12-09 | 2021-07-05 |   23 |
+| Chirpy   | 1998-09-11 | 2021-07-05 |   22 |
+| bruzo    | 2019-01-04 | 2021-07-05 |    2 |
++----------+------------+------------+------+
+9 rows in set (0.00 sec)
+
+A similar query can be used to determine age at death for animals that have died. You determine which animals these are by checking whether the death value is NULL. Then, for those with non-NULL values, compute the difference between the death and birth values:
+mysql> select name, birth, death, timestampdiff(YEAR, birth, death) as age from pet where death IS NOT NULL order by name;
++--------+------------+------------+------+
+| name   | birth      | death      | age  |
++--------+------------+------------+------+
+| Bowser | 1989-08-31 | 1995-07-29 |    5 |
++--------+------------+------------+------+
+
+Similarly if we want age of species which are alive.
+mysql> select name, birth, death, timestampdiff(YEAR, birth, curdate()) as age from pet where death IS NULL order by name;
++----------+------------+-------+------+
+| name     | birth      | death | age  |
++----------+------------+-------+------+
+| bruzo    | 2019-01-04 | NULL  |    2 |
+| Buffy    | 1989-05-13 | NULL  |   32 |
+| Chirpy   | 1998-09-11 | NULL  |   22 |
+| Claws    | 1994-03-17 | NULL  |   27 |
+| Fang     | 1990-08-27 | NULL  |   30 |
+| Fluffy   | 1993-02-04 | NULL  |   28 |
+| Slim     | 1996-04-29 | NULL  |   25 |
+| Whistler | 1997-12-09 | NULL  |   23 |
++----------+------------+-------+------+
+
+The query uses death IS NOT NULL rather than death <> NULL because NULL is a special value that cannot be compared using the usual comparison operators. This is discussed later. See Section 3.3.4.6, “Working with NULL Values”.
+
+What if you want to know which animals have birthdays next month? For this type of calculation, year and day are irrelevant; you simply want to extract the month part of the birth column. MySQL provides several functions for extracting parts of dates, such as YEAR(), MONTH(), and DAYOFMONTH(). MONTH() is the appropriate function here. To see how it works, run a simple query that displays the value of both birth and MONTH(birth):
+
+Get complete birth details
+mysql> select birth, year(birth), month(birth), dayofmonth(birth), weekday(birth), dayname(birth) from pet;
++------------+-------------+--------------+-------------------+----------------+----------------+
+| birth      | year(birth) | month(birth) | dayofmonth(birth) | weekday(birth) | dayname(birth) |
++------------+-------------+--------------+-------------------+----------------+----------------+
+| 1993-02-04 |        1993 |            2 |                 4 |              3 | Thursday       |
+| 1994-03-17 |        1994 |            3 |                17 |              3 | Thursday       |
+| 1989-05-13 |        1989 |            5 |                13 |              5 | Saturday       |
+| 1990-08-27 |        1990 |            8 |                27 |              0 | Monday         |
+| 1989-08-31 |        1989 |            8 |                31 |              3 | Thursday       |
+| 1998-09-11 |        1998 |            9 |                11 |              4 | Friday         |
+| 1997-12-09 |        1997 |           12 |                 9 |              1 | Tuesday        |
+| 1996-04-29 |        1996 |            4 |                29 |              0 | Monday         |
+| 2019-01-04 |        2019 |            1 |                 4 |              4 | Friday         |
++------------+-------------+--------------+-------------------+----------------+----------------+
+
+Get the pets whose birthday is in coming month.
+mysql> select name, birth, species from pet where month(birth)=(month(curdate())+1);
++--------+------------+---------+
+| name   | birth      | species |
++--------+------------+---------+
+| Fang   | 1990-08-27 | dog     |
+| Bowser | 1989-08-31 | dog     |
++--------+------------+---------+
+
+Other then using curdate()+1, you can use DATE_ADD()
+First let's see few examples of DATE_ADD()
+mysql> select DATE_ADD(curdate(),INTERVAL 1 MONTH);
++--------------------------------------+
+| DATE_ADD(curdate(),INTERVAL 1 MONTH) |
++--------------------------------------+
+| 2021-08-05                           |
++--------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select DATE_ADD(curdate(),INTERVAL 1 DAY);
++------------------------------------+
+| DATE_ADD(curdate(),INTERVAL 1 DAY) |
++------------------------------------+
+| 2021-07-06                         |
++------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select DATE_ADD(curdate(),INTERVAL 1 YEAR);
++-------------------------------------+
+| DATE_ADD(curdate(),INTERVAL 1 YEAR) |
++-------------------------------------+
+| 2022-07-05                          |
++-------------------------------------+
+1 row in set (0.00 sec)
+
+Query - mysql> select name, birth, species from pet where month(birth)=(month(DATE_ADD(curdate(),INTERVAL 1 MONTH)));
+        +--------+------------+---------+
+        | name   | birth      | species |
+        +--------+------------+---------+
+        | Fang   | 1990-08-27 | dog     |
+        | Bowser | 1989-08-31 | dog     |
+        +--------+------------+---------+
+
+
+
+But the above code will fail if the current month is december, for that we can use:
+mysql> select name, birth, species from pet where month(birth)=(month(DATE_ADD('2020-12-01',INTERVAL 1 MONTH)));
++-------+------------+---------+
+| name  | birth      | species |
++-------+------------+---------+
+| bruzo | 2019-01-04 | dog     |
++-------+------------+---------+
+
+You can write the query so that it works no matter what the current month is, so that you do not have to use the number for a particular month. DATE_ADD() enables you to add a time interval to a given date. If you add a month to the value of CURDATE(), then extract the month part with MONTH(), the result produces the month in which to look for birthdays:
+
+mysql> SELECT name, birth FROM pet
+       WHERE MONTH(birth) = MONTH(DATE_ADD(CURDATE(),INTERVAL 1 MONTH));
+
+A different way to accomplish the same task is to add 1 to get the next month after the current one after using the modulo function (MOD) to wrap the month value to 0 if it is currently 12:
+
+
+mysql> select name, birth, species from pet where month(birth)=MOD(MONTH(CURDATE()), 12)+1;
++--------+------------+---------+
+| name   | birth      | species |
++--------+------------+---------+
+| Fang   | 1990-08-27 | dog     |
+| Bowser | 1989-08-31 | dog     |
++--------+------------+---------+
+2 rows in set (0.00 sec)
+
+mysql> select name, birth, species from pet where month(birth)=MOD(MONTH('2020-12-01'), 12)+1;
++-------+------------+---------+
+| name  | birth      | species |
++-------+------------+---------+
+| bruzo | 2019-01-04 | dog     |
++-------+------------+---------+
+1 row in set (0.00 sec)
+
+MONTH() returns a number between 1 and 12. And MOD(something,12) returns a number between 0 and 11. So the addition has to be after the MOD(), otherwise we would go from November (11) to January (1).
+
+If a calculation uses invalid dates, the calculation fails and produces warnings:
+mysql> select '2021-06-04' + 1;
++------------------+
+| '2021-06-04' + 1 |
++------------------+
+|             2022 |
++------------------+
+1 row in set, 1 warning (0.00 sec)
+
+mysql> select '2021-06-04' + INTERVAL 1 DAY;
++-------------------------------+
+| '2021-06-04' + INTERVAL 1 DAY |
++-------------------------------+
+| 2021-06-05                    |
++-------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select '2021-06-32' + INTERVAL 1 DAY;
++-------------------------------+
+| '2021-06-32' + INTERVAL 1 DAY |
++-------------------------------+
+| NULL                          |
++-------------------------------+
+1 row in set, 1 warning (0.00 sec)
+
+mysql> show warnings;
++---------+------+----------------------------------------+
+| Level   | Code | Message                                |
++---------+------+----------------------------------------+
+| Warning | 1292 | Incorrect datetime value: '2021-06-32' |
++---------+------+----------------------------------------+
+1 row in set (0.00 sec)
+
+
+
+

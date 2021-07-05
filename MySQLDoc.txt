@@ -704,6 +704,99 @@ mysql> show warnings;
 +---------+------+----------------------------------------+
 1 row in set (0.00 sec)
 
+3.3.4.6 Working with NULL Values
+--------------------------------
+The NULL value can be surprising until you get used to it. Conceptually, NULL means “a missing unknown value” and it is treated somewhat differently from other values.
 
+To test for NULL, use the IS NULL and IS NOT NULL operators, as shown here:
 
+mysql> SELECT 2 IS NULL, 2 IS NOT NULL;
++-----------+---------------+
+| 2 IS NULL | 2 IS NOT NULL |
++-----------+---------------+
+|         0 |             1 |
++-----------+---------------+
+
+You cannot use arithmetic comparison operators such as =, <, or <> to test for NULL. To demonstrate this for yourself, try the following query:
+mysql> select 1=NULL, 1<>NULL, 1<NULL, 1>NULL;
++--------+---------+--------+--------+
+| 1=NULL | 1<>NULL | 1<NULL | 1>NULL |
++--------+---------+--------+--------+
+|   NULL |    NULL |   NULL |   NULL |
++--------+---------+--------+--------+
+
+Because the result of any arithmetic comparison with NULL is also NULL, you cannot obtain any meaningful results from such comparisons.
+
+In MySQL, 0 or NULL means false and anything else means true. The default truth value from a boolean operation is 1.
+
+This special treatment of NULL is why, in the previous section, it was necessary to determine which animals are no longer alive using death IS NOT NULL instead of death <> NULL.
+
+Two NULL values are regarded as equal in a GROUP BY.
+
+When doing an ORDER BY, NULL values are presented first if you do ORDER BY ... ASC and last if you do ORDER BY ... DESC.
+
+mysql> SELECT 2 OR NULL;
++-----------+
+| 2 OR NULL |
++-----------+
+|         1 |
++-----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT 0 OR NULL;
++-----------+
+| 0 OR NULL |
++-----------+
+|      NULL |
++-----------+
+1 row in set (0.00 sec)
+
+A common error when working with NULL is to assume that it is not possible to insert a zero or an empty string into a column defined as NOT NULL, but this is not the case. These are in fact values, whereas NULL means “not having a value.” You can test this easily enough by using IS [NOT] NULL as shown:
+mysql> SELECT 0 IS NULL, 0 IS NOT NULL, '' IS NULL, '' IS NOT NULL;
++-----------+---------------+------------+----------------+
+| 0 IS NULL | 0 IS NOT NULL | '' IS NULL | '' IS NOT NULL |
++-----------+---------------+------------+----------------+
+|         0 |             1 |          0 |              1 |
++-----------+---------------+------------+----------------+
+
+B.3.4.3 Problems with NULL Values
+---------------------------------
+The concept of the NULL value is a common source of confusion for newcomers to SQL, who often think that NULL is the same thing as an empty string ''. This is not the case. For example, the following statements are completely different:
+
+mysql> INSERT INTO my_table (phone) VALUES (NULL);
+mysql> INSERT INTO my_table (phone) VALUES ('');
+Both statements insert a value into the phone column, but the first inserts a NULL value and the second inserts an empty string. The meaning of the first can be regarded as “phone number is not known” and the meaning of the second can be regarded as “the person is known to have no phone, and thus no phone number.”
+
+In SQL, the NULL value is never true in comparison to any other value, even NULL. An expression that contains NULL always produces a NULL value unless otherwise indicated in the documentation for the operators and functions involved in the expression. All columns in the following example return NULL:
+mysql> SELECT NULL, 1+NULL, CONCAT('Invisible', NULL);
++------+--------+---------------------------+
+| NULL | 1+NULL | CONCAT('Invisible', NULL) |
++------+--------+---------------------------+
+| NULL |   NULL | NULL                      |
++------+--------+---------------------------+
+
+To search for column values that are NULL, you cannot use an expr = NULL test. The following statement returns no rows, because expr = NULL is never true for any expression:
+SELECT * FROM my_table WHERE phone = NULL;
+
+To look for NULL values, you must use the IS NULL test. The following statements show how to find the NULL phone number and the empty phone number:
+
+mysql> SELECT * FROM my_table WHERE phone IS NULL;
+mysql> SELECT * FROM my_table WHERE phone = '';
+
+You can add an index on a column that can have NULL values if you are using the MyISAM, InnoDB, or MEMORY storage engine. Otherwise, you must declare an indexed column NOT NULL, and you cannot insert NULL into the column.
+
+When reading data with LOAD DATA, empty or missing columns are updated with ''. To load a NULL value into a column, use \N in the data file. The literal word NULL may also be used under some circumstances.
+
+When using DISTINCT, GROUP BY, or ORDER BY, all NULL values are regarded as equal.
+
+When using ORDER BY, NULL values are presented first, or last if you specify DESC to sort in descending order.
+
+Aggregate (group) functions such as COUNT(), MIN(), and SUM() ignore NULL values. The exception to this is COUNT(*), which counts rows and not individual column values. For example, the following statement produces two counts. The first is a count of the number of rows in the table, and the second is a count of the number of non-NULL values in the age column:
+mysql> SELECT COUNT(*), COUNT(SEX) FROM pet;
++----------+------------+
+| COUNT(*) | COUNT(SEX) |
++----------+------------+
+|        9 |          8 |
++----------+------------+
+For some data types, MySQL handles NULL values specially. If you insert NULL into a TIMESTAMP column, the current date and time is inserted. If you insert NULL into an integer or floating-point column that has the AUTO_INCREMENT attribute, the next number in the sequence is inserted.
 

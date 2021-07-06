@@ -1045,4 +1045,68 @@ mysql> select 'a' regexp 'A', 'a' regexp binary 'A';
 |              1 |                     0 |
 +----------------+-----------------------+
 
+REGEXP_INSTR(expr, pat[, pos[, occurrence[, return_option[, match_type]]]])
+-----------------------------------------------------------------------------
+Returns the starting index of the substring of the string expr that matches the regular expression specified by the pattern pat, 0 if there is no match. If expr or pat is NULL, the return value is NULL. Character indexes begin at 1.
 
+REGEXP_INSTR() takes these optional arguments:
+
+pos: The position in expr at which to start the search. If omitted, the default is 1.
+
+occurrence: Which occurrence of a match to search for. If omitted, the default is 1.
+
+return_option: Which type of position to return. If this value is 0, REGEXP_INSTR() returns the position of the matched substring's first character. If this value is 1, REGEXP_INSTR() returns the position following the matched substring. If omitted, the default is 0.
+
+match_type: A string that specifies how to perform matching. The meaning is as described for REGEXP_LIKE().
+
+For additional information about how matching occurs, see the description for REGEXP_LIKE().
+
+mysql> select REGEXP_INSTR('dog cat dog', 'dog');
++------------------------------------+
+| REGEXP_INSTR('dog cat dog', 'dog') |
++------------------------------------+
+|                                  1 |
++------------------------------------+
+1 row in set (0.01 sec)
+
+mysql> select REGEXP_INSTR('dog cat dog', 'cat');
++------------------------------------+
+| REGEXP_INSTR('dog cat dog', 'cat') |
++------------------------------------+
+|                                  5 |
++------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select REGEXP_INSTR('dog cat dog', 'dog', 2);
++---------------------------------------+
+| REGEXP_INSTR('dog cat dog', 'dog', 2) |
++---------------------------------------+
+|                                     9 |
++---------------------------------------+
+
+
+mysql> select REGEXP_INSTR('AA AAA AAA', 'A{2}');
++------------------------------------+
+| REGEXP_INSTR('AA AAA AAA', 'A{2}') |
++------------------------------------+
+|                                  1 |
++------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select REGEXP_INSTR('AA AAA AAAA', 'A{3}');
++-------------------------------------+
+| REGEXP_INSTR('AA AAA AAAA', 'A{3}') |
++-------------------------------------+
+|                                   4 |
++-------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select REGEXP_INSTR('AA AAA AAAA', 'A{4}');
++-------------------------------------+
+| REGEXP_INSTR('AA AAA AAAA', 'A{4}') |
++-------------------------------------+
+|                                   8 |
++-------------------------------------+
+
+REGEXP_LIKE(expr, pat[, match_type])
+-------------------------------------

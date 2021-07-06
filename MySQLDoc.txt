@@ -1226,6 +1226,72 @@ mysql> select regexp_replace('abc def ghi', '[a-z]+', 'X');
 | X X X                                        |
 +----------------------------------------------+
 
+REGEXP_SUBSTR(expr, pat[, pos[, occurrence[, match_type]]])
+------------------------------------------------------------
+Returns the substring of the string expr that matches the regular expression specified by the pattern pat, NULL if there is no match. If expr or pat is NULL, the return value is NULL.
+
+REGEXP_SUBSTR() takes these optional arguments:
+
+pos: The position in expr at which to start the search. If omitted, the default is 1.
+
+occurrence: Which occurrence of a match to search for. If omitted, the default is 1.
+
+match_type: A string that specifies how to perform matching. The meaning is as described for REGEXP_LIKE().
+
+Prior to MySQL 8.0.17, the result returned by this function used the UTF-16 character set; in MySQL 8.0.17 and later, the character set and collation of the expression searched for matches is used. (Bug #94203, Bug #29308212)
+
+For additional information about how matching occurs, see the description for REGEXP_LIKE().
+
+mysql> select regexp_substr('abc def ghi', '[a-z]+');
++----------------------------------------+
+| regexp_substr('abc def ghi', '[a-z]+') |
++----------------------------------------+
+| abc                                    |
++----------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_substr('abc def ghi', '[a-z]+',1);
++------------------------------------------+
+| regexp_substr('abc def ghi', '[a-z]+',1) |
++------------------------------------------+
+| abc                                      |
++------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_substr('abc def ghi', '[a-z]+',1,2);
++--------------------------------------------+
+| regexp_substr('abc def ghi', '[a-z]+',1,2) |
++--------------------------------------------+
+| def                                        |
++--------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_substr('abc 12 def ghi', '[a-z]+',1,2);
++-----------------------------------------------+
+| regexp_substr('abc 12 def ghi', '[a-z]+',1,2) |
++-----------------------------------------------+
+| def                                           |
++-----------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_substr('abc12def ghi', '[a-z]+',1,2);
++---------------------------------------------+
+| regexp_substr('abc12def ghi', '[a-z]+',1,2) |
++---------------------------------------------+
+| def                                         |
++---------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_substr('abc12def ghi', '[a-z]+');
++-----------------------------------------+
+| regexp_substr('abc12def ghi', '[a-z]+') |
++-----------------------------------------+
+| abc                                     |
++-----------------------------------------+
+
+
+Regular Expression Syntax
+==========================
 
 
 

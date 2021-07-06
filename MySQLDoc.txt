@@ -800,3 +800,249 @@ mysql> SELECT COUNT(*), COUNT(SEX) FROM pet;
 +----------+------------+
 For some data types, MySQL handles NULL values specially. If you insert NULL into a TIMESTAMP column, the current date and time is inserted. If you insert NULL into an integer or floating-point column that has the AUTO_INCREMENT attribute, the next number in the sequence is inserted.
 
+3.3.4.7 Pattern Matching
+
+MySQL provides standard SQL pattern matching as well as a form of pattern matching based on extended regular expressions similar to those used by Unix utilities such as vi, grep, and sed.
+
+SQL pattern matching enables you to use _ to match any single character and % to match an arbitrary number of characters (including zero characters). In MySQL, SQL patterns are case-insensitive by default. Some examples are shown here. Do not use = or <> when you use SQL patterns. Use the LIKE or NOT LIKE comparison operators instead.
+
+To find names beginning with b:
+mysql> SELECT * FROM pet WHERE name LIKE 'B%';
++--------+--------+---------+------+------------+------------+
+| name   | owner  | species | sex  | birth      | death      |
++--------+--------+---------+------+------------+------------+
+| Buffy  | Harold | dog     | F    | 1989-05-13 | NULL       |
+| Bowser | Diane  | dog     | M    | 1989-08-31 | 1995-07-29 |
+| bruzo  | Chinku | dog     | M    | 2019-01-04 | NULL       |
++--------+--------+---------+------+------------+------------+
+3 rows in set (0.01 sec)
+
+mysql> SELECT * FROM pet WHERE name LIKE BINARY 'B%';
++--------+--------+---------+------+------------+------------+
+| name   | owner  | species | sex  | birth      | death      |
++--------+--------+---------+------+------------+------------+
+| Buffy  | Harold | dog     | F    | 1989-05-13 | NULL       |
+| Bowser | Diane  | dog     | M    | 1989-08-31 | 1995-07-29 |
++--------+--------+---------+------+------------+------------+
+2 rows in set (0.00 sec)
+
+To find names ending with fy:
+mysql> SELECT * FROM pet WHERE name LIKE '%FY';
++--------+--------+---------+------+------------+-------+
+| name   | owner  | species | sex  | birth      | death |
++--------+--------+---------+------+------------+-------+
+| Fluffy | Harold | cat     | F    | 1993-02-04 | NULL  |
+| Buffy  | Harold | dog     | F    | 1989-05-13 | NULL  |
++--------+--------+---------+------+------------+-------+
+2 rows in set (0.00 sec)
+
+To find names containing a w:
+mysql> SELECT * FROM pet WHERE name LIKE '%w%';
++----------+-------+---------+------+------------+------------+
+| name     | owner | species | sex  | birth      | death      |
++----------+-------+---------+------+------------+------------+
+| Claws    | Gwen  | cat     | M    | 1994-03-17 | NULL       |
+| Bowser   | Diane | dog     | M    | 1989-08-31 | 1995-07-29 |
+| Whistler | Gwen  | bird    | NULL | 1997-12-09 | NULL       |
++----------+-------+---------+------+------------+------------+
+3 rows in set (0.00 sec)
+
+To find names containing exactly five characters, use five instances of the _ pattern character:
+mysql> SELECT * FROM pet WHERE name LIKE '_____';
++-------+--------+---------+------+------------+-------+
+| name  | owner  | species | sex  | birth      | death |
++-------+--------+---------+------+------------+-------+
+| Claws | Gwen   | cat     | M    | 1994-03-17 | NULL  |
+| Buffy | Harold | dog     | F    | 1989-05-13 | NULL  |
+| bruzo | Chinku | dog     | M    | 2019-01-04 | NULL  |
++-------+--------+---------+------+------------+-------+
+3 rows in set (0.00 sec)
+
+The other type of pattern matching provided by MySQL uses extended regular expressions. When you test for a match for this type of pattern, use the REGEXP_LIKE() function (or the REGEXP or RLIKE operators, which are synonyms for REGEXP_LIKE()).
+
+The following list describes some characteristics of extended regular expressions:
+
+. matches any single character.
+
+A character class [...] matches any character within the brackets. For example, [abc] matches a, b, or c. To name a range of characters, use a dash. [a-z] matches any letter, whereas [0-9] matches any digit.
+
+* matches zero or more instances of the thing preceding it. For example, x* matches any number of x characters, [0-9]* matches any number of digits, and .* matches any number of anything.
+
+A regular expression pattern match succeeds if the pattern matches anywhere in the value being tested. (This differs from a LIKE pattern match, which succeeds only if the pattern matches the entire value.)
+
+To anchor a pattern so that it must match the beginning or end of the value being tested, use ^ at the beginning or $ at the end of the pattern.
+
+To demonstrate how extended regular expressions work, the LIKE queries shown previously are rewritten here to use REGEXP_LIKE().
+
+To find names beginning with b, use ^ to match the beginning of the name:
+
+mysql> select * from pet where REGEXP_LIKE(name, '^b' COLLATE utf8mb4_0900_as_cs);
++-------+--------+---------+------+------------+-------+
+| name  | owner  | species | sex  | birth      | death |
++-------+--------+---------+------+------------+-------+
+| bruzo | Chinku | dog     | M    | 2019-01-04 | NULL  |
++-------+--------+---------+------+------------+-------+
+
+mysql> select * from pet where REGEXP_LIKE(name, BINARY '^b');
++-------+--------+---------+------+------------+-------+
+| name  | owner  | species | sex  | birth      | death |
++-------+--------+---------+------+------------+-------+
+| bruzo | Chinku | dog     | M    | 2019-01-04 | NULL  |
++-------+--------+---------+------+------------+-------+
+
+mysql> select * from pet where REGEXP_LIKE(name, '^b');
++--------+--------+---------+------+------------+------------+
+| name   | owner  | species | sex  | birth      | death      |
++--------+--------+---------+------+------------+------------+
+| Buffy  | Harold | dog     | F    | 1989-05-13 | NULL       |
+| Bowser | Diane  | dog     | M    | 1989-08-31 | 1995-07-29 |
+| bruzo  | Chinku | dog     | M    | 2019-01-04 | NULL       |
++--------+--------+---------+------+------------+------------+
+
+mysql> SELECT * FROM pet WHERE REGEXP_LIKE(name, '^b', 'c');
++-------+--------+---------+------+------------+-------+
+| name  | owner  | species | sex  | birth      | death |
++-------+--------+---------+------+------------+-------+
+| bruzo | Chinku | dog     | M    | 2019-01-04 | NULL  |
++-------+--------+---------+------+------------+-------+
+1 row in set (0.00 sec)
+
+To find names ending with fy, use $ to match the end of the name:
+mysql> SELECT * FROM pet WHERE REGEXP_LIKE(name, 'fy$');
++--------+--------+---------+------+------------+-------+
+| name   | owner  | species | sex  | birth      | death |
++--------+--------+---------+------+------------+-------+
+| Fluffy | Harold | cat     | F    | 1993-02-04 | NULL  |
+| Buffy  | Harold | dog     | F    | 1989-05-13 | NULL  |
++--------+--------+---------+------+------------+-------+
+
+To find names containing a w, use this query:
+mysql> SELECT * FROM pet WHERE REGEXP_LIKE(name, 'w');
++----------+-------+---------+------+------------+------------+
+| name     | owner | species | sex  | birth      | death      |
++----------+-------+---------+------+------------+------------+
+| Claws    | Gwen  | cat     | M    | 1994-03-17 | NULL       |
+| Bowser   | Diane | dog     | M    | 1989-08-31 | 1995-07-29 |
+| Whistler | Gwen  | bird    | NULL | 1997-12-09 | NULL       |
++----------+-------+---------+------+------------+------------+
+
+mysql> SELECT * FROM pet WHERE REGEXP_LIKE(name, BINARY 'w');
++--------+-------+---------+------+------------+------------+
+| name   | owner | species | sex  | birth      | death      |
++--------+-------+---------+------+------------+------------+
+| Claws  | Gwen  | cat     | M    | 1994-03-17 | NULL       |
+| Bowser | Diane | dog     | M    | 1989-08-31 | 1995-07-29 |
++--------+-------+---------+------+------------+------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT * FROM pet WHERE REGEXP_LIKE(name, 'w', 'c');
++--------+-------+---------+------+------------+------------+
+| name   | owner | species | sex  | birth      | death      |
++--------+-------+---------+------+------------+------------+
+| Claws  | Gwen  | cat     | M    | 1994-03-17 | NULL       |
+| Bowser | Diane | dog     | M    | 1989-08-31 | 1995-07-29 |
++--------+-------+---------+------+------------+------------+
+2 rows in set (0.00 sec)
+
+Because a regular expression pattern matches if it occurs anywhere in the value, it is not necessary in the previous query to put a wildcard on either side of the pattern to get it to match the entire value as would be true with an SQL pattern.
+
+To find names containing exactly five characters, use ^ and $ to match the beginning and end of the name, and five instances of . in between:
+mysql> SELECT * FROM pet WHERE REGEXP_LIKE(name, '^.....$');
++-------+--------+---------+------+------------+-------+
+| name  | owner  | species | sex  | birth      | death |
++-------+--------+---------+------+------------+-------+
+| Claws | Gwen   | cat     | M    | 1994-03-17 | NULL  |
+| Buffy | Harold | dog     | F    | 1989-05-13 | NULL  |
+| bruzo | Chinku | dog     | M    | 2019-01-04 | NULL  |
++-------+--------+---------+------+------------+-------+
+
+You could also write the previous query using the {n} (“repeat-n-times”) operator:
+mysql> SELECT * FROM pet WHERE REGEXP_LIKE(name, '^.{5}$');
++-------+--------+---------+------+------------+-------+
+| name  | owner  | species | sex  | birth      | death |
++-------+--------+---------+------+------------+-------+
+| Claws | Gwen   | cat     | M    | 1994-03-17 | NULL  |
+| Buffy | Harold | dog     | F    | 1989-05-13 | NULL  |
+| bruzo | Chinku | dog     | M    | 2019-01-04 | NULL  |
++-------+--------+---------+------+------------+-------+
+
+mysql> SELECT * FROM pet WHERE REGEXP_LIKE(name, '^.{4,6}$');
++--------+--------+---------+------+------------+------------+
+| name   | owner  | species | sex  | birth      | death      |
++--------+--------+---------+------+------------+------------+
+| Fluffy | Harold | cat     | F    | 1993-02-04 | NULL       |
+| Claws  | Gwen   | cat     | M    | 1994-03-17 | NULL       |
+| Buffy  | Harold | dog     | F    | 1989-05-13 | NULL       |
+| Fang   | Benny  | dog     | M    | 1990-08-27 | NULL       |
+| Bowser | Diane  | dog     | M    | 1989-08-31 | 1995-07-29 |
+| Chirpy | Gwen   | bird    | F    | 1998-09-11 | NULL       |
+| Slim   | Benny  | snake   | M    | 1996-04-29 | NULL       |
+| bruzo  | Chinku | dog     | M    | 2019-01-04 | NULL       |
++--------+--------+---------+------+------------+------------+
+
+12.8.2 Regular Expressions
+---------------------------
+Table 12.14 Regular Expression Functions and Operators
+
+Name	            Description
+NOT REGEXP	        Negation of REGEXP
+REGEXP	            Whether string matches regular expression
+REGEXP_INSTR()	    Starting index of substring matching regular expression
+REGEXP_LIKE()	    Whether string matches regular expression
+REGEXP_REPLACE()	Replace substrings matching regular expression
+REGEXP_SUBSTR()	    Return substring matching regular expression
+RLIKE	            Whether string matches regular expression
+
+A regular expression is a powerful way of specifying a pattern for a complex search. This section discusses the functions and operators available for regular expression matching and illustrates, with examples, some of the special characters and constructs that can be used for regular expression operations
+
+MySQL implements regular expression support using International Components for Unicode (ICU), which provides full Unicode support and is multibyte safe.
+
+Regular Expression Function and Operator Descriptions
+======================================================
+expr NOT REGEXP pat, expr NOT RLIKE pat
+This is the same as NOT (expr REGEXP pat).
+expr REGEXP pat, expr RLIKE pat
+Returns 1 if the string expr matches the regular expression specified by the pattern pat, 0 otherwise. If expr or pat is NULL, the return value is NULL.
+REGEXP and RLIKE are synonyms for REGEXP_LIKE().
+For additional information about how matching occurs, see the description for REGEXP_LIKE().
+
+mysql> SELECT 'Michael!' REGEXP '.*';
++------------------------+
+| 'Michael!' REGEXP '.*' |
++------------------------+
+|                      1 |
++------------------------+
+1 row in set (0.00 sec)
+
+mysql> select 'new*\n*line' REGEXP '.*';
++---------------------------+
+| 'new*\n*line' REGEXP '.*' |
++---------------------------+
+|                         1 |
++---------------------------+
+1 row in set (0.00 sec)
+
+mysql> select 'new*\n*line' REGEXP 'new\\*.\\*line';
++---------------------------------------+
+| 'new*\n*line' REGEXP 'new\\*.\\*line' |
++---------------------------------------+
+|                                     0 |
++---------------------------------------+
+1 row in set (0.01 sec)
+
+mysql> select 'a' regexp '^[a-d]';
++---------------------+
+| 'a' regexp '^[a-d]' |
++---------------------+
+|                   1 |
++---------------------+
+1 row in set (0.00 sec)
+
+mysql> select 'a' regexp 'A', 'a' regexp binary 'A';
++----------------+-----------------------+
+| 'a' regexp 'A' | 'a' regexp binary 'A' |
++----------------+-----------------------+
+|              1 |                     0 |
++----------------+-----------------------+
+
+

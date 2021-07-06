@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="14007636-fa3b-426e-b482-0fe40d24cf85" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/MySQLDoc.txt" beforeDir="false" afterPath="$PROJECT_DIR$/MySQLDoc.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Udemy.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Udemy.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -42,24 +42,24 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="csv" value="5" />
-          <entry key="txt" value="78724" />
+          <entry key="txt" value="78771" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSV" value="3" />
-          <entry key="PLAIN_TEXT" value="78726" />
+          <entry key="PLAIN_TEXT" value="78773" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Udemy.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="76760">
-              <caret line="4040" column="10" selection-start-line="4040" selection-start-column="10" selection-end-line="4040" selection-end-column="10" />
+            <state relative-caret-position="509">
+              <caret line="4043" lean-forward="true" selection-start-line="4043" selection-end-line="4043" />
             </state>
           </provider>
         </entry>
@@ -76,11 +76,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="462">
-              <caret line="1230" lean-forward="true" selection-start-line="1230" selection-end-line="1230" />
+            <state relative-caret-position="481">
+              <caret line="1297" lean-forward="true" selection-start-line="1297" selection-end-line="1297" />
             </state>
           </provider>
         </entry>
@@ -117,9 +117,9 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/te.txt" />
-        <option value="$PROJECT_DIR$/Udemy.txt" />
         <option value="$PROJECT_DIR$/te.csv" />
         <option value="$PROJECT_DIR$/MySQLDoc.txt" />
+        <option value="$PROJECT_DIR$/Udemy.txt" />
       </list>
     </option>
   </component>
@@ -202,13 +202,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Udemy.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76760">
-          <caret line="4040" column="10" selection-start-line="4040" selection-start-column="10" selection-end-line="4040" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/te.csv">
       <provider editor-type-id="text-editor">
         <state relative-caret-position="133">
@@ -233,8 +226,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="462">
-          <caret line="1230" lean-forward="true" selection-start-line="1230" selection-end-line="1230" />
+        <state relative-caret-position="481">
+          <caret line="1297" lean-forward="true" selection-start-line="1297" selection-end-line="1297" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Udemy.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="509">
+          <caret line="4043" lean-forward="true" selection-start-line="4043" selection-end-line="4043" />
         </state>
       </provider>
     </entry>

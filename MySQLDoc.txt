@@ -1108,5 +1108,126 @@ mysql> select REGEXP_INSTR('AA AAA AAAA', 'A{4}');
 |                                   8 |
 +-------------------------------------+
 
+mysql> select REGEXP_INSTR('AA AAA AAAA', 'B{4}');
++-------------------------------------+
+| REGEXP_INSTR('AA AAA AAAA', 'B{4}') |
++-------------------------------------+
+|                                   0 |
++-------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select REGEXP_INSTR('AA AAA AAAA', 'NULL');
++-------------------------------------+
+| REGEXP_INSTR('AA AAA AAAA', 'NULL') |
++-------------------------------------+
+|                                   0 |
++-------------------------------------+
+1 row in set (0.00 sec)
+
 REGEXP_LIKE(expr, pat[, match_type])
 -------------------------------------
+Returns 1 if the string expr matches the regular expression specified by the pattern pat, 0 otherwise. If expr or pat is NULL, the return value is NULL.
+
+The pattern can be an extended regular expression, the syntax for which is discussed in Regular Expression Syntax. The pattern need not be a literal string. For example, it can be specified as a string expression or table column.
+
+The optional match_type argument is a string that may contain any or all the following characters specifying how to perform matching:
+
+c: Case-sensitive matching.
+
+i: Case-insensitive matching.
+
+m: Multiple-line mode. Recognize line terminators within the string. The default behavior is to match line terminators only at the start and end of the string expression.
+
+n: The . character matches line terminators. The default is for . matching to stop at the end of a line.
+
+u: Unix-only line endings. Only the newline character is recognized as a line ending by the ., ^, and $ match operators.
+
+If characters specifying contradictory options are specified within match_type, the rightmost one takes precedence.
+
+By default, regular expression operations use the character set and collation of the expr and pat arguments when deciding the type of a character and performing the comparison. If the arguments have different character sets or collations, coercibility rules apply as described in Section 10.8.4, “Collation Coercibility in Expressions”. Arguments may be specified with explicit collation indicators to change comparison behavior.
+
+mysql> select regexp_like('CamelCase', 'CAMELCASE');
++---------------------------------------+
+| regexp_like('CamelCase', 'CAMELCASE') |
++---------------------------------------+
+|                                     1 |
++---------------------------------------+
+
+mysql> select regexp_like('CamelCase', 'CAMELCASE', 'c');
++--------------------------------------------+
+| regexp_like('CamelCase', 'CAMELCASE', 'c') |
++--------------------------------------------+
+|                                          0 |
++--------------------------------------------+
+
+mysql> select regexp_like('CamelCase', 'CAMELCASE' COLLATE utf8mb4_0900_as_cs);
++------------------------------------------------------------------+
+| regexp_like('CamelCase', 'CAMELCASE' COLLATE utf8mb4_0900_as_cs) |
++------------------------------------------------------------------+
+|                                                                0 |
++------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_like('CamelCase', BINARY 'CAMELCASE');
++----------------------------------------------+
+| regexp_like('CamelCase', BINARY 'CAMELCASE') |
++----------------------------------------------+
+|                                            0 |
++----------------------------------------------+
+
+match_type may be specified with the c or i characters to override the default case sensitivity. Exception: If either argument is a binary string, the arguments are handled in case-sensitive fashion as binary strings, even if match_type contains the i character.
+
+mysql> select regexp_like('CamelCase', BINARY 'CAMELCASE', 'i');
++---------------------------------------------------+
+| regexp_like('CamelCase', BINARY 'CAMELCASE', 'i') |
++---------------------------------------------------+
+|                                                 1 |
++---------------------------------------------------+
+
+Note
+MySQL uses C escape syntax in strings (for example, \n to represent the newline character). If you want your expr or pat argument to contain a literal \, you must double it. (Unless the NO_BACKSLASH_ESCAPES SQL mode is enabled, in which case no escape character is used.)
+
+REGEXP_REPLACE(expr, pat, repl[, pos[, occurrence[, match_type]]])
+--------------------------------------------------------------------
+Replaces occurrences in the string expr that match the regular expression specified by the pattern pat with the replacement string repl, and returns the resulting string. If expr, pat, or repl is NULL, the return value is NULL.
+
+REGEXP_REPLACE() takes these optional arguments:
+
+pos: The position in expr at which to start the search. If omitted, the default is 1.
+
+occurrence: Which occurrence of a match to replace. If omitted, the default is 0 (which means “replace all occurrences”).
+
+match_type: A string that specifies how to perform matching. The meaning is as described for REGEXP_LIKE().
+
+Prior to MySQL 8.0.17, the result returned by this function used the UTF-16 character set; in MySQL 8.0.17 and later, the character set and collation of the expression searched for matches is used. (Bug #94203, Bug #29308212)
+
+For additional information about how matching occurs, see the description for REGEXP_LIKE().
+
+mysql> select REGEXP_REPLACE('a b c', 'b', 'X');
++-----------------------------------+
+| regexp_replace('a b c', 'b', 'X') |
++-----------------------------------+
+| a X c                             |
++-----------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_replace('abc def ghi', '[a-z]+', 'X', 1,3);
++---------------------------------------------------+
+| regexp_replace('abc def ghi', '[a-z]+', 'X', 1,3) |
++---------------------------------------------------+
+| abc def X                                         |
++---------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_replace('abc def ghi', '[a-z]+', 'X');
++----------------------------------------------+
+| regexp_replace('abc def ghi', '[a-z]+', 'X') |
++----------------------------------------------+
+| X X X                                        |
++----------------------------------------------+
+
+
+
+
+
+

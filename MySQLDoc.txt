@@ -1719,4 +1719,8 @@ mysql> SELECT owner, COUNT(*) FROM pet;
 +--------+----------+
 1 row in set (0.00 sec)
 
+See also Section 12.20.3, “MySQL Handling of GROUP BY”. See Section 12.20.1, “Aggregate Function Descriptions” for information about COUNT(expr) behavior and related optimizations.
+
+12.20.3 MySQL Handling of GROUP BY
+----------------------------------
 

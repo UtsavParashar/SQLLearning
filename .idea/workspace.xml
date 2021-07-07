@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="14007636-fa3b-426e-b482-0fe40d24cf85" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MySQLDoc.txt" beforeDir="false" afterPath="$PROJECT_DIR$/MySQLDoc.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -43,13 +42,13 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="csv" value="5" />
-          <entry key="txt" value="79054" />
+          <entry key="txt" value="79115" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSV" value="3" />
-          <entry key="PLAIN_TEXT" value="79056" />
+          <entry key="PLAIN_TEXT" value="79117" />
         </counts>
       </usages-collector>
     </session>
@@ -81,7 +80,7 @@
         <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="595">
-              <caret line="1561" lean-forward="true" selection-start-line="1561" selection-end-line="1561" />
+              <caret line="1721" lean-forward="true" selection-start-line="1721" selection-end-line="1721" />
             </state>
           </provider>
         </entry>
@@ -235,7 +234,7 @@
     <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="595">
-          <caret line="1561" lean-forward="true" selection-start-line="1561" selection-end-line="1561" />
+          <caret line="1721" lean-forward="true" selection-start-line="1721" selection-end-line="1721" />
         </state>
       </provider>
     </entry>

@@ -751,6 +751,14 @@ mysql> SELECT 0 OR NULL;
 +-----------+
 1 row in set (0.00 sec)
 
+mysql> select 2 AND NULL;
++------------+
+| 2 AND NULL |
++------------+
+|       NULL |
++------------+
+1 row in set (0.01 sec)
+
 A common error when working with NULL is to assume that it is not possible to insert a zero or an empty string into a column defined as NOT NULL, but this is not the case. These are in fact values, whereas NULL means “not having a value.” You can test this easily enough by using IS [NOT] NULL as shown:
 mysql> SELECT 0 IS NULL, 0 IS NOT NULL, '' IS NULL, '' IS NOT NULL;
 +-----------+---------------+------------+----------------+
@@ -801,7 +809,7 @@ mysql> SELECT COUNT(*), COUNT(SEX) FROM pet;
 For some data types, MySQL handles NULL values specially. If you insert NULL into a TIMESTAMP column, the current date and time is inserted. If you insert NULL into an integer or floating-point column that has the AUTO_INCREMENT attribute, the next number in the sequence is inserted.
 
 3.3.4.7 Pattern Matching
-
+========================
 MySQL provides standard SQL pattern matching as well as a form of pattern matching based on extended regular expressions similar to those used by Unix utilities such as vi, grep, and sed.
 
 SQL pattern matching enables you to use _ to match any single character and % to match an arbitrary number of characters (including zero characters). In MySQL, SQL patterns are case-insensitive by default. Some examples are shown here. Do not use = or <> when you use SQL patterns. Use the LIKE or NOT LIKE comparison operators instead.
@@ -1014,6 +1022,14 @@ mysql> SELECT 'Michael!' REGEXP '.*';
 +------------------------+
 1 row in set (0.00 sec)
 
+mysql> SELECT 'Michael!' RLIKE '.*';
++-----------------------+
+| 'Michael!' RLIKE '.*' |
++-----------------------+
+|                     1 |
++-----------------------+
+1 row in set (0.02 sec)
+
 mysql> select 'new*\n*line' REGEXP '.*';
 +---------------------------+
 | 'new*\n*line' REGEXP '.*' |
@@ -1083,6 +1099,12 @@ mysql> select REGEXP_INSTR('dog cat dog', 'dog', 2);
 +---------------------------------------+
 |                                     9 |
 +---------------------------------------+
+
+mysql> select REGEXP_INSTR('dogdog cat dog', 'dog', 2);                                                                         +------------------------------------------+
+| REGEXP_INSTR('dogdog cat dog', 'dog', 2) |
++------------------------------------------+
+|                                        4 |
++------------------------------------------+
 
 
 mysql> select REGEXP_INSTR('AA AAA AAA', 'A{2}');
@@ -1292,8 +1314,258 @@ mysql> select regexp_substr('abc12def ghi', '[a-z]+');
 
 Regular Expression Syntax
 ==========================
+Regular Expression Syntax
+
+A regular expression describes a set of strings. The simplest regular expression is one that has no special characters in it. For example, the regular expression hello matches hello and nothing else.
+
+Nontrivial regular expressions use certain special constructs so that they can match more than one string. For example, the regular expression hello|world contains the | alternation operator and matches either the hello or world.
+
+As a more complex example, the regular expression B[an]*s matches any of the strings Bananas, Baaaaas, Bs, and any other string starting with a B, ending with an s, and containing any number of a or n characters in between.
+
+The following list covers some of the basic special characters and constructs that can be used in regular expressions. For information about the full regular expression syntax supported by the ICU library used to implement regular expression support, visit the International Components for Unicode website.
+
+^ - Match the beginning of a string.
+mysql> select regexp_like ('fo\nfo', '^fo$');
++--------------------------------+
+| regexp_like ('fo\nfo', '^fo$') |
++--------------------------------+
+|                              0 |
++--------------------------------+
+1 row in set (0.01 sec)
+
+mysql> select regexp_like ('fo\nfo', '^fo');
++-------------------------------+
+| regexp_like ('fo\nfo', '^fo') |
++-------------------------------+
+|                             1 |
++-------------------------------+
+
+$ - Match the end of a string.
+mysql> SELECT REGEXP_LIKE('fo\no', '^fo\no$');                 -> 1
+mysql> SELECT REGEXP_LIKE('fo\no', '^fo$');                    -> 0
+
+. - Match any character (including carriage return and newline, although to match these in the middle of a string, the m (multiple line) match-control character or the (?m) within-pattern modifier must be given).
+
+mysql> select regexp_like ('fofo', '^f.*$');
++-------------------------------+
+| regexp_like ('fofo', '^f.*$') |
++-------------------------------+
+|                             1 |
++-------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_like ('fo\r\nfo', '^f.*$');
++-----------------------------------+
+| regexp_like ('fo\r\nfo', '^f.*$') |
++-----------------------------------+
+|                                 0 |
++-----------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_like ('fo\r\nfo', '^f.*$', 'm');
++----------------------------------------+
+| regexp_like ('fo\r\nfo', '^f.*$', 'm') |
++----------------------------------------+
+|                                      1 |
++----------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_like ('fo\r\nfo', '(?m)^f.*$');
++---------------------------------------+
+| regexp_like ('fo\r\nfo', '(?m)^f.*$') |
++---------------------------------------+
+|                                     1 |
++---------------------------------------+
+
+a* - Match any sequence of zero or more a characters.
+mysql> SELECT REGEXP_LIKE('Ban', '^Ba*n');                     -> 1
+mysql> SELECT REGEXP_LIKE('Baaan', '^Ba*n');                   -> 1
+mysql> SELECT REGEXP_LIKE('Bn', '^Ba*n');                      -> 1
+
+a+ - Match any sequence of one or more a characters.
+mysql> SELECT REGEXP_LIKE('Ban', '^Ba+n');                     -> 1
+mysql> SELECT REGEXP_LIKE('Bn', '^Ba+n');                      -> 0
+
+a? - Match either zero or one a character.
+mysql> SELECT REGEXP_LIKE('Bn', '^Ba?n');                      -> 1
+mysql> SELECT REGEXP_LIKE('Ban', '^Ba?n');                     -> 1
+mysql> SELECT REGEXP_LIKE('Baan', '^Ba?n');                    -> 0
+
+de|abc - alternation; match either of the sequences de or abc.
+mysql> SELECT REGEXP_LIKE('pi', 'pi|apa');                     -> 1
+mysql> SELECT REGEXP_LIKE('axe', 'pi|apa');                    -> 0
+mysql> SELECT REGEXP_LIKE('apa', 'pi|apa');                    -> 1
+mysql> SELECT REGEXP_LIKE('apa', '^(pi|apa)$');                -> 1
+mysql> SELECT REGEXP_LIKE('pi', '^(pi|apa)$');                 -> 1
+mysql> SELECT REGEXP_LIKE('pix', '^(pi|apa)$');                -> 0
+
+(abc)* - Match zero or more instances of the sequence abc.
+mysql> SELECT REGEXP_LIKE('pi', '^(pi)*$');                    -> 1
+mysql> SELECT REGEXP_LIKE('pip', '^(pi)*$');                   -> 0
+mysql> SELECT REGEXP_LIKE('pipi', '^(pi)*$');                  -> 1
+
+mysql> SELECT REGEXP_LIKE('pip', '(pi)*');
++-----------------------------+
+| REGEXP_LIKE('pip', '(pi)*') |
++-----------------------------+
+|                           1 |
++-----------------------------+
+1 row in set (0.00 sec)
+
+{1}, {2,3} - Repetition; {n} and {m,n} notation provide a more general way of writing regular expressions that match many occurrences of the previous atom (or “piece”) of the pattern. m and n are integers.
+
+a* - Can be written as a{0,}.
+a+ - Can be written as a{1,}.
+a? - Can be written as a{0,1}.
+
+mysql> select regexp_like ('abcde', 'a[bcd]{1}e');
++-------------------------------------+
+| regexp_like ('abcde', 'a[bcd]{1}e') |
++-------------------------------------+
+|                                   0 |
++-------------------------------------+
+1 row in set (0.01 sec)
+
+mysql> select regexp_like ('abcde', 'a[bcd]{1,}e');
++--------------------------------------+
+| regexp_like ('abcde', 'a[bcd]{1,}e') |
++--------------------------------------+
+|                                    1 |
++--------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_like ('abcde', 'a[bcd]{2}e');
++-------------------------------------+
+| regexp_like ('abcde', 'a[bcd]{2}e') |
++-------------------------------------+
+|                                   0 |
++-------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_like ('abcde', 'a[bcd]{3}e');
++-------------------------------------+
+| regexp_like ('abcde', 'a[bcd]{3}e') |
++-------------------------------------+
+|                                   1 |
++-------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_like ('abcde', 'a[bcd]{4}e');
++-------------------------------------+
+| regexp_like ('abcde', 'a[bcd]{4}e') |
++-------------------------------------+
+|                                   0 |
++-------------------------------------+
+
+mysql> SELECT REGEXP_LIKE('abcde', 'a[bcd]{1,10}e');           -> 1
+
+[a-dX], [^a-dX] - Matches any character that is (or is not, if ^ is used) either a, b, c, d or X. A - character between two other characters forms a range that matches all characters from the first character to the second. For example, [0-9] matches any decimal digit. To include a literal ] character, it must immediately follow the opening bracket [. To include a literal - character, it must be written first or last. Any character that does not have a defined special meaning inside a [] pair matches only itself.
+
+mysql> SELECT REGEXP_LIKE('aXbc', '[a-dXYZ]');                 -> 1
+mysql> SELECT REGEXP_LIKE('aXbc', '^[a-dXYZ]$');               -> 0
+mysql> SELECT REGEXP_LIKE('aXbc', '^[a-dXYZ]+$');              -> 1
+mysql> SELECT REGEXP_LIKE('aXbc', '^[^a-dXYZ]+$');             -> 0
+mysql> SELECT REGEXP_LIKE('gheis', '^[^a-dXYZ]+$');            -> 1
+mysql> SELECT REGEXP_LIKE('gheisa', '^[^a-dXYZ]+$');           -> 0
+
+mysql> SELECT REGEXP_LIKE('aXbcZ', '^[a-dXY]');
++----------------------------------+
+| REGEXP_LIKE('aXbcZ', '^[a-dXY]') |
++----------------------------------+
+|                                1 |
++----------------------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT REGEXP_LIKE('caXbcZ', '^[a-dXY]');
++-----------------------------------+
+| REGEXP_LIKE('caXbcZ', '^[a-dXY]') |
++-----------------------------------+
+|                                 1 |
++-----------------------------------+
+
+[=character_class=] - Within a bracket expression (written using [ and ]), [=character_class=] represents an equivalence class. It matches all characters with the same collation value, including itself. For example, if o and (+) are the members of an equivalence class, [[=o=]], [[=(+)=]], and [o(+)] are all synonymous. An equivalence class may not be used as an endpoint of a range.
+
+[:character_class:] - Within a bracket expression (written using [ and ]), [:character_class:] represents a character class that matches all characters belonging to that class. The following table lists the standard class names. These names stand for the character classes defined in the ctype(3) manual page. A particular locale may provide other class names. A character class may not be used as an endpoint of a range.
+
+Character Class Name	Meaning
+alnum	                Alphanumeric characters
+alpha	                Alphabetic characters
+blank	                Whitespace characters
+cntrl	                Control characters
+digit	                Digit characters
+graph	                Graphic characters
+lower	                Lowercase alphabetic characters
+print	                Graphic or space characters
+punct	                Punctuation characters
+space	                Space, tab, newline, and carriage return
+upper	                Uppercase alphabetic characters
+xdigit	                Hexadecimal digit characters
+
+mysql> SELECT REGEXP_LIKE('justalnums', '[[:alnum:]]+');       -> 1
+mysql> SELECT REGEXP_LIKE('!!', '[[:alnum:]]+');               -> 0
+
+To use a literal instance of a special character in a regular expression, precede it by two backslash (\) characters. The MySQL parser interprets one of the backslashes, and the regular expression library interprets the other. For example, to match the string 1+2 that contains the special + character, only the last of the following regular expressions is the correct one:
+
+mysql> SELECT REGEXP_LIKE('1+2', '1+2');                       -> 0
+mysql> SELECT REGEXP_LIKE('1+2', '1\+2');                      -> 0
+mysql> SELECT REGEXP_LIKE('1+2', '1\\+2');                     -> 1
+
+mysql> select regexp_like('ramesh123', '[[:alnum:]]');
++-----------------------------------------+
+| regexp_like('ramesh123', '[[:alnum:]]') |
++-----------------------------------------+
+|                                       1 |
++-----------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_like('ramesh', '[[:alnum:]]');
++--------------------------------------+
+| regexp_like('ramesh', '[[:alnum:]]') |
++--------------------------------------+
+|                                    1 |
++--------------------------------------+
+1 row in set (0.01 sec)
+
+mysql> select regexp_like('123', '[[:alnum:]]');
++-----------------------------------+
+| regexp_like('123', '[[:alnum:]]') |
++-----------------------------------+
+|                                 1 |
++-----------------------------------+
+1 row in set (0.01 sec)
+
+mysql> select regexp_like('', '[[:alnum:]]');
++--------------------------------+
+| regexp_like('', '[[:alnum:]]') |
++--------------------------------+
+|                              0 |
++--------------------------------+
+1 row in set (0.01 sec)
+
+mysql> select regexp_like('123!', '[[:alnum:]]');
++------------------------------------+
+| regexp_like('123!', '[[:alnum:]]') |
++------------------------------------+
+|                                  1 |
++------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select regexp_like('123!', '[[:alnum:]]+');
++-------------------------------------+
+| regexp_like('123!', '[[:alnum:]]+') |
++-------------------------------------+
+|                                   1 |
++-------------------------------------+
+1 row in set (0.01 sec)
 
 
+Regular Expression Resource Control
+
+REGEXP_LIKE() and similar functions use resources that can be controlled by setting system variables:
+
+The match engine uses memory for its internal stack. To control the maximum available memory for the stack in bytes, set the regexp_stack_limit system variable.
+
+The match engine operates in steps. To control the maximum number of steps performed by the engine (and thus indirectly the execution time), set the regexp_time_limit system variable. Because this limit is expressed as number of steps, it affects execution time only indirectly. Typically, it is on the order of milliseconds.
 
 
 

@@ -258,6 +258,7 @@ String and date values are specified as quoted strings here. Also, with INSERT, 
 From this example, you should be able to see that there would be a lot more typing involved to load your records initially using several INSERT statements rather than a single LOAD DATA statement.
 
 Load a csv file -
+SET GLOBAL local_infile = 1;
 mysql> LOAD DATA LOCAL INFILE '/Users/utsav/Desktop/repos/SQLLearning/te.csv' INTO TABLE test_csv_load fields terminated by ',';
 Query OK, 8 rows affected (0.01 sec)
 Records: 8  Deleted: 0  Skipped: 0  Warnings: 0
@@ -1721,6 +1722,62 @@ mysql> SELECT owner, COUNT(*) FROM pet;
 
 See also Section 12.20.3, “MySQL Handling of GROUP BY”. See Section 12.20.1, “Aggregate Function Descriptions” for information about COUNT(expr) behavior and related optimizations.
 
-12.20.3 MySQL Handling of GROUP BY
-----------------------------------
+3.3.4.9 Using More Than one Table
+---------------------------------
+The pet table keeps track of which pets you have. If you want to record other information about them, such as events in their lives like visits to the vet or when litters are born, you need another table. What should this table look like? It needs to contain the following information:
+
+The pet name so that you know which animal each event pertains to.
+A date so that you know when the event occurred.
+A field to describe the event.
+An event type field, if you want to be able to categorize events.
+Given these considerations, the CREATE TABLE statement for the event table might look like this:
+
+mysql> create table event (name varchar(20), date DATE, type varchar(15), remark varchar(255));
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> SET GLOBAL local_infile = 1;
+mysql> load data local infile '/Users/utsav/Desktop/repos/SQLLearning/te.csv' into table event  fields terminated by '|';
+
+Based on what you have learned from the queries that you have run on the pet table, you should be able to perform retrievals on the records in the event table; the principles are the same. But when is the event table by itself insufficient to answer questions you might ask?
+
+Suppose that you want to find out the ages at which each pet had its litters. We saw earlier how to calculate ages from two dates. The litter date of the mother is in the event table, but to calculate her age on that date you need her birth date, which is stored in the pet table. This means the query requires both tables:
+
+mysql> select pet.name, TIMESTAMPDIFF(YEAR, birth, date) as age, remark
+    -> from pet join event on pet.name = event.name
+    -> where event.type = 'litter';
+
+OR
+mysql> select p.name, TIMESTAMPDIFF(YEAR, p.birth, e.date) as age, e.remark
+from pet p
+join event e
+on p.name=e.name
+where e.type='litter';
+
+There are several things to note about this query:
+
+The FROM clause joins two tables because the query needs to pull information from both of them.
+
+When combining (joining) information from multiple tables, you need to specify how records in one table can be matched to records in the other. This is easy because they both have a name column. The query uses an ON clause to match up records in the two tables based on the name values.
+
+The query uses an INNER JOIN to combine the tables. An INNER JOIN permits rows from either table to appear in the result if and only if both tables meet the conditions specified in the ON clause. In this example, the ON clause specifies that the name column in the pet table must match the name column in the event table. If a name appears in one table but not the other, the row does not appear in the result because the condition in the ON clause fails.
+
+Because the name column occurs in both tables, you must be specific about which table you mean when referring to the column. This is done by prepending the table name to the column name.
+
+You need not have two different tables to perform a join. Sometimes it is useful to join a table to itself, if you want to compare records in a table to other records in that same table. For example, to find breeding pairs among your pets, you can join the pet table with itself to produce candidate pairs of live males and females of like species:
+
+select p1.name, p1.sex, p2.name, p2.sex, p1.species
+from pet p1
+join pet p2
+on p1.species = p2.species
+and p1.sex = 'f' AND p1.death is null
+and p2.sex = 'm' AND p2.death is null;
+
+OR
+SELECT p1.name, p1.sex, p2.name, p2.sex, p1.species
+       FROM pet AS p1 INNER JOIN pet AS p2
+         ON p1.species = p2.species
+         AND p1.sex = 'f' AND p1.death IS NULL
+         AND p2.sex = 'm' AND p2.death IS NULL;
+
+In this query, we specify aliases for the table name to refer to the columns and keep straight which instance of the table each column reference is associated with.
 

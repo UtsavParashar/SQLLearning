@@ -1862,3 +1862,164 @@ If you have indexes on a table, SHOW INDEX FROM tbl_name produces information ab
 
 mysql> show create table;
 mysql> show index from pet;
+
+3.5 Using mysql in Batch Mode
+------------------------------
+In the previous sections, you used mysql interactively to enter statements and view the results. You can also run mysql in batch mode. To do this, put the statements you want to run in a file, then tell mysql to read its input from the file:
+3.5 Using mysql in Batch Mode
+
+In the previous sections, you used mysql interactively to enter statements and view the results. You can also run mysql in batch mode. To do this, put the statements you want to run in a file, then tell mysql to read its input from the file:
+
+shell> mysql < batch-file
+If you are running mysql under Windows and have some special characters in the file that cause problems, you can do this:
+
+C:\> mysql -e "source batch-file"
+If you need to specify connection parameters on the command line, the command might look like this:
+
+shell> mysql -h host -u user -p < batch-file
+Enter password: ********
+
+Example:
+(base) Utsavs-MacBook-Air:~ utsav$ mysql < /Users/utsav/Desktop/repos/SQLLearning/batch-file.sql
+(base) Utsavs-MacBook-Air:~ utsav$ mysql -u root -p < /Users/utsav/Desktop/repos/SQLLearning/batch-file.sql
+Enter password:
+name	owner	species	sex	birth	death
+Fluffy	Harold	cat	F	1993-02-04	NULL
+Claws	Gwen	cat	M	1994-03-17	NULL
+Buffy	Harold	dog	F	1989-05-13	NULL
+Fang	Benny	dog	M	1990-08-27	NULL
+Bowser	Diane	dog	M	1989-08-31	1995-07-29
+Chirpy	Gwen	bird	F	1998-09-11	NULL
+Whistler	Gwen	bird	NULL	1997-12-09	NULL
+Slim	Benny	snake	M	1996-04-29	NULL
+bruzo	Chinku	dog	M	2019-01-04	NULL
+
+When you use mysql this way, you are creating a script file, then executing the script.
+
+If you want the script to continue even if some of the statements in it produce errors, you should use the --force command-line option.
+
+Why use a script? Here are a few reasons:
+
+If you run a query repeatedly (say, every day or every week), making it a script enables you to avoid retyping it each time you execute it.
+
+You can generate new queries from existing ones that are similar by copying and editing script files.
+
+Batch mode can also be useful while you're developing a query, particularly for multiple-line statements or multiple-statement sequences. If you make a mistake, you don't have to retype everything. Just edit your script to correct the error, then tell mysql to execute it again.
+
+If you have a query that produces a lot of output, you can run the output through a pager rather than watching it scroll off the top of your screen:
+
+shell> mysql < batch-file | more
+You can catch the output in a file for further processing:
+
+
+shell> mysql < batch-file > mysql.out
+
+Example:
+(base) Utsavs-MacBook-Air:~ utsav$ mysql -u root -p  < /Users/utsav/Desktop/repos/SQLLearning/batch-file.sql > /Users/utsav/Desktop/repos/SQLLearning/batch-file_output.csv
+Enter password:
+
+If you want to get the interactive output format in batch mode, use mysql -t. To echo to the output the statements that are executed, use mysql -v.
+(base) Utsavs-MacBook-Air:~ utsav$ mysql -u root -p  -t < /Users/utsav/Desktop/repos/SQLLearning/batch-file.sql
+Enter password:
++----------+--------+---------+------+------------+------------+
+| name     | owner  | species | sex  | birth      | death      |
++----------+--------+---------+------+------------+------------+
+| Fluffy   | Harold | cat     | F    | 1993-02-04 | NULL       |
+| Claws    | Gwen   | cat     | M    | 1994-03-17 | NULL       |
+| Buffy    | Harold | dog     | F    | 1989-05-13 | NULL       |
+| Fang     | Benny  | dog     | M    | 1990-08-27 | NULL       |
+| Bowser   | Diane  | dog     | M    | 1989-08-31 | 1995-07-29 |
+| Chirpy   | Gwen   | bird    | F    | 1998-09-11 | NULL       |
+| Whistler | Gwen   | bird    | NULL | 1997-12-09 | NULL       |
+| Slim     | Benny  | snake   | M    | 1996-04-29 | NULL       |
+| bruzo    | Chinku | dog     | M    | 2019-01-04 | NULL       |
++----------+--------+---------+------+------------+------------+
+
+(base) Utsavs-MacBook-Air:~ utsav$ mysql -u root -p  -t -v < /Users/utsav/Desktop/repos/SQLLearning/batch-file.sql
+Enter password:
+--------------
+select * from pet limit 2
+--------------
+
++--------+--------+---------+------+------------+-------+
+| name   | owner  | species | sex  | birth      | death |
++--------+--------+---------+------+------------+-------+
+| Fluffy | Harold | cat     | F    | 1993-02-04 | NULL  |
+| Claws  | Gwen   | cat     | M    | 1994-03-17 | NULL  |
++--------+--------+---------+------+------------+-------+
+--------------
+show tables
+--------------
+
++---------------------+
+| Tables_in_menagerie |
++---------------------+
+| event               |
+| mytable             |
+| pet                 |
++---------------------+
+--------------
+select * from event limit 2
+--------------
+
++--------+------------+--------+-----------------------------+
+| name   | date       | type   | remark                      |
++--------+------------+--------+-----------------------------+
+| Fluffy | 1995-05-15 | litter | 4 kittens, 3 female, 1 male |
+| Buffy  | 1993-06-23 | litter | 5 puppies, 2 female, 3 male |
++--------+------------+--------+-----------------------------+
+
+You can also use scripts from the mysql prompt by using the source command or \. command(# Don't terminate with semi-colon):
+mysql> source /Users/utsav/Desktop/repos/SQLLearning/batch-file.sql
+Database changed
++--------+--------+---------+------+------------+-------+
+| name   | owner  | species | sex  | birth      | death |
++--------+--------+---------+------+------------+-------+
+| Fluffy | Harold | cat     | F    | 1993-02-04 | NULL  |
+| Claws  | Gwen   | cat     | M    | 1994-03-17 | NULL  |
++--------+--------+---------+------+------------+-------+
+2 rows in set (0.00 sec)
+
++---------------------+
+| Tables_in_menagerie |
++---------------------+
+| event               |
+| mytable             |
+| pet                 |
++---------------------+
+3 rows in set (0.00 sec)
+
++--------+------------+--------+-----------------------------+
+| name   | date       | type   | remark                      |
++--------+------------+--------+-----------------------------+
+| Fluffy | 1995-05-15 | litter | 4 kittens, 3 female, 1 male |
+| Buffy  | 1993-06-23 | litter | 5 puppies, 2 female, 3 male |
++--------+------------+--------+-----------------------------+
+2 rows in set (0.00 sec)
+
+mysql> \. /Users/utsav/Desktop/repos/SQLLearning/batch-file.sql # Don't terminate with semi-colon
+Database changed
++--------+--------+---------+------+------------+-------+
+| name   | owner  | species | sex  | birth      | death |
++--------+--------+---------+------+------------+-------+
+| Fluffy | Harold | cat     | F    | 1993-02-04 | NULL  |
+| Claws  | Gwen   | cat     | M    | 1994-03-17 | NULL  |
++--------+--------+---------+------+------------+-------+
+2 rows in set (0.00 sec)
+
++---------------------+
+| Tables_in_menagerie |
++---------------------+
+| event               |
+| mytable             |
+| pet                 |
++---------------------+
+3 rows in set (0.00 sec)
+
++--------+------------+--------+-----------------------------+
+| name   | date       | type   | remark                      |
++--------+------------+--------+-----------------------------+
+| Fluffy | 1995-05-15 | litter | 4 kittens, 3 female, 1 male |
+| Buffy  | 1993-06-23 | litter | 5 puppies, 2 female, 3 male |
++--------+------------+--------+-----------------------------+
+2 rows in set (0.00 sec)

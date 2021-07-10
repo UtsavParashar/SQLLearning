@@ -2263,5 +2263,180 @@ Create Table: CREATE TABLE `shirt` (
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 1 row in set (0.00 sec)
 
+3.6.7 Searching on Two Keys
+===========================
+An OR using a single key is well optimized, as is the handling of AND.
+
+The one tricky case is that of searching on two different keys combined with OR:
+
+SELECT field1_index, field2_index FROM test_table
+WHERE field1_index = '1' OR  field2_index = '1'
+This case is optimized. See Section 8.2.1.3, “Index Merge Optimization”.
+
+You can also solve the problem efficiently by using a UNION that combines the output of two separate SELECT statements. See Section 13.2.10.3, “UNION Clause”.
+
+Each SELECT searches only one key and can be optimized:
+
+SELECT field1_index, field2_index
+    FROM test_table WHERE field1_index = '1'
+UNION
+SELECT field1_index, field2_index
+    FROM test_table WHERE field2_index = '1';
+
+OR query normally seems to be faster than UNION, tested on small table.
+
+3.6.8 Calculating Visits Per Day
+=================================
+The following example shows how you can use the bit group functions to calculate the number of days per month a user has visited a Web page.
+create table t1(
+	year YEAR,
+    month TINYINT UNSIGNED,
+    day TINYINT UNSIGNED
+);
+
+INSERT INTO t1 VALUES(2000,1,1),(2000,1,20),(2000,1,30),(2000,2,2),
+            (2000,2,23),(2000,2,23);
+
+select * from t1;
+
+The example table contains year-month-day values representing visits by users to the page. To determine how many different days in each month these visits occur, use this query:
+mysql> select year, month, bit_count(BIT_OR(1<<day)) as days  from t1 group by year, month;
++------+-------+------+
+| year | month | days |
++------+-------+------+
+| 2000 |     1 |    3 |
+| 2000 |     2 |    2 |
++------+-------+------+
+2 rows in set (0.00 sec)
+
+The query calculates how many different days appear in the table for each year/month combination, with automatic removal of duplicate entries.
+
+
+3.6.9 Using AUTO_INCREMENT
+===========================
+The AUTO_INCREMENT attribute can be used to generate a unique identity for new rows:
+
+CREATE TABLE animals (
+     id MEDIUMINT NOT NULL AUTO_INCREMENT,
+     name CHAR(30) NOT NULL,
+     PRIMARY KEY (id)
+);
+
+INSERT INTO animals (name) VALUES
+    ('dog'),('cat'),('penguin'),
+    ('lax'),('whale'),('ostrich');
+
+SELECT * FROM animals;
+
+No value was specified for the AUTO_INCREMENT column, so MySQL assigned sequence numbers automatically. You can also explicitly assign 0 to the column to generate sequence numbers, unless the NO_AUTO_VALUE_ON_ZERO SQL mode is enabled. For example:
+INSERT INTO animals (id,name) VALUES(0,'groundhog');
+
+If the column is declared NOT NULL, it is also possible to assign NULL to the column to generate sequence numbers. For example
+INSERT INTO animals (id,name) VALUES(NULL,'squirrel');
+
+When you insert any other value into an AUTO_INCREMENT column, the column is set to that value and the sequence is reset so that the next automatically generated value follows sequentially from the largest column value. For example:
+
+INSERT INTO animals (id,name) VALUES(100,'rabbit');
+INSERT INTO animals (id,name) VALUES(NULL,'mouse');
+SELECT * FROM animals;
++-----+-----------+
+| id  | name      |
++-----+-----------+
+|   1 | dog       |
+|   2 | cat       |
+|   3 | penguin   |
+|   4 | lax       |
+|   5 | whale     |
+|   6 | ostrich   |
+|   7 | groundhog |
+|   8 | squirrel  |
+| 100 | rabbit    |
+| 101 | mouse     |
++-----+-----------+
+
+Updating an existing AUTO_INCREMENT column value also resets the AUTO_INCREMENT sequence.
+
+You can retrieve the most recent automatically generated AUTO_INCREMENT value with the LAST_INSERT_ID() SQL function or the mysql_insert_id() C API function. These functions are connection-specific, so their return values are not affected by another connection which is also performing inserts.
+
+Use the smallest integer data type for the AUTO_INCREMENT column that is large enough to hold the maximum sequence value you require. When the column reaches the upper limit of the data type, the next attempt to generate a sequence number fails. Use the UNSIGNED attribute if possible to allow a greater range. For example, if you use TINYINT, the maximum permissible sequence number is 127. For TINYINT UNSIGNED, the maximum is 255. See Section 11.1.2, “Integer Types (Exact Value) - INTEGER, INT, SMALLINT, TINYINT, MEDIUMINT, BIGINT” for the ranges of all the integer types.
+
+
+Note
+For a multiple-row insert, LAST_INSERT_ID() and mysql_insert_id() actually return the AUTO_INCREMENT key from the first of the inserted rows. This enables multiple-row inserts to be reproduced correctly on other servers in a replication setup.
+
+To start with an AUTO_INCREMENT value other than 1, set that value with CREATE TABLE or ALTER TABLE, like this:
+
+mysql> ALTER TABLE tbl AUTO_INCREMENT = 100;
+
+InnoDB Notes
+For information about AUTO_INCREMENT usage specific to InnoDB, see Section 15.6.1.6, “AUTO_INCREMENT Handling in InnoDB”.
+
+MyISAM Notes
+
+For MyISAM tables, you can specify AUTO_INCREMENT on a secondary column in a multiple-column index. In this case, the generated value for the AUTO_INCREMENT column is calculated as MAX(auto_increment_column) + 1 WHERE prefix=given-prefix. This is useful when you want to put data into ordered groups.
+
+CREATE TABLE animals (
+    grp ENUM('fish','mammal','bird') NOT NULL,
+    id MEDIUMINT NOT NULL AUTO_INCREMENT,
+    name CHAR(30) NOT NULL,
+    PRIMARY KEY (grp,id)
+) ENGINE=MyISAM;
+
+INSERT INTO animals (grp,name) VALUES
+    ('mammal','dog'),('mammal','cat'),
+    ('bird','penguin'),('fish','lax'),('mammal','whale'),
+    ('bird','ostrich');
+
+SELECT * FROM animals ORDER BY grp,id;
+Which returns:
+
++--------+----+---------+
+| grp    | id | name    |
++--------+----+---------+
+| fish   |  1 | lax     |
+| mammal |  1 | dog     |
+| mammal |  2 | cat     |
+| mammal |  3 | whale   |
+| bird   |  1 | penguin |
+| bird   |  2 | ostrich |
++--------+----+---------+
+
+In this case (when the AUTO_INCREMENT column is part of a multiple-column index), AUTO_INCREMENT values are reused if you delete the row with the biggest AUTO_INCREMENT value in any group. This happens even for MyISAM tables, for which AUTO_INCREMENT values normally are not reused.
+
+If the AUTO_INCREMENT column is part of multiple indexes, MySQL generates sequence values using the index that begins with the AUTO_INCREMENT column, if there is one. For example, if the animals table contained indexes PRIMARY KEY (grp, id) and INDEX (id), MySQL would ignore the PRIMARY KEY for generating sequence values. As a result, the table would contain a single sequence, not a sequence per grp value.
+
+Further Reading
+
+More information about AUTO_INCREMENT is available here:
+
+How to assign the AUTO_INCREMENT attribute to a column: Section 13.1.20, “CREATE TABLE Statement”, and Section 13.1.9, “ALTER TABLE Statement”.
+
+How AUTO_INCREMENT behaves depending on the NO_AUTO_VALUE_ON_ZERO SQL mode: Section 5.1.11, “Server SQL Modes”.
+
+How to use the LAST_INSERT_ID() function to find the row that contains the most recent AUTO_INCREMENT value: Section 12.16, “Information Functions”.
+
+Setting the AUTO_INCREMENT value to be used: Section 5.1.8, “Server System Variables”.
+
+Section 15.6.1.6, “AUTO_INCREMENT Handling in InnoDB”
+
+AUTO_INCREMENT and replication: Section 17.5.1.1, “Replication and AUTO_INCREMENT”.
+
+Server-system variables related to AUTO_INCREMENT (auto_increment_increment and auto_increment_offset) that can be used for replication: Section 5.1.8, “Server System Variables”.
+
+
+3.7 Using MySQL with Apache
+============================
+There are programs that let you authenticate your users from a MySQL database and also let you write your log files into a MySQL table.
+
+You can change the Apache logging format to be easily readable by MySQL by putting the following into the Apache configuration file:
+
+LogFormat \
+        "\"%h\",%{%Y%m%d%H%M%S}t,%>s,\"%b\",\"%{Content-Type}o\",  \
+        \"%U\",\"%{Referer}i\",\"%{User-Agent}i\""
+To load a log file in that format into MySQL, you can use a statement something like this:
+
+LOAD DATA INFILE '/local/access_log' INTO TABLE tbl_name
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'
+The named table should be created to have columns that correspond to those that the LogFormat line writes to the log file.
 
 

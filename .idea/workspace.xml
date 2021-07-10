@@ -45,13 +45,13 @@
         <counts>
           <entry key="csv" value="13" />
           <entry key="sql" value="124" />
-          <entry key="txt" value="80075" />
+          <entry key="txt" value="80272" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSV" value="11" />
-          <entry key="PLAIN_TEXT" value="80077" />
+          <entry key="PLAIN_TEXT" value="80274" />
           <entry key="SQL" value="124" />
         </counts>
       </usages-collector>
@@ -83,8 +83,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="538">
-              <caret line="2242" lean-forward="true" selection-start-line="2242" selection-end-line="2242" />
+            <state relative-caret-position="595">
+              <caret line="2424" lean-forward="true" selection-start-line="2424" selection-end-line="2424" />
             </state>
           </provider>
         </entry>
@@ -293,8 +293,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="538">
-          <caret line="2242" lean-forward="true" selection-start-line="2242" selection-end-line="2242" />
+        <state relative-caret-position="595">
+          <caret line="2424" lean-forward="true" selection-start-line="2424" selection-end-line="2424" />
         </state>
       </provider>
     </entry>

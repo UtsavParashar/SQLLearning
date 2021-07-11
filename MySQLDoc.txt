@@ -2585,3 +2585,47 @@ Deal with locking issues, where the speed of your query might be affected by oth
 
 INDEX
 ------
+A data structure that provides a fast lookup capability for rows of a table, typically by forming a tree structure (B-tree) representing all the values of a particular column or set of columns.
+
+InnoDB tables always have a clustered index representing the primary key. They can also have one or more secondary indexes defined on one or more columns. Depending on their structure, secondary indexes can be classified as partial, column, or composite indexes.
+
+Indexes are a crucial aspect of query performance. Database architects design tables, queries, and indexes to allow fast lookups for data needed by applications. The ideal database design uses a covering index where practical; the query results are computed entirely from the index, without reading the actual table data. Each foreign key constraint also requires an index, to efficiently check whether values exist in both the parent and child tables.
+
+Although a B-tree index is the most common, a different kind of data structure is used for hash indexes, as in the MEMORY storage engine and the InnoDB adaptive hash index. R-tree indexes are used for spatial indexing of multi-dimensional information.
+
+B-tree
+------
+A tree data structure that is popular for use in database indexes. The structure is kept sorted at all times, enabling fast lookup for exact matches (equals operator) and ranges (for example, greater than, less than, and BETWEEN operators). This type of index is available for most storage engines, such as InnoDB and MyISAM.
+
+Because B-tree nodes can have many children, a B-tree is not the same as a binary tree, which is limited to 2 children per node.
+
+Contrast with hash index, which is only available in the MEMORY storage engine. The MEMORY storage engine can also use B-tree indexes, and you should choose B-tree indexes for MEMORY tables if some queries use range operators.
+
+The use of the term B-tree is intended as a reference to the general class of index design. B-tree structures used by MySQL storage engines may be regarded as variants due to sophistications not present in a classic B-tree design. For related information, refer to the InnoDB Page Structure Fil Header section of the MySQL Internals Manual.
+
+
+adaptive hash index
+--------------------
+An optimization for InnoDB tables that can speed up lookups using = and IN operators, by constructing a hash index in memory. MySQL monitors index searches for InnoDB tables, and if queries could benefit from a hash index, it builds one automatically for index pages that are frequently accessed. In a sense, the adaptive hash index configures MySQL at runtime to take advantage of ample main memory, coming closer to the architecture of main-memory databases. This feature is controlled by the innodb_adaptive_hash_index configuration option. Because this feature benefits some workloads and not others, and the memory used for the hash index is reserved in the buffer pool, typically you should benchmark with this feature both enabled and disabled.
+
+The hash index is always built based on an existing B-tree index on the table. MySQL can build a hash index on a prefix of any length of the key defined for the B-tree, depending on the pattern of searches against the index. A hash index can be partial; the whole B-tree index does not need to be cached in the buffer pool.
+
+In MySQL 5.6 and higher, another way to take advantage of fast single-value lookups with InnoDB tables is to use the InnoDB memcached plugin. See Section 15.20, “InnoDB memcached Plugin” for details.
+
+hash index
+----------
+A type of index intended for queries that use equality operators, rather than range operators such as greater-than or BETWEEN. It is available for MEMORY tables. Although hash indexes are the default for MEMORY tables for historic reasons, that storage engine also supports B-tree indexes, which are often a better choice for general-purpose queries.
+
+MySQL includes a variant of this index type, the adaptive hash index, that is constructed automatically for InnoDB tables if needed based on runtime conditions.
+
+InnoDB
+-------
+A MySQL component that combines high performance with transactional capability for reliability, robustness, and concurrent access. It embodies the ACID design philosophy. Represented as a storage engine; it handles tables created or altered with the ENGINE=INNODB clause. See Chapter 15, The InnoDB Storage Engine for architectural details and administration procedures, and Section 8.5, “Optimizing for InnoDB Tables” for performance advice.
+
+In MySQL 5.5 and higher, InnoDB is the default storage engine for new tables and the ENGINE=INNODB clause is not required.
+
+InnoDB tables are ideally suited for hot backups. See Section 30.2, “MySQL Enterprise Backup Overview” for information about the MySQL Enterprise Backup product for backing up MySQL servers without interrupting normal processing.
+
+ACID
+----
+

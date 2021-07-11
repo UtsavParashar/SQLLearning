@@ -2439,4 +2439,149 @@ LOAD DATA INFILE '/local/access_log' INTO TABLE tbl_name
 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'
 The named table should be created to have columns that correspond to those that the LogFormat line writes to the log file.
 
+Chapter 4 MySQL Programs
+=========================
+This chapter provides a brief overview of the MySQL command-line programs provided by Oracle Corporation. It also discusses the general syntax for specifying options when you run these programs. Most programs have options that are specific to their own operation, but the option syntax is similar for all of them. Finally, the chapter provides more detailed descriptions of individual programs, including which options they recognize.
 
+4.2.2.1 Using Options on the Command Line
+For a long option that takes a value, separate the option name and the value by an = sign. For a short option that takes a value, the option value can immediately follow the option letter, or there can be a space between: -hlocalhost and -h localhost are equivalent. An exception to this rule is the option for specifying your MySQL password. This option can be given in long form as --password=pass_val or as --password. In the latter case (with no password value given), the program interactively prompts you for the password. The password option also may be given in short form as -ppass_val or as -p. However, for the short form, if the password value is given, it must follow the option letter with no intervening space: If a space follows the option letter, the program has no way to tell whether a following argument is supposed to be the password value or some other kind of argument. Consequently, the following two commands have two completely different meanings:
+
+mysql -ptest
+mysql -p test
+The first command instructs mysql to use a password value of test, but specifies no default database. The second instructs mysql to prompt for the password value and to use test as the default database.
+
+Within option names, dash (-) and underscore (_) may be used interchangeably. For example, --skip-grant-tables and --skip_grant_tables are equivalent. (However, the leading dashes cannot be given as underscores.)
+
+The MySQL server has certain command options that may be specified only at startup, and a set of system variables, some of which may be set at startup, at runtime, or both. System variable names use underscores rather than dashes, and when referenced at runtime (for example, using SET or SELECT statements), must be written using underscores:
+
+SET GLOBAL general_log = ON;
+SELECT @@GLOBAL.general_log;
+
+At server startup, the syntax for system variables is the same as for command options, so within variable names, dashes and underscores may be used interchangeably. For example, --general_log=ON and --general-log=ON are equivalent. (This is also true for system variables set within option files.)
+
+For options that take a numeric value, the value can be given with a suffix of K, M, or G to indicate a multiplier of 1024, 10242 or 10243. As of MySQL 8.0.14, a suffix can also be T, P, and E to indicate a multiplier of 10244, 10245 or 10246. Suffix letters can be uppercase or lowercase.
+
+For example, the following command tells mysqladmin to ping the server 1024 times, sleeping 10 seconds between each ping:
+
+mysqladmin --count=1K --sleep=10 ping
+When specifying file names as option values, avoid the use of the ~ shell metacharacter. It might not be interpreted as you expect.
+
+Option values that contain spaces must be quoted when given on the command line. For example, the --execute (or -e) option can be used with mysql to pass one or more semicolon-separated SQL statements to the server. When this option is used, mysql executes the statements in the option value and exits. The statements must be enclosed by quotation marks. For example:
+(base) Utsavs-MacBook-Air:~ utsav$ mysql -u root -p --local-infile menagerie -e "SELECT VERSION(); SELECT NOW()"
+Enter password:
++-----------+
+| VERSION() |
++-----------+
+| 8.0.18    |
++-----------+
++---------------------+
+| NOW()               |
++---------------------+
+| 2021-07-11 08:44:52 |
++---------------------+
+(base) Utsavs-MacBook-Air:~ utsav$
+
+Note
+The long form (--execute) is followed by an equal sign (=).
+
+To use quoted values within a statement, you must either escape the inner quotation marks, or use a different type of quotation marks within the statement from those used to quote the statement itself. The capabilities of your command processor dictate your choices for whether you can use single or double quotation marks and the syntax for escaping quote characters. For example, if your command processor supports quoting with single or double quotation marks, you can use double quotation marks around the statement, and single quotation marks for any quoted values within the statement.
+
+mysql> select user();
++----------------+
+| user()         |
++----------------+
+| root@localhost |
++----------------+
+1 row in set (0.00 sec)
+
+Chapter 8 Optimization
+======================
+This chapter explains how to optimize MySQL performance and provides examples. Optimization involves configuring, tuning, and measuring performance, at several levels. Depending on your job role (developer, DBA, or a combination of both), you might optimize at the level of individual SQL statements, entire applications, a single database server, or multiple networked database servers. Sometimes you can be proactive and plan in advance for performance, while other times you might troubleshoot a configuration or code issue after a problem occurs. Optimizing CPU and memory usage can also improve scalability, allowing the database to handle more load without slowing down.
+
+8.1 Optimization Overview
+
+Database performance depends on several factors at the database level, such as tables, queries, and configuration settings. These software constructs result in CPU and I/O operations at the hardware level, which you must minimize and make as efficient as possible. As you work on database performance, you start by learning the high-level rules and guidelines for the software side, and measuring performance using wall-clock time. As you become an expert, you learn more about what happens internally, and start measuring things such as CPU cycles and I/O operations.
+
+Typical users aim to get the best database performance out of their existing software and hardware configurations. Advanced users look for opportunities to improve the MySQL software itself, or develop their own storage engines and hardware appliances to expand the MySQL ecosystem.
+
+Optimizing at the Database Level
+
+Optimizing at the Hardware Level
+
+Balancing Portability and Performance
+
+Optimizing at the Database Level
+
+The most important factor in making a database application fast is its basic design:
+
+Are the tables structured properly? In particular, do the columns have the right data types, and does each table have the appropriate columns for the type of work? For example, applications that perform frequent updates often have many tables with few columns, while applications that analyze large amounts of data often have few tables with many columns.
+
+Are the right indexes in place to make queries efficient?
+
+Are you using the appropriate storage engine for each table, and taking advantage of the strengths and features of each storage engine you use? In particular, the choice of a transactional storage engine such as InnoDB or a nontransactional one such as MyISAM can be very important for performance and scalability.
+
+Note
+InnoDB is the default storage engine for new tables. In practice, the advanced InnoDB performance features mean that InnoDB tables often outperform the simpler MyISAM tables, especially for a busy database.
+
+Does each table use an appropriate row format? This choice also depends on the storage engine used for the table. In particular, compressed tables use less disk space and so require less disk I/O to read and write the data. Compression is available for all kinds of workloads with InnoDB tables, and for read-only MyISAM tables.
+
+Does the application use an appropriate locking strategy? For example, by allowing shared access when possible so that database operations can run concurrently, and requesting exclusive access when appropriate so that critical operations get top priority. Again, the choice of storage engine is significant. The InnoDB storage engine handles most locking issues without involvement from you, allowing for better concurrency in the database and reducing the amount of experimentation and tuning for your code.
+
+Are all memory areas used for caching sized correctly? That is, large enough to hold frequently accessed data, but not so large that they overload physical memory and cause paging. The main memory areas to configure are the InnoDB buffer pool and the MyISAM key cache.
+
+Optimizing at the Hardware Level
+
+Any database application eventually hits hardware limits as the database becomes more and more busy. A DBA must evaluate whether it is possible to tune the application or reconfigure the server to avoid these bottlenecks, or whether more hardware resources are required. System bottlenecks typically arise from these sources:
+
+Disk seeks. It takes time for the disk to find a piece of data. With modern disks, the mean time for this is usually lower than 10ms, so we can in theory do about 100 seeks a second. This time improves slowly with new disks and is very hard to optimize for a single table. The way to optimize seek time is to distribute the data onto more than one disk.
+
+Disk reading and writing. When the disk is at the correct position, we need to read or write the data. With modern disks, one disk delivers at least 10–20MB/s throughput. This is easier to optimize than seeks because you can read in parallel from multiple disks.
+
+CPU cycles. When the data is in main memory, we must process it to get our result. Having large tables compared to the amount of memory is the most common limiting factor. But with small tables, speed is usually not the problem.
+
+Memory bandwidth. When the CPU needs more data than can fit in the CPU cache, main memory bandwidth becomes a bottleneck. This is an uncommon bottleneck for most systems, but one to be aware of.
+
+Balancing Portability and Performance
+
+To use performance-oriented SQL extensions in a portable MySQL program, you can wrap MySQL-specific keywords in a statement within /*! */ comment delimiters. Other SQL servers ignore the commented keywords. For information about writing comments, see Section 9.7, “Comments”.
+
+8.2 Optimizing SQL Statements
+-----------------------------
+The core logic of a database application is performed through SQL statements, whether issued directly through an interpreter or submitted behind the scenes through an API. The tuning guidelines in this section help to speed up all kinds of MySQL applications. The guidelines cover SQL operations that read and write data, the behind-the-scenes overhead for SQL operations in general, and operations used in specific scenarios such as database monitoring.
+
+8.2.1 Optimizing SELECT Statements
+-----------------------------------
+Queries, in the form of SELECT statements, perform all the lookup operations in the database. Tuning these statements is a top priority, whether to achieve sub-second response times for dynamic web pages, or to chop hours off the time to generate huge overnight reports.
+
+Besides SELECT statements, the tuning techniques for queries also apply to constructs such as CREATE TABLE...AS SELECT, INSERT INTO...SELECT, and WHERE clauses in DELETE statements. Those statements have additional performance considerations because they combine write operations with the read-oriented query operations.
+
+NDB Cluster supports a join pushdown optimization whereby a qualifying join is sent in its entirety to NDB Cluster data nodes, where it can be distributed among them and executed in parallel. For more information about this optimization, see Conditions for NDB pushdown joins.
+
+The main considerations for optimizing queries are:
+
+To make a slow SELECT ... WHERE query faster, the first thing to check is whether you can add an index. Set up indexes on columns used in the WHERE clause, to speed up evaluation, filtering, and the final retrieval of results. To avoid wasted disk space, construct a small set of indexes that speed up many related queries used in your application.
+
+Indexes are especially important for queries that reference different tables, using features such as joins and foreign keys. You can use the EXPLAIN statement to determine which indexes are used for a SELECT. See Section 8.3.1, “How MySQL Uses Indexes” and Section 8.8.1, “Optimizing Queries with EXPLAIN”.
+
+Isolate and tune any part of the query, such as a function call, that takes excessive time. Depending on how the query is structured, a function could be called once for every row in the result set, or even once for every row in the table, greatly magnifying any inefficiency.
+
+Minimize the number of full table scans in your queries, particularly for big tables.
+
+Keep table statistics up to date by using the ANALYZE TABLE statement periodically, so the optimizer has the information needed to construct an efficient execution plan.
+
+Learn the tuning techniques, indexing techniques, and configuration parameters that are specific to the storage engine for each table. Both InnoDB and MyISAM have sets of guidelines for enabling and sustaining high performance in queries. For details, see Section 8.5.6, “Optimizing InnoDB Queries” and Section 8.6.1, “Optimizing MyISAM Queries”.
+
+You can optimize single-query transactions for InnoDB tables, using the technique in Section 8.5.3, “Optimizing InnoDB Read-Only Transactions”.
+
+Avoid transforming the query in ways that make it hard to understand, especially if the optimizer does some of the same transformations automatically.
+
+If a performance issue is not easily solved by one of the basic guidelines, investigate the internal details of the specific query by reading the EXPLAIN plan and adjusting your indexes, WHERE clauses, join clauses, and so on. (When you reach a certain level of expertise, reading the EXPLAIN plan might be your first step for every query.)
+
+Adjust the size and properties of the memory areas that MySQL uses for caching. With efficient use of the InnoDB buffer pool, MyISAM key cache, and the MySQL query cache, repeated queries run faster because the results are retrieved from memory the second and subsequent times.
+
+Even for a query that runs fast using the cache memory areas, you might still optimize further so that they require less cache memory, making your application more scalable. Scalability means that your application can handle more simultaneous users, larger requests, and so on without experiencing a big drop in performance.
+
+Deal with locking issues, where the speed of your query might be affected by other sessions accessing the tables at the same time.
+
+INDEX
+------

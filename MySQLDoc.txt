@@ -2628,4 +2628,164 @@ InnoDB tables are ideally suited for hot backups. See Section 30.2, “MySQL Ent
 
 ACID
 ----
+An acronym standing for atomicity, consistency, isolation, and durability. These properties are all desirable in a database system, and are all closely tied to the notion of a transaction. The transactional features of InnoDB adhere to the ACID principles.
 
+Transactions are atomic units of work that can be committed or rolled back. When a transaction makes multiple changes to the database, either all the changes succeed when the transaction is committed, or all the changes are undone when the transaction is rolled back.
+
+The database remains in a consistent state at all times — after each commit or rollback, and while transactions are in progress. If related data is being updated across multiple tables, queries see either all old values or all new values, not a mix of old and new values.
+
+Transactions are protected (isolated) from each other while they are in progress; they cannot interfere with each other or see each other's uncommitted data. This isolation is achieved through the locking mechanism. Experienced users can adjust the isolation level, trading off less protection in favor of increased performance and concurrency, when they can be sure that the transactions really do not interfere with each other.
+
+The results of transactions are durable: once a commit operation succeeds, the changes made by that transaction are safe from power failures, system crashes, race conditions, or other potential dangers that many non-database applications are vulnerable to. Durability typically involves writing to disk storage, with a certain amount of redundancy to protect against power failures or software crashes during write operations. (In InnoDB, the doublewrite buffer assists with durability.)
+
+atomic
+-----
+In the SQL context, transactions are units of work that either succeed entirely (when committed) or have no effect at all (when rolled back). The indivisible ("atomic") property of transactions is the “A” in the acronym ACID.
+
+commit
+-------
+A SQL statement that ends a transaction, making permanent any changes made by the transaction. It is the opposite of rollback, which undoes any changes made in the transaction.
+
+InnoDB uses an optimistic mechanism for commits, so that changes can be written to the data files before the commit actually occurs. This technique makes the commit itself faster, with the tradeoff that more work is required in case of a rollback.
+
+By default, MySQL uses the autocommit setting, which automatically issues a commit following each SQL statement.
+
+autocommit
+-----------
+A setting that causes a commit operation after each SQL statement. This mode is not recommended for working with InnoDB tables with transactions that span several statements. It can help performance for read-only transactions on InnoDB tables, where it minimizes overhead from locking and generation of undo data, especially in MySQL 5.6.4 and up. It is also appropriate for working with MyISAM tables, where transactions are not applicable.
+
+optimistic
+----------
+A methodology that guides low-level implementation decisions for a relational database system. The requirements of performance and concurrency in a relational database mean that operations must be started or dispatched quickly. The requirements of consistency and referential integrity mean that any operation could fail: a transaction might be rolled back, a DML operation could violate a constraint, a request for a lock could cause a deadlock, a network error could cause a timeout. An optimistic strategy is one that assumes most requests or attempts succeed, so that relatively little work is done to prepare for the failure case. When this assumption is true, the database does little unnecessary work; when requests do fail, extra work must be done to clean up and undo changes.
+
+InnoDB uses optimistic strategies for operations such as locking and commits. For example, data changed by a transaction can be written to the data files before the commit occurs, making the commit itself very fast, but requiring more work to undo the changes if the transaction is rolled back.
+
+The opposite of an optimistic strategy is a pessimistic one, where a system is optimized to deal with operations that are unreliable and frequently unsuccessful. This methodology is rare in a database system, because so much care goes into choosing reliable hardware, networks, and algorithms.
+
+concurrency
+------------
+The ability of multiple operations (in database terminology, transactions) to run simultaneously, without interfering with each other. Concurrency is also involved with performance, because ideally the protection for multiple simultaneous transactions works with a minimum of performance overhead, using efficient mechanisms for locking.
+
+locking
+-------
+The system of protecting a transaction from seeing or changing data that is being queried or changed by other transactions. The locking strategy must balance reliability and consistency of database operations (the principles of the ACID philosophy) against the performance needed for good concurrency. Fine-tuning the locking strategy often involves choosing an isolation level and ensuring all your database operations are safe and reliable for that isolation level.
+
+rollback
+--------
+A SQL statement that ends a transaction, undoing any changes made by the transaction. It is the opposite of commit, which makes permanent any changes made in the transaction.
+
+By default, MySQL uses the autocommit setting, which automatically issues a commit following each SQL statement. You must change this setting before you can use the rollback technique.
+
+transaction
+------------
+Transactions are atomic units of work that can be committed or rolled back. When a transaction makes multiple changes to the database, either all the changes succeed when the transaction is committed, or all the changes are undone when the transaction is rolled back.
+
+Database transactions, as implemented by InnoDB, have properties that are collectively known by the acronym ACID, for atomicity, consistency, isolation, and durability.
+
+8.2.1.1 WHERE Clause Optimization
+----------------------------------
+This section discusses optimizations that can be made for processing WHERE clauses. The examples use SELECT statements, but the same optimizations apply for WHERE clauses in DELETE and UPDATE statements.
+
+You might be tempted to rewrite your queries to make arithmetic operations faster, while sacrificing readability. Because MySQL does similar optimizations automatically, you can often avoid this work, and leave the query in a more understandable and maintainable form. Some of the optimizations performed by MySQL follow:
+
+Removal of unnecessary parentheses:
+   ((a AND b) AND c OR (((a AND b) AND (c AND d))))
+-> (a AND b AND c) OR (a AND b AND c AND d)
+
+Constant folding:
+   (a<b AND b=c) AND a=5
+-> b>5 AND b=c AND a=5
+
+Constant condition removal:
+   (b>=5 AND b=5) OR (b=6 AND 5=5) OR (b=7 AND 5=6)
+-> b=5 OR b=6
+
+Constant expressions used by indexes are evaluated only once.
+
+Beginning with MySQL 8.0.16, comparisons of columns of numeric types with constant values are checked and folded or removed for invalid or out-of-rage values:
+
+Little knowledge of bit wise operators:
+mysql> select 1 | 2, 1 << 2;
++-------+--------+
+| 1 | 2 | 1 << 2 |
++-------+--------+
+|     3 |      4 |
++-------+--------+
+1 row in set (0.00 sec)
+
+mysql> select 1 | 2, 1 << 2, BIT_COUNT(2);
++-------+--------+--------------+
+| 1 | 2 | 1 << 2 | BIT_COUNT(2) |
++-------+--------+--------------+
+|     3 |      4 |            1 |
++-------+--------+--------------+
+1 row in set (0.00 sec)
+
+mysql> select 1 | 2, 1 << 2, BIT_COUNT(3);
++-------+--------+--------------+
+| 1 | 2 | 1 << 2 | BIT_COUNT(3) |
++-------+--------+--------------+
+|     3 |      4 |            2 |
++-------+--------+--------------+
+1 row in set (0.00 sec)
+
+COUNT(*) on a single table without a WHERE is retrieved directly from the table information for MyISAM and MEMORY tables. This is also done for any NOT NULL expression when used with only one table.
+Early detection of invalid constant expressions. MySQL quickly detects that some SELECT statements are impossible and returns no rows.
+HAVING is merged with WHERE if you do not use GROUP BY or aggregate functions (COUNT(), MIN(), and so on).
+For each table in a join, a simpler WHERE is constructed to get a fast WHERE evaluation for the table and also to skip rows as soon as possible.
+ All constant tables are read first before any other tables in the query. A constant table is any of the following:
+An empty table or a table with one row.
+A table that is used with a WHERE clause on a PRIMARY KEY or a UNIQUE index, where all index parts are compared to constant expressions and are defined as NOT NULL.
+All of the following tables are used as constant tables:
+
+SELECT * FROM t WHERE primary_key=1;
+SELECT * FROM t1,t2
+  WHERE t1.primary_key=1 AND t2.primary_key=t1.id;
+
+The best join combination for joining the tables is found by trying all possibilities. If all columns in ORDER BY and GROUP BY clauses come from the same table, that table is preferred first when joining.
+
+If there is an ORDER BY clause and a different GROUP BY clause, or if the ORDER BY or GROUP BY contains columns from tables other than the first table in the join queue, a temporary table is created.
+
+If you use the SQL_SMALL_RESULT modifier, MySQL uses an in-memory temporary table.
+
+Each table index is queried, and the best index is used unless the optimizer believes that it is more efficient to use a table scan. At one time, a scan was used based on whether the best index spanned more than 30% of the table, but a fixed percentage no longer determines the choice between using an index or a scan. The optimizer now is more complex and bases its estimate on additional factors such as table size, number of rows, and I/O block size.
+
+In some cases, MySQL can read rows from the index without even consulting the data file. If all columns used from the index are numeric, only the index tree is used to resolve the query.
+
+Before each row is output, those that do not match the HAVING clause are skipped.
+
+Some examples of queries that are very fast:
+
+
+SELECT COUNT(*) FROM tbl_name;
+
+SELECT MIN(key_part1),MAX(key_part1) FROM tbl_name;
+
+SELECT MAX(key_part2) FROM tbl_name
+  WHERE key_part1=constant;
+
+SELECT ... FROM tbl_name
+  ORDER BY key_part1,key_part2,... LIMIT 10;
+
+SELECT ... FROM tbl_name
+  ORDER BY key_part1 DESC, key_part2 DESC, ... LIMIT 10;
+
+ MySQL resolves the following queries using only the index tree, assuming that the indexed columns are numeric:
+
+  SELECT key_part1,key_part2 FROM tbl_name WHERE key_part1=val;
+
+  SELECT COUNT(*) FROM tbl_name
+    WHERE key_part1=val1 AND key_part2=val2;
+
+  SELECT MAX(key_part2) FROM tbl_name GROUP BY key_part1;
+
+The following queries use indexing to retrieve the rows in sorted order without a separate sorting pass:
+
+SELECT ... FROM tbl_name
+  ORDER BY key_part1,key_part2,... ;
+
+SELECT ... FROM tbl_name
+  ORDER BY key_part1 DESC, key_part2 DESC, ... ;
+
+Chapter 9 Language Structure
+==============================

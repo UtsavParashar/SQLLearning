@@ -3290,3 +3290,74 @@ mysql> SELECT b''+0;
 +-------+
 
 Bit-value notation is convenient for specifying values to be assigned to BIT columns:
+mysql> create table t (b BIT(8));
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> insert into t set b = b'11111111';
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into t set b = b'1010';
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into t set b = b'0101';
+Query OK, 1 row affected (0.00 sec)
+
+Bit values in result sets are returned as binary values, which may not display well. To convert a bit value to printable form, use it in numeric context or use a conversion function such as BIN() or HEX(). High-order 0 digits are not displayed in the converted value.
+mysql> SELECT b+0, BIN(b), OCT(b), HEX(b) FROM t;
++------+----------+--------+--------+
+| b+0  | BIN(b)   | OCT(b) | HEX(b) |
++------+----------+--------+--------+
+|  255 | 11111111 | 377    | FF     |
+|   10 | 1010     | 12     | A      |
+|    5 | 101      | 5      | 5      |
++------+----------+--------+--------+
+
+For bit literals, bit operations are considered numeric context, but bit operations permit numeric or binary string arguments in MySQL 8.0 and higher. To explicitly specify binary string context for bit literals, use a _binary introducer for at least one of the arguments:
+
+mysql> set @v1 = b'000010101' | b'000101010';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> set @v2 = _binary b'000010101' | _binary b'000101010';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @v1, @v2;
++------+------+
+| @v1  | @v2  |
++------+------+
+|   63 |  ?   |
++------+------+
+1 row in set (0.00 sec)
+
+mysql> select HEX(@v1), HEX(@v2);
++----------+----------+
+| HEX(@v1) | HEX(@v2) |
++----------+----------+
+| 3F       | 003F     |
++----------+----------+
+1 row in set (0.00 sec)
+
+The displayed result appears similar for both bit operations, but the result without _binary is a BIGINT value, whereas the result with _binary is a binary string. Due to the difference in result types, the displayed values differ: High-order 0 digits are not displayed for the numeric result.
+
+9.1.6 Boolean Literals
+-----------------------
+The constants TRUE and FALSE evaluate to 1 and 0, respectively. The constant names can be written in any lettercase.
+
+mysql> select True, true, TRUE, False, false, FALSE;
++------+------+------+-------+-------+-------+
+| True | true | TRUE | False | false | FALSE |
++------+------+------+-------+-------+-------+
+|    1 |    1 |    1 |     0 |     0 |     0 |
++------+------+------+-------+-------+-------+
+
+9.1.7 NULL Values
+==================
+The NULL value means “no data.” NULL can be written in any lettercase.
+
+Be aware that the NULL value is different from values such as 0 for numeric types or the empty string for string types. For more information, see Section B.3.4.3, “Problems with NULL Values”.
+
+For text file import or export operations performed with LOAD DATA or SELECT ... INTO OUTFILE, NULL is represented by the \N sequence. See Section 13.2.7, “LOAD DATA Statement”.
+
+For sorting with ORDER BY, NULL values sort before other values for ascending sorts, after other values for descending sorts.
+
+9.2 Schema Object Names
+------------------------

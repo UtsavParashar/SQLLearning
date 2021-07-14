@@ -3078,4 +3078,215 @@ The offset is not displayed when selecting a datetime value, even if one was use
 The range of supported offset values is -13:59 to +14:00, inclusive.
 Datetime literals that include time zone offsets are accepted as parameter values by prepared statements.
 
+9.1.4 Hexadecimal Literals
+---------------------------
+Hexadecimal literal values are written using X'val' or 0xval notation, where val contains hexadecimal digits (0..9, A..F). Lettercase of the digits and of any leading X does not matter. A leading 0x is case-sensitive and cannot be written as 0X.
 
+Legal hexadecimal literals:
+X'01AF'
+X'01af'
+x'01AF'
+x'01af'
+0x01AF
+0x01af
+
+Illegal hexadecimal literals:
+
+X'0G'   (G is not a hexadecimal digit)
+0X01AF  (0X must be written as 0x)
+Values written using X'val' notation must contain an even number of digits or a syntax error occurs. To correct the problem, pad the value with a leading zero:
+
+mysql> SET @s = X'FFF';
+ERROR 1064 (42000): You have an error in your SQL syntax;
+check the manual that corresponds to your MySQL server
+version for the right syntax to use near 'X'FFF''
+
+mysql> SET @s = X'0FFF';
+Query OK, 0 rows affected (0.00 sec)
+Values written using 0xval notation that contain an odd number of digits are treated as having an extra leading 0. For example, 0xaaa is interpreted as 0x0aaa.
+
+By default, a hexadecimal literal is a binary string, where each pair of hexadecimal digits represents a character:
+
+mysql> SELECT X'4D7953514C', CHARSET(X'4D7953514C');
++---------------+------------------------+
+| X'4D7953514C' | CHARSET(X'4D7953514C') |
++---------------+------------------------+
+| MySQL         | binary                 |
++---------------+------------------------+
+mysql> SELECT 0x5461626c65, CHARSET(0x5461626c65);
++--------------+-----------------------+
+| 0x5461626c65 | CHARSET(0x5461626c65) |
++--------------+-----------------------+
+| Table        | binary                |
++--------------+-----------------------+
+A hexadecimal literal may have an optional character set introducer and COLLATE clause, to designate it as a string that uses a particular character set and collation:
+
+[_charset_name] X'val' [COLLATE collation_name]
+Examples:
+
+SELECT _latin1 X'4D7953514C';
+SELECT _utf8 0x4D7953514C COLLATE utf8_danish_ci;
+The examples use X'val' notation, but 0xval notation permits introducers as well. For information about introducers, see Section 10.3.8, “Character Set Introducers”.
+
+In numeric contexts, MySQL treats a hexadecimal literal like a BIGINT UNSIGNED (64-bit unsigned integer). To ensure numeric treatment of a hexadecimal literal, use it in numeric context. Ways to do this include adding 0 or using CAST(... AS UNSIGNED). For example, a hexadecimal literal assigned to a user-defined variable is a binary string by default. To assign the value as a number, use it in numeric context:
+
+mysql> SET @v1 = X'41';
+mysql> SET @v2 = X'41'+0;
+mysql> SET @v3 = CAST(X'41' AS UNSIGNED);
+mysql> SELECT @v1, @v2, @v3;
++------+------+------+
+| @v1  | @v2  | @v3  |
++------+------+------+
+| A    |   65 |   65 |
++------+------+------+
+An empty hexadecimal value (X'') evaluates to a zero-length binary string. Converted to a number, it produces 0:
+
+mysql> SELECT CHARSET(X''), LENGTH(X'');
++--------------+-------------+
+| CHARSET(X'') | LENGTH(X'') |
++--------------+-------------+
+| binary       |           0 |
++--------------+-------------+
+mysql> SELECT X''+0;
++-------+
+| X''+0 |
++-------+
+|     0 |
++-------+
+The X'val' notation is based on standard SQL. The 0x notation is based on ODBC, for which hexadecimal strings are often used to supply values for BLOB columns.
+
+To convert a string or a number to a string in hexadecimal format, use the HEX() function:
+
+mysql> SELECT HEX('cat');
++------------+
+| HEX('cat') |
++------------+
+| 636174     |
++------------+
+mysql> SELECT X'636174';
++-----------+
+| X'636174' |
++-----------+
+| cat       |
++-----------+
+For hexadecimal literals, bit operations are considered numeric context, but bit operations permit numeric or binary string arguments in MySQL 8.0 and higher. To explicitly specify binary string context for hexadecimal literals, use a _binary introducer for at least one of the arguments:
+
+mysql> SET @v1 = X'000D' | X'0BC0';
+mysql> SET @v2 = _binary X'000D' | X'0BC0';
+mysql> SELECT HEX(@v1), HEX(@v2);
++----------+----------+
+| HEX(@v1) | HEX(@v2) |
++----------+----------+
+| BCD      | 0BCD     |
++----------+----------+
+The displayed result appears similar for both bit operations, but the result without _binary is a BIGINT value, whereas the result with _binary is a binary string. Due to the difference in result types, the displayed values differ: High-order 0 digits are not displayed for the numeric result.
+
+mysql> select LENGTH('Ramesh');
++------------------+
+| LENGTH('Ramesh') |
++------------------+
+|                6 |
++------------------+
+1 row in set (0.01 sec)
+
+mysql> select CHARSET(''), CHARSET(X'');
++-------------+--------------+
+| CHARSET('') | CHARSET(X'') |
++-------------+--------------+
+| utf8mb4     | binary       |
++-------------+--------------+
+1 row in set (0.00 sec)
+
+
+9.1.5 Bit-Value Literals
+------------------------
+Bit-value literals are written using b'val' or 0bval notation. val is a binary value written using zeros and ones. Lettercase of any leading b does not matter. A leading 0b is case-sensitive and cannot be written as 0B.
+
+Legal bit-value literals:
+b'01'
+B'01'
+0b01
+
+Illegal bit-value literals:
+b'2'    (2 is not a binary digit)
+0B01    (0B must be written as 0b)
+
+By default, a bit-value literal is a binary string:
+mysql> SELECT b'1000001', CHARSET(b'1000001');
++------------+---------------------+
+| b'1000001' | CHARSET(b'1000001') |
++------------+---------------------+
+| A          | binary              |
++------------+---------------------+
+
+mysql> SELECT 0b1100001, CHARSET(0b1100001);
++-----------+--------------------+
+| 0b1100001 | CHARSET(0b1100001) |
++-----------+--------------------+
+| a         | binary             |
++-----------+--------------------+
+
+A bit-value literal may have an optional character set introducer and COLLATE clause, to designate it as a string that uses a particular character set and collation:
+[_charset_name] b'val' [COLLATE collation_name]
+
+mysql> select _latin1 0b1000001;
++-------------------+
+| _latin1 0b1000001 |
++-------------------+
+| A                 |
++-------------------+
+1 row in set (0.00 sec)
+
+mysql> select _utf8 0b1000001;
++-----------------+
+| _utf8 0b1000001 |
++-----------------+
+| A               |
++-----------------+
+1 row in set, 1 warning (0.00 sec)
+
+mysql> select _utf8 0b1000001 COLLATE utf8_danish_ci;
++----------------------------------------+
+| _utf8 0b1000001 COLLATE utf8_danish_ci |
++----------------------------------------+
+| A                                      |
++----------------------------------------+
+
+The examples use b'val' notation, but 0bval notation permits introducers as well. For information about introducers, see Section 10.3.8, “Character Set Introducers”.
+
+In numeric contexts, MySQL treats a bit literal like an integer. To ensure numeric treatment of a bit literal, use it in numeric context. Ways to do this include adding 0 or using CAST(... AS UNSIGNED). For example, a bit literal assigned to a user-defined variable is a binary string by default. To assign the value as a number, use it in numeric context:
+
+mysql> set @v1 = b'1000001';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> set @v2 = b'1000001' + 1;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> set @v3 = CAST(b'1000001' AS UNSIGNED);
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @v1, @v2, @v3;
++------+------+------+
+| @v1  | @v2  | @v3  |
++------+------+------+
+| A    |   66 |   65 |
++------+------+------+
+1 row in set (0.00 sec)
+
+An empty bit value (b'') evaluates to a zero-length binary string. Converted to a number, it produces 0:
+
+
+mysql> SELECT CHARSET(b''), LENGTH(b'');
++--------------+-------------+
+| CHARSET(b'') | LENGTH(b'') |
++--------------+-------------+
+| binary       |           0 |
++--------------+-------------+
+mysql> SELECT b''+0;
++-------+
+| b''+0 |
++-------+
+|     0 |
++-------+
+
+Bit-value notation is convenient for specifying values to be assigned to BIT columns:

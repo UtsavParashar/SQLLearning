@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="14007636-fa3b-426e-b482-0fe40d24cf85" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MySQLDoc.txt" beforeDir="false" afterPath="$PROJECT_DIR$/MySQLDoc.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -45,13 +46,13 @@
         <counts>
           <entry key="csv" value="13" />
           <entry key="sql" value="124" />
-          <entry key="txt" value="81630" />
+          <entry key="txt" value="81738" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSV" value="11" />
-          <entry key="PLAIN_TEXT" value="81632" />
+          <entry key="PLAIN_TEXT" value="81740" />
           <entry key="SQL" value="124" />
         </counts>
       </usages-collector>
@@ -83,8 +84,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="595">
-              <caret line="4065" lean-forward="true" selection-start-line="4065" selection-end-line="4065" />
+            <state relative-caret-position="500">
+              <caret line="4115" column="351" selection-start-line="4115" selection-start-column="351" selection-end-line="4115" selection-end-column="351" />
             </state>
           </provider>
         </entry>
@@ -300,8 +301,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="595">
-          <caret line="4065" lean-forward="true" selection-start-line="4065" selection-end-line="4065" />
+        <state relative-caret-position="500">
+          <caret line="4115" column="351" selection-start-line="4115" selection-start-column="351" selection-end-line="4115" selection-end-column="351" />
         </state>
       </provider>
     </entry>

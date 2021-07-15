@@ -3361,3 +3361,338 @@ For sorting with ORDER BY, NULL values sort before other values for ascending so
 
 9.2 Schema Object Names
 ------------------------
+Certain objects within MySQL, including database, table, index, column, alias, view, stored procedure, partition, tablespace, resource group and other object names are known as identifiers. This section describes the permissible syntax for identifiers in MySQL. Section 9.2.1, “Identifier Length Limits”, indicates the maximum length of each type of identifier. Section 9.2.3, “Identifier Case Sensitivity”, describes which types of identifiers are case-sensitive and under what conditions.
+
+An identifier may be quoted or unquoted. If an identifier contains special characters or is a reserved word, you must quote it whenever you refer to it. (Exception: A reserved word that follows a period in a qualified name must be an identifier, so it need not be quoted.) Reserved words are listed at Section 9.3, “Keywords and Reserved Words”.
+
+Internally, identifiers are converted to and are stored as Unicode (UTF-8). The permissible Unicode characters in identifiers are those in the Basic Multilingual Plane (BMP). Supplementary characters are not permitted. Identifiers thus may contain these characters:
+
+Permitted characters in unquoted identifiers:
+
+ASCII: [0-9,a-z,A-Z$_] (basic Latin letters, digits 0-9, dollar, underscore)
+
+Extended: U+0080 .. U+FFFF
+
+Permitted characters in quoted identifiers include the full Unicode Basic Multilingual Plane (BMP), except U+0000:
+
+ASCII: U+0001 .. U+007F
+
+Extended: U+0080 .. U+FFFF
+
+ASCII NUL (U+0000) and supplementary characters (U+10000 and higher) are not permitted in quoted or unquoted identifiers.
+
+Identifiers may begin with a digit but unless quoted may not consist solely of digits.
+
+Database, table, and column names cannot end with space characters.
+
+The identifier quote character is the backtick (`):
+
+mysql> SELECT * FROM `select` WHERE `select`.id > 100;
+If the ANSI_QUOTES SQL mode is enabled, it is also permissible to quote identifiers within double quotation marks:
+
+mysql> CREATE TABLE "test" (col INT);
+ERROR 1064: You have an error in your SQL syntax...
+mysql> SET sql_mode='ANSI_QUOTES';
+mysql> CREATE TABLE "test" (col INT);
+Query OK, 0 rows affected (0.00 sec)
+The ANSI_QUOTES mode causes the server to interpret double-quoted strings as identifiers. Consequently, when this mode is enabled, string literals must be enclosed within single quotation marks. They cannot be enclosed within double quotation marks. The server SQL mode is controlled as described in Section 5.1.11, “Server SQL Modes”.
+
+Identifier quote characters can be included within an identifier if you quote the identifier. If the character to be included within the identifier is the same as that used to quote the identifier itself, then you need to double the character. The following statement creates a table named a`b that contains a column named c"d:
+
+mysql> CREATE TABLE `a``b` (`c"d` INT);
+In the select list of a query, a quoted column alias can be specified using identifier or string quoting characters:
+
+mysql> SELECT 1 AS `one`, 2 AS 'two';
++-----+-----+
+| one | two |
++-----+-----+
+|   1 |   2 |
++-----+-----+
+Elsewhere in the statement, quoted references to the alias must use identifier quoting or the reference is treated as a string literal.
+
+It is recommended that you do not use names that begin with Me or MeN, where M and N are integers. For example, avoid using 1e as an identifier, because an expression such as 1e+3 is ambiguous. Depending on context, it might be interpreted as the expression 1e + 3 or as the number 1e+3.
+
+Be careful when using MD5() to produce table names because it can produce names in illegal or ambiguous formats such as those just described.
+
+A user variable cannot be used directly in an SQL statement as an identifier or as part of an identifier. See Section 9.4, “User-Defined Variables”, for more information and examples of workarounds.
+
+Special characters in database and table names are encoded in the corresponding file system names as described in Section 9.2.4, “Mapping of Identifiers to File Names”.
+
+
+9.2.2 Identifier Qualifiers
+===========================
+Object names may be unqualified or qualified. An unqualified name is permitted in contexts where interpretation of the name is unambiguous. A qualified name includes at least one qualifier to clarify the interpretive context by overriding a default context or providing missing context.
+
+For example, this statement creates a table using the unqualified name t1:
+
+CREATE TABLE t1 (i INT);
+Because t1 includes no qualifier to specify a database, the statement creates the table in the default database. If there is no default database, an error occurs.
+
+This statement creates a table using the qualified name db1.t1:
+
+CREATE TABLE db1.t1 (i INT);
+Because db1.t1 includes a database qualifier db1, the statement creates t1 in the database named db1, regardless of the default database. The qualifier must be specified if there is no default database. The qualifier may be specified if there is a default database, to specify a database different from the default, or to make the database explicit if the default is the same as the one specified.
+
+Qualifiers have these characteristics:
+
+An unqualified name consists of a single identifier. A qualified name consists of multiple identifiers.
+
+The components of a multiple-part name must be separated by period (.) characters. The initial parts of a multiple-part name act as qualifiers that affect the context within which to interpret the final identifier.
+
+The qualifier character is a separate token and need not be contiguous with the associated identifiers. For example, tbl_name.col_name and tbl_name . col_name are equivalent.
+
+If any components of a multiple-part name require quoting, quote them individually rather than quoting the name as a whole. For example, write `my-table`.`my-column`, not `my-table.my-column`.
+
+A reserved word that follows a period in a qualified name must be an identifier, so in that context it need not be quoted.
+
+The permitted qualifiers for object names depend on the object type:
+
+A database name is fully qualified and takes no qualifier:
+
+CREATE DATABASE db1;
+A table, view, or stored program name may be given a database-name qualifier. Examples of unqualified and qualified names in CREATE statements:
+
+CREATE TABLE mytable ...;
+CREATE VIEW myview ...;
+CREATE PROCEDURE myproc ...;
+CREATE FUNCTION myfunc ...;
+CREATE EVENT myevent ...;
+
+CREATE TABLE mydb.mytable ...;
+CREATE VIEW mydb.myview ...;
+CREATE PROCEDURE mydb.myproc ...;
+CREATE FUNCTION mydb.myfunc ...;
+CREATE EVENT mydb.myevent ...;
+A trigger is associated with a table, so any qualifier applies to the table name:
+
+CREATE TRIGGER mytrigger ... ON mytable ...;
+
+CREATE TRIGGER mytrigger ... ON mydb.mytable ...;
+A column name may be given multiple qualifiers to indicate context in statements that reference it, as shown in the following table.
+
+Column Reference	Meaning
+col_name	Column col_name from whichever table used in the statement contains a column of that name
+tbl_name.col_name	Column col_name from table tbl_name of the default database
+db_name.tbl_name.col_name	Column col_name from table tbl_name of the database db_name
+In other words, a column name may be given a table-name qualifier, which itself may be given a database-name qualifier. Examples of unqualified and qualified column references in SELECT statements:
+
+SELECT c1 FROM mytable
+WHERE c2 > 100;
+
+SELECT mytable.c1 FROM mytable
+WHERE mytable.c2 > 100;
+
+SELECT mydb.mytable.c1 FROM mydb.mytable
+WHERE mydb.mytable.c2 > 100;
+You need not specify a qualifier for an object reference in a statement unless the unqualified reference is ambiguous. Suppose that column c1 occurs only in table t1, c2 only in t2, and c in both t1 and t2. Any unqualified reference to c is ambiguous in a statement that refers to both tables and must be qualified as t1.c or t2.c to indicate which table you mean:
+
+SELECT c1, c2, t1.c FROM t1 INNER JOIN t2
+WHERE t2.c > 100;
+Similarly, to retrieve from a table t in database db1 and from a table t in database db2 in the same statement, you must qualify the table references: For references to columns in those tables, qualifiers are required only for column names that appear in both tables. Suppose that column c1 occurs only in table db1.t, c2 only in db2.t, and c in both db1.t and db2.t. In this case, c is ambiguous and must be qualified but c1 and c2 need not be:
+
+SELECT c1, c2, db1.t.c FROM db1.t INNER JOIN db2.t
+WHERE db2.t.c > 100;
+Table aliases enable qualified column references to be written more simply:
+
+
+SELECT c1, c2, t1.c FROM db1.t AS t1 INNER JOIN db2.t AS t2
+WHERE t2.c > 100;
+
+9.2.3 Identifier Case Sensitivity
+---------------------------------
+In MySQL, databases correspond to directories within the data directory. Each table within a database corresponds to at least one file within the database directory (and possibly more, depending on the storage engine). Triggers also correspond to files. Consequently, the case sensitivity of the underlying operating system plays a part in the case sensitivity of database, table, and trigger names. This means such names are not case-sensitive in Windows, but are case-sensitive in most varieties of Unix. One notable exception is macOS, which is Unix-based but uses a default file system type (HFS+) that is not case-sensitive. However, macOS also supports UFS volumes, which are case-sensitive just as on any Unix. See Section 1.7.1, “MySQL Extensions to Standard SQL”. The lower_case_table_names system variable also affects how the server handles identifier case sensitivity, as described later in this section.
+
+Note
+Although database, table, and trigger names are not case-sensitive on some platforms, you should not refer to one of these using different cases within the same statement. The following statement would not work because it refers to a table both as my_table and as MY_TABLE:
+
+mysql> SELECT * FROM my_table WHERE MY_TABLE.col=1;
+Partition, subpartition, column, index, stored routine, event, and resource group names are not case-sensitive on any platform, nor are column aliases.
+
+However, names of logfile groups are case-sensitive. This differs from standard SQL.
+
+By default, table aliases are case-sensitive on Unix, but not so on Windows or macOS. The following statement would not work on Unix, because it refers to the alias both as a and as A:
+
+mysql> SELECT col_name FROM tbl_name AS a
+       WHERE a.col_name = 1 OR A.col_name = 2;
+However, this same statement is permitted on Windows. To avoid problems caused by such differences, it is best to adopt a consistent convention, such as always creating and referring to databases and tables using lowercase names. This convention is recommended for maximum portability and ease of use.
+
+How table and database names are stored on disk and used in MySQL is affected by the lower_case_table_names system variable. lower_case_table_names can take the values shown in the following table. This variable does not affect case sensitivity of trigger identifiers. On Unix, the default value of lower_case_table_names is 0. On Windows, the default value is 1. On macOS, the default value is 2.
+
+lower_case_table_names can only be configured when initializing the server. Changing the lower_case_table_names setting after the server is initialized is prohibited.
+
+
+9.3 Keywords and Reserved Words
+================================
+Keywords are words that have significance in SQL. Certain keywords, such as SELECT, DELETE, or BIGINT, are reserved and require special treatment for use as identifiers such as table and column names. This may also be true for the names of built-in functions.
+
+Nonreserved keywords are permitted as identifiers without quoting. Reserved words are permitted as identifiers if you quote them as described in Section 9.2, “Schema Object Names”:
+
+mysql> CREATE TABLE interval (begin INT, end INT);
+ERROR 1064 (42000): You have an error in your SQL syntax ...
+near 'interval (begin INT, end INT)'
+BEGIN and END are keywords but not reserved, so their use as identifiers does not require quoting. INTERVAL is a reserved keyword and must be quoted to be used as an identifier:
+
+mysql> CREATE TABLE `interval` (begin INT, end INT);
+Query OK, 0 rows affected (0.01 sec)
+Exception: A word that follows a period in a qualified name must be an identifier, so it need not be quoted even if it is reserved:
+
+mysql> CREATE TABLE mydb.interval (begin INT, end INT);
+Query OK, 0 rows affected (0.01 sec)
+
+Names of built-in functions are permitted as identifiers but may require care to be used as such. For example, COUNT is acceptable as a column name. However, by default, no whitespace is permitted in function invocations between the function name and the following ( character. This requirement enables the parser to distinguish whether the name is used in a function call or in nonfunction context. For further details on recognition of function names
+mysql> select count(*) from pet;
++----------+
+| count(*) |
++----------+
+|        9 |
++----------+
+1 row in set (0.01 sec)
+
+mysql> select count (*) from pet;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '*) from pet' at line 1
+
+The INFORMATION_SCHEMA.KEYWORDS table lists the words considered keywords by MySQL and indicates whether they are reserved
+mysql> select * from INFORMATION_SCHEMA.KEYWORDS;
++-------------------------------+----------+
+| WORD                          | RESERVED |
++-------------------------------+----------+
+| ACCESSIBLE                    |        1 |
+| ACCOUNT                       |        0 |
+| ACTION                        |        0 |
+| ACTIVE                        |        0 |
+
+mysql> select * from INFORMATION_SCHEMA.KEYWORDS where word='FIRST';
++-------+----------+
+| WORD  | RESERVED |
++-------+----------+
+| FIRST |        0 |
++-------+----------+
+1 row in set (0.01 sec)
+
+mysql> select * from INFORMATION_SCHEMA.KEYWORDS where word='first';
++-------+----------+
+| WORD  | RESERVED |
++-------+----------+
+| FIRST |        0 |
++-------+----------+
+1 row in set (0.01 sec)
+
+9.4 User-Defined Variables
+---------------------------
+You can store a value in a user-defined variable in one statement and refer to it later in another statement. This enables you to pass values from one statement to another.
+
+User variables are written as @var_name, where the variable name var_name consists of alphanumeric characters, ., _, and $. A user variable name can contain other characters if you quote it as a string or identifier (for example, @'my-var', @"my-var", or @`my-var`).
+
+User-defined variables are session specific. A user variable defined by one client cannot be seen or used by other clients. (Exception: A user with access to the Performance Schema user_variables_by_thread table can see all user variables for all sessions.) All variables for a given client session are automatically freed when that client exits.
+
+User variable names are not case-sensitive. Names have a maximum length of 64 characters.
+
+One way to set a user-defined variable is by issuing a SET statement:
+
+SET @var_name = expr [, @var_name = expr] ...
+For SET, either = or := can be used as the assignment operator.
+
+User variables can be assigned a value from a limited set of data types: integer, decimal, floating-point, binary or nonbinary string, or NULL value. Assignment of decimal and real values does not preserve the precision or scale of the value. A value of a type other than one of the permissible types is converted to a permissible type. For example, a value having a temporal or spatial data type is converted to a binary string. A value having the JSON data type is converted to a string with a character set of utf8mb4 and a collation of utf8mb4_bin.
+
+If a user variable is assigned a nonbinary (character) string value, it has the same character set and collation as the string. The coercibility of user variables is implicit. (This is the same coercibility as for table column values.)
+
+Hexadecimal or bit values assigned to user variables are treated as binary strings. To assign a hexadecimal or bit value as a number to a user variable, use it in numeric context. For example, add 0 or use CAST(... AS UNSIGNED):
+
+mysql> set @v1 := X'41';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> set @v2 = X'41'+0;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> set @v3 = CAST(X'41' AS UNSIGNED);
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @v1, @v2, @v3;
++------+------+------+
+| @v1  | @v2  | @v3  |
++------+------+------+
+| A    |   65 |   65 |
++------+------+------+
+1 row in set (0.00 sec)
+
+mysql> set @v1 = b'1000001';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> set @v2 = b'1000001'+0;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> set @v3 = CAST(b'1000001' AS UNSIGNED);
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> set @v4 = CAST(b'1000001' AS SIGNED);
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @v1, @v2, @v3, @v4;
++------+------+------+------+
+| @v1  | @v2  | @v3  | @v4  |
++------+------+------+------+
+| A    |   65 |   65 |   65 |
++------+------+------+------+
+1 row in set (0.00 sec)
+
+User variables are intended to provide data values. They cannot be used directly in an SQL statement as an identifier or as part of an identifier, such as in contexts where a table or database name is expected, or as a reserved word such as SELECT. This is true even if the variable is quoted, as shown in the following example:
+
+mysql> select name from pet limit 2;
++--------+
+| name   |
++--------+
+| Fluffy |
+| Claws  |
++--------+
+2 rows in set (0.00 sec)
+
+mysql> set @col = 'name';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @col from pet limit 2;
++------+
+| @col |
++------+
+| name |
+| name |
++------+
+2 rows in set (0.00 sec)
+
+mysql> select `@col` from pet limit 2;
+ERROR 1054 (42S22): Unknown column '@col' in 'field list'
+mysql> set @col = "`c1`";
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @col from pet limit 2;
++------+
+| @col |
++------+
+| `c1` |
+| `c1` |
++------+
+2 rows in set (0.00 sec)
+
+An exception to this principle that user variables cannot be used to provide identifiers, is when you are constructing a string for use as a prepared statement to execute later. In this case, user variables can be used to provide any part of the statement. The following example illustrates how this can be done:
+mysql> set @c = "name";
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> set @s = CONCAT("SELECT ", @c, " FROM pet LIMIT 2");
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> PREPARE stmt from @s;
+Query OK, 0 rows affected (0.00 sec)
+Statement prepared
+
+mysql> EXECUTE stmt;
++--------+
+| name   |
++--------+
+| Fluffy |
+| Claws  |
++--------+
+2 rows in set (0.00 sec)
+mysql> DEALLOCATE PREPARE stmt;
+Query OK, 0 rows affected (0.00 sec)
+
+9.5 Expressions
+----------------

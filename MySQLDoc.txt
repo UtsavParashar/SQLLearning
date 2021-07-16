@@ -4137,3 +4137,274 @@ The BIT data type stores bit values and is supported for MyISAM, MEMORY, InnoDB,
 
 11.1.1 Numeric Data Type Syntax
 --------------------------------
+For integer data types, M indicates the maximum display width. The maximum display width is 255. Display width is unrelated to the range of values a type can store
+
+For floating-point and fixed-point data types, M is the total number of digits that can be stored.
+
+As of MySQL 8.0.17, the display width attribute is deprecated for integer data types; you should expect support for it to be removed in a future version of MySQL.
+
+If you specify ZEROFILL for a numeric column, MySQL automatically adds the UNSIGNED attribute to the column.
+
+As of MySQL 8.0.17, the ZEROFILL attribute is deprecated for numeric data types; you should expect support for it to be removed in a future version of MySQL. Consider using an alternative means of producing the effect of this attribute. For example, applications could use the LPAD() function to zero-pad numbers up to the desired width, or they could store the formatted numbers in CHAR columns.
+
+SERIAL is an alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE.
+
+SERIAL DEFAULT VALUE in the definition of an integer column is an alias for NOT NULL AUTO_INCREMENT UNIQUE.
+
+Warning
+When you use subtraction between integer values where one is of type UNSIGNED, the result is unsigned unless the NO_UNSIGNED_SUBTRACTION SQL mode is enabled
+
+ BIT[(M)]
+
+A bit-value type. M indicates the number of bits per value, from 1 to 64. The default is 1 if M is omitted.
+
+ TINYINT[(M)] [UNSIGNED] [ZEROFILL]
+
+A very small integer. The signed range is -128 to 127. The unsigned range is 0 to 255.
+
+ BOOL, BOOLEAN
+
+These types are synonyms for TINYINT(1). A value of zero is considered false. Nonzero values are considered true:
+
+mysql> select IF(0, 'TRUE', 'False');
++------------------------+
+| IF(0, 'TRUE', 'False') |
++------------------------+
+| False                  |
++------------------------+
+1 row in set (0.00 sec)
+
+mysql> select IF(1, 'TRUE', 'False');
++------------------------+
+| IF(1, 'TRUE', 'False') |
++------------------------+
+| TRUE                   |
++------------------------+
+1 row in set (0.01 sec)
+
+mysql> select IF(2, 'TRUE', 'False');
++------------------------+
+| IF(2, 'TRUE', 'False') |
++------------------------+
+| TRUE                   |
++------------------------+
+1 row in set (0.00 sec)
+
+However, the values TRUE and FALSE are merely aliases for 1 and 0, respectively, as shown here:
+mysql> select if(0=false, True, False);
++--------------------------+
+| if(0=false, True, False) |
++--------------------------+
+|                        1 |
++--------------------------+
+1 row in set (0.01 sec)
+
+mysql> select if(1=false, True, False);
++--------------------------+
+| if(1=false, True, False) |
++--------------------------+
+|                        0 |
++--------------------------+
+1 row in set (0.00 sec)
+
+mysql> select if(1=True, True, False);
++-------------------------+
+| if(1=True, True, False) |
++-------------------------+
+|                       1 |
++-------------------------+
+1 row in set (0.00 sec)
+
+mysql> select if(2=True, True, False);
++-------------------------+
+| if(2=True, True, False) |
++-------------------------+
+|                       0 |
++-------------------------+
+1 row in set (0.00 sec)
+
+mysql> select if(2=False, True, False);
++--------------------------+
+| if(2=False, True, False) |
++--------------------------+
+|                        0 |
++--------------------------+
+1 row in set (0.00 sec)
+The last two statements display the results shown because 2 is equal to neither 1 nor 0.
+
+ SMALLINT[(M)] [UNSIGNED] [ZEROFILL]
+
+A small integer. The signed range is -32768 to 32767. The unsigned range is 0 to 65535.
+
+ MEDIUMINT[(M)] [UNSIGNED] [ZEROFILL]
+
+A medium-sized integer. The signed range is -8388608 to 8388607. The unsigned range is 0 to 16777215.
+
+ INT[(M)] [UNSIGNED] [ZEROFILL]
+
+A normal-size integer. The signed range is -2147483648 to 2147483647. The unsigned range is 0 to 4294967295.
+
+ INTEGER[(M)] [UNSIGNED] [ZEROFILL]
+
+This type is a synonym for INT.
+
+ BIGINT[(M)] [UNSIGNED] [ZEROFILL]
+
+A large integer. The signed range is -9223372036854775808 to 9223372036854775807. The unsigned range is 0 to 18446744073709551615.
+
+SERIAL is an alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE.
+
+NOTE - Get more details from Udemy.txt
+
+
+11.1.3 Fixed-Point Types (Exact Value) - DECIMAL, NUMERIC
+----------------------------------------------------------
+In this example, 5 is the precision and 2 is the scale. The precision represents the number of significant digits that are stored for values, and the scale represents the number of digits that can be stored following the decimal point.
+
+Standard SQL requires that DECIMAL(5,2) be able to store any value with five digits and two decimals, so values that can be stored in the salary column range from -999.99 to 999.99.
+
+In standard SQL, the syntax DECIMAL(M) is equivalent to DECIMAL(M,0). Similarly, the syntax DECIMAL is equivalent to DECIMAL(M,0), where the implementation is permitted to decide the value of M. MySQL supports both of these variant forms of DECIMAL syntax. The default value of M is 10.
+
+If the scale is 0, DECIMAL values contain no decimal point or fractional part.
+
+The maximum number of digits for DECIMAL is 65, but the actual range for a given DECIMAL column can be constrained by the precision or scale for a given column. When such a column is assigned a value with more digits following the decimal point than are permitted by the specified scale, the value is converted to that scale. (The precise behavior is operating system-specific, but generally the effect is truncation to the permissible number of digits.)
+
+11.1.4 Floating-Point Types (Approximate Value) - FLOAT, DOUBLE
+----------------------------------------------------------------
+The FLOAT and DOUBLE types represent approximate numeric data values. MySQL uses four bytes for single-precision values and eight bytes for double-precision values.
+
+For FLOAT, the SQL standard permits an optional specification of the precision (but not the range of the exponent) in bits following the keyword FLOAT in parentheses; ; that is, FLOAT(p). MySQL also supports this optional precision specification, but the precision value in FLOAT(p) is used only to determine storage size. A precision from 0 to 23 results in a 4-byte single-precision FLOAT column. A precision from 24 to 53 results in an 8-byte double-precision DOUBLE column.
+
+MySQL permits a nonstandard syntax: FLOAT(M,D) or REAL(M,D) or DOUBLE PRECISION(M,D). Here, (M,D) means than values can be stored with up to M digits in total, of which D digits may be after the decimal point. For example, a column defined as FLOAT(7,4) is displayed as -999.9999. MySQL performs rounding when storing values, so if you insert 999.00009 into a FLOAT(7,4) column, the approximate result is 999.0001.
+
+As of MySQL 8.0.17, the nonstandard FLOAT(M,D) and DOUBLE(M,D) syntax is deprecated and you should expect support for it to be removed in a future version of MySQL.
+
+Because floating-point values are approximate and not stored as exact values, attempts to treat them as exact in comparisons may lead to problems. They are also subject to platform or implementation dependencies. For more information, see Section B.3.4.8, “Problems with Floating-Point Values”
+
+For maximum portability, code requiring storage of approximate numeric data values should use FLOAT or DOUBLE PRECISION with no specification of precision or number of digits.
+
+11.1.5 Bit-Value Type - BIT
+----------------------------
+The BIT data type is used to store bit values. A type of BIT(M) enables storage of M-bit values. M can range from 1 to 64.
+
+To specify bit values, b'value' notation can be used. value is a binary value written using zeros and ones. For example, b'111' and b'10000000' represent 7 and 128, respectively. See Section 9.1.5, “Bit-Value Literals”.
+
+If you assign a value to a BIT(M) column that is less than M bits long, the value is padded on the left with zeros. For example, assigning a value of b'101' to a BIT(6) column is, in effect, the same as assigning b'000101'.
+
+NDB Cluster.  The maximum combined size of all BIT columns used in a given NDB table must not exceed 4096 bits.
+
+11.1.7 Out-of-Range and Overflow Handling
+-----------------------------------------
+When MySQL stores a value in a numeric column that is outside the permissible range of the column data type, the result depends on the SQL mode in effect at the time:
+
+If strict SQL mode is enabled, MySQL rejects the out-of-range value with an error, and the insert fails, in accordance with the SQL standard.
+
+If no restrictive modes are enabled, MySQL clips the value to the appropriate endpoint of the column data type range and stores the resulting value instead.
+
+When an out-of-range value is assigned to an integer column, MySQL stores the value representing the corresponding endpoint of the column data type range.
+
+When a floating-point or fixed-point column is assigned a value that exceeds the range implied by the specified (or default) precision and scale, MySQL stores the value representing the corresponding endpoint of that range.
+
+Suppose that a table t1 has this definition:
+mysql> create table t1 (i1 TINYINT, i2 TINYINT UNSIGNED);
+Query OK, 0 rows affected (0.01 sec)
+
+With strict SQL mode enabled, an out of range error occurs:
+mysql> set sql_mode = 'Traditional';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> insert into t1(i1, i2) values(256, 256);
+ERROR 1264 (22003): Out of range value for column 'i1' at row 1
+mysql> select * from t1;
+Empty set (0.00 sec)
+
+With strict SQL mode not enabled, clipping with warnings occurs:
+mysql> set sql_mode = '';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> insert into t1(i1, i2) values(256, 256);
+Query OK, 1 row affected, 2 warnings (0.00 sec)
+
+mysql> show warnings;
++---------+------+---------------------------------------------+
+| Level   | Code | Message                                     |
++---------+------+---------------------------------------------+
+| Warning | 1264 | Out of range value for column 'i1' at row 1 |
+| Warning | 1264 | Out of range value for column 'i2' at row 1 |
++---------+------+---------------------------------------------+
+2 rows in set (0.00 sec)
+
+mysql> select * from t1;
++------+------+
+| i1   | i2   |
++------+------+
+|  127 |  255 |
++------+------+
+1 row in set (0.00 sec)
+
+When strict SQL mode is not enabled, column-assignment conversions that occur due to clipping are reported as warnings for ALTER TABLE, LOAD DATA, UPDATE, and multiple-row INSERT statements. In strict mode, these statements fail, and some or all the values are not inserted or changed, depending on whether the table is a transactional table and other factors.
+
+Overflow during numeric expression evaluation results in an error. For example, the largest signed BIGINT value is 9223372036854775807, so the following expression produces an error:
+mysql> SELECT 9223372036854775807 + 1;
+ERROR 1690 (22003): BIGINT value is out of range in '(9223372036854775807 + 1)'
+
+To enable the operation to succeed in this case, convert the value to unsigned;
+mysql> SELECT CAST(9223372036854775807 AS UNSIGNED) + 1;
++-------------------------------------------+
+| CAST(9223372036854775807 AS UNSIGNED) + 1 |
++-------------------------------------------+
+|                       9223372036854775808 |
++-------------------------------------------+
+1 row in set (0.00 sec)
+
+Whether overflow occurs depends on the range of the operands, so another way to handle the preceding expression is to use exact-value arithmetic because DECIMAL values have a larger range than integers:
+mysql> SELECT 9223372036854775807.0 + 1;
++---------------------------+
+| 9223372036854775807.0 + 1 |
++---------------------------+
+|     9223372036854775808.0 |
++---------------------------+
+1 row in set (0.00 sec)
+
+Subtraction between integer values, where one is of type UNSIGNED, produces an unsigned result by default. If the result would otherwise have been negative, an error results:
+mysql> select sql_mode = '';
+ERROR 1054 (42S22): Unknown column 'sql_mode' in 'field list'
+mysql> set sql_mode = '';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select cast(0 as unsigned) - 1;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '(cast(0 as unsigned) - 1)'
+
+Addition works
+mysql> select cast(0 as unsigned) + 1;
++-------------------------+
+| cast(0 as unsigned) + 1 |
++-------------------------+
+|                       1 |
++-------------------------+
+1 row in set (0.00 sec)
+
+mysql> SET sql_mode = 'NO_UNSIGNED_SUBTRACTION';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT CAST(0 AS UNSIGNED) - 1;
++-------------------------+
+| CAST(0 AS UNSIGNED) - 1 |
++-------------------------+
+|                      -1 |
++-------------------------+
+1 row in set (0.00 sec)
+
+If the result of such an operation is used to update an UNSIGNED integer column, the result is clipped to the maximum value for the column type, or clipped to 0 if NO_UNSIGNED_SUBTRACTION is enabled. If strict SQL mode is enabled, an error occurs and the column remains unchanged.
+
+
+
+
+
+11.8 Choosing the Right Type for a Column
+------------------------------------------
+For optimum storage, you should try to use the most precise type in all cases. For example, if an integer column is used for values in the range from 1 to 99999, MEDIUMINT UNSIGNED is the best type. Of the types that represent all the required values, this type uses the least amount of storage.
+
+All basic calculations (+, -, *, and /) with DECIMAL columns are done with precision of 65 decimal (base 10) digits.
+If accuracy is not too important or if speed is the highest priority, the DOUBLE type may be good enough. For high precision, you can always convert to a fixed-point type stored in a BIGINT. This enables you to do all calculations with 64-bit integers and then convert results back to floating-point values as necessary.
+

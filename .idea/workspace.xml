@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="14007636-fa3b-426e-b482-0fe40d24cf85" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MySQLDoc.txt" beforeDir="false" afterPath="$PROJECT_DIR$/MySQLDoc.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Udemy.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Udemy.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -48,13 +46,13 @@
         <counts>
           <entry key="csv" value="13" />
           <entry key="sql" value="124" />
-          <entry key="txt" value="82511" />
+          <entry key="txt" value="82637" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSV" value="11" />
-          <entry key="PLAIN_TEXT" value="82513" />
+          <entry key="PLAIN_TEXT" value="82639" />
           <entry key="SQL" value="124" />
         </counts>
       </usages-collector>
@@ -87,7 +85,7 @@
         <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="595">
-              <caret line="4615" lean-forward="true" selection-start-line="4615" selection-end-line="4615" />
+              <caret line="4841" lean-forward="true" selection-start-line="4841" selection-end-line="4841" />
             </state>
           </provider>
         </entry>
@@ -305,7 +303,7 @@
     <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="595">
-          <caret line="4615" lean-forward="true" selection-start-line="4615" selection-end-line="4615" />
+          <caret line="4841" lean-forward="true" selection-start-line="4841" selection-end-line="4841" />
         </state>
       </provider>
     </entry>

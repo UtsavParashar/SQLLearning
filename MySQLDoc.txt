@@ -4397,14 +4397,220 @@ mysql> SELECT CAST(0 AS UNSIGNED) - 1;
 
 If the result of such an operation is used to update an UNSIGNED integer column, the result is clipped to the maximum value for the column type, or clipped to 0 if NO_UNSIGNED_SUBTRACTION is enabled. If strict SQL mode is enabled, an error occurs and the column remains unchanged.
 
+11.2 Date and Time Data Types
+-----------------------------
+The date and time data types for representing temporal values are DATE, TIME, DATETIME, TIMESTAMP, and YEAR. Each temporal type has a range of valid values, as well as a “zero” value that may be used when you specify an invalid value that MySQL cannot represent. The TIMESTAMP and DATETIME types have special automatic updating behavior.
+MySQL retrieves values for a given date or time type in a standard output format, but it attempts to interpret a variety of formats for input values that you supply (for example, when you specify a value to be assigned to or compared to a date or time type). For a description of the permitted formats for date and time types.It is expected that you supply valid values. Unpredictable results may occur if you use values in other formats.
+Although MySQL tries to interpret values in several formats, date parts must always be given in year-month-day order (for example, '98-09-04'), rather than in the month-day-year or day-month-year orders commonly used elsewhere (for example, '09-04-98', '04-09-98'). To convert strings in other orders to year-month-day order, the STR_TO_DATE() function may be useful.
+
+Dates containing 2-digit year values are ambiguous because the century is unknown. MySQL interprets 2-digit year values using these rules:
+Year values in the range 70-99 become 1970-1999.
+Year values in the range 00-69 become 2000-2069.
+
+MySQL automatically converts a date or time value to a number if the value is used in numeric context and vice versa.
+By default, when MySQL encounters a value for a date or time type that is out of range or otherwise invalid for the type, it converts the value to the “zero” value for that type. The exception is that out-of-range TIME values are clipped to the appropriate endpoint of the TIME range.
+
+11.2.1 Date and Time Data Type Syntax
+--------------------------------------
+The date and time data types for representing temporal values are DATE, TIME, DATETIME, TIMESTAMP, and YEAR. Each temporal type has a range of valid values, as well as a “zero” value that may be used when you specify an invalid value that MySQL cannot represent. The TIMESTAMP and DATETIME types have special automatic updating behavior, described in Section 11.2.5, “Automatic Initialization and Updating for TIMESTAMP and DATETIME”.
+
+For information about storage requirements of the temporal data types, see Section 11.7, “Data Type Storage Requirements”.
+
+For descriptions of functions that operate on temporal values, see Section 12.7, “Date and Time Functions”.
+
+Keep in mind these general considerations when working with date and time types:
+
+MySQL retrieves values for a given date or time type in a standard output format, but it attempts to interpret a variety of formats for input values that you supply (for example, when you specify a value to be assigned to or compared to a date or time type). For a description of the permitted formats for date and time types, see Section 9.1.3, “Date and Time Literals”. It is expected that you supply valid values. Unpredictable results may occur if you use values in other formats.
+
+Although MySQL tries to interpret values in several formats, date parts must always be given in year-month-day order (for example, '98-09-04'), rather than in the month-day-year or day-month-year orders commonly used elsewhere (for example, '09-04-98', '04-09-98'). To convert strings in other orders to year-month-day order, the STR_TO_DATE() function may be useful.
+
+Dates containing 2-digit year values are ambiguous because the century is unknown. MySQL interprets 2-digit year values using these rules:
+
+Year values in the range 70-99 become 1970-1999.
+
+Year values in the range 00-69 become 2000-2069.
+
+See also Section 11.2.8, “2-Digit Years in Dates”.
+
+Conversion of values from one temporal type to another occurs according to the rules in Section 11.2.7, “Conversion Between Date and Time Types”.
+
+MySQL automatically converts a date or time value to a number if the value is used in numeric context and vice versa.
+
+By default, when MySQL encounters a value for a date or time type that is out of range or otherwise invalid for the type, it converts the value to the “zero” value for that type. The exception is that out-of-range TIME values are clipped to the appropriate endpoint of the TIME range.
+
+By setting the SQL mode to the appropriate value, you can specify more exactly what kind of dates you want MySQL to support. (See Section 5.1.11, “Server SQL Modes”.) You can get MySQL to accept certain dates, such as '2009-11-31', by enabling the ALLOW_INVALID_DATES SQL mode. This is useful when you want to store a “possibly wrong” value which the user has specified (for example, in a web form) in the database for future processing. Under this mode, MySQL verifies only that the month is in the range from 1 to 12 and that the day is in the range from 1 to 31.
+
+MySQL permits you to store dates where the day or month and day are zero in a DATE or DATETIME column. This is useful for applications that need to store birthdates for which you may not know the exact date. In this case, you simply store the date as '2009-00-00' or '2009-01-00'. However, with dates such as these, you should not expect to get correct results for functions such as DATE_SUB() or DATE_ADD() that require complete dates. To disallow zero month or day parts in dates, enable the NO_ZERO_IN_DATE mode.
+
+MySQL permits you to store a “zero” value of '0000-00-00' as a “dummy date.” In some cases, this is more convenient than using NULL values, and uses less data and index space. To disallow '0000-00-00', enable the NO_ZERO_DATE mode.
+
+“Zero” date or time values used through Connector/ODBC are converted automatically to NULL because ODBC cannot handle such values.
+
+The following table shows the format of the “zero” value for each type. The “zero” values are special, but you can store or refer to them explicitly using the values shown in the table. You can also do this using the values '0' or 0, which are easier to write. For temporal types that include a date part (DATE, DATETIME, and TIMESTAMP), use of these values may produce warning or errors. The precise behavior depends on which, if any, of the strict and NO_ZERO_DATE SQL modes are enabled; see Section 5.1.11, “Server SQL Modes”.
+
+Data Type	“Zero” Value
+DATE	    '0000-00-00'
+TIME	    '00:00:00'
+DATETIME	'0000-00-00 00:00:00'
+TIMESTAMP	'0000-00-00 00:00:00'
+YEAR	    0000
+
+11.2.1 Date and Time Data Type Syntax
+--------------------------------------
+The date and time data types for representing temporal values are DATE, TIME, DATETIME, TIMESTAMP, and YEAR.
+
+For the DATE and DATETIME range descriptions, “supported” means that although earlier values might work, there is no guarantee.
+
+MySQL permits fractional seconds for TIME, DATETIME, and TIMESTAMP values, with up to microseconds (6 digits) precision. To define a column that includes a fractional seconds part, use the syntax type_name(fsp), where type_name is TIME, DATETIME, or TIMESTAMP, and fsp is the fractional seconds precision. For example:
+mysql> create table t1(t TIME(3), dt DATETIME(6), ts TIMESTAMP(0));
+The fsp value, if given, must be in the range 0 to 6. A value of 0 signifies that there is no fractional part. If omitted, the default precision is 0. (This differs from the standard SQL default of 6, for compatibility with previous MySQL versions.)
+
+Any TIMESTAMP or DATETIME column in a table can have automatic initialization and updating properties;
+DATE
+=====
+A date. The supported range is '1000-01-01' to '9999-12-31'. MySQL displays DATE values in 'YYYY-MM-DD' format, but permits assignment of values to DATE columns using either strings or numbers.
+
+ DATETIME[(fsp)]
+================
+A date and time combination. The supported range is '1000-01-01 00:00:00.000000' to '9999-12-31 23:59:59.999999'. MySQL displays DATETIME values in 'YYYY-MM-DD hh:mm:ss[.fraction]' format, but permits assignment of values to DATETIME columns using either strings or numbers.
+
+An optional fsp value in the range from 0 to 6 may be given to specify fractional seconds precision. A value of 0 signifies that there is no fractional part. If omitted, the default precision is 0.
+
+Automatic initialization and updating to the current date and time for DATETIME columns can be specified using DEFAULT and ON UPDATE column definition clauses
+
+ TIMESTAMP[(fsp)]
+=================
+A timestamp. The range is '1970-01-01 00:00:01.000000' UTC to '2038-01-19 03:14:07.999999' UTC. TIMESTAMP values are stored as the number of seconds since the epoch ('1970-01-01 00:00:00' UTC). A TIMESTAMP cannot represent the value '1970-01-01 00:00:00' because that is equivalent to 0 seconds from the epoch and the value 0 is reserved for representing '0000-00-00 00:00:00', the “zero” TIMESTAMP value.
+
+An optional fsp value in the range from 0 to 6 may be given to specify fractional seconds precision. A value of 0 signifies that there is no fractional part. If omitted, the default precision is 0.
+
+The way the server handles TIMESTAMP definitions depends on the value of the explicit_defaults_for_timestamp system variable (see Section 5.1.8, “Server System Variables”).
+
+If explicit_defaults_for_timestamp is enabled, there is no automatic assignment of the DEFAULT CURRENT_TIMESTAMP or ON UPDATE CURRENT_TIMESTAMP attributes to any TIMESTAMP column. They must be included explicitly in the column definition. Also, any TIMESTAMP not explicitly declared as NOT NULL permits NULL values.
+
+If explicit_defaults_for_timestamp is disabled, the server handles TIMESTAMP as follows:
+
+Unless specified otherwise, the first TIMESTAMP column in a table is defined to be automatically set to the date and time of the most recent modification if not explicitly assigned a value. This makes TIMESTAMP useful for recording the timestamp of an INSERT or UPDATE operation. You can also set any TIMESTAMP column to the current date and time by assigning it a NULL value, unless it has been defined with the NULL attribute to permit NULL values.
+
+Automatic initialization and updating to the current date and time can be specified using DEFAULT CURRENT_TIMESTAMP and ON UPDATE CURRENT_TIMESTAMP column definition clauses. By default, the first TIMESTAMP column has these properties, as previously noted. However, any TIMESTAMP column in a table can be defined to have these properties.
 
 
+ TIME[(fsp)]
+=============
+A time. The range is '-838:59:59.000000' to '838:59:59.000000'. MySQL displays TIME values in 'hh:mm:ss[.fraction]' format, but permits assignment of values to TIME columns using either strings or numbers.
+
+An optional fsp value in the range from 0 to 6 may be given to specify fractional seconds precision. A value of 0 signifies that there is no fractional part. If omitted, the default precision is 0.
+
+ YEAR[(4)]
+==========
+A year in 4-digit format. MySQL displays YEAR values in YYYY format, but permits assignment of values to YEAR columns using either strings or numbers. Values display as 1901 to 2155, or 0000.
+
+For additional information about YEAR display format and interpretation of input values,
+
+Note
+As of MySQL 8.0.19, the YEAR(4) data type with an explicit display width is deprecated; you should expect support for it to be removed in a future version of MySQL. Instead, use YEAR without a display width, which has the same meaning.
+
+MySQL 8.0 does not support the 2-digit YEAR(2) data type permitted in older versions of MySQL. For instructions on converting to 4-digit YEAR, see 2-Digit YEAR(2) Limitations and Migrating to 4-Digit YEAR, in MySQL 5.7 Reference Manual.
+
+mysql> insert into t1 value (
+    -> '10:11:12.123', '2021-01-02 10:11:12.123456', '2021-01-02 10:11:12');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from T1;
++--------------+----------------------------+---------------------+
+| t            | dt                         | ts                  |
++--------------+----------------------------+---------------------+
+| 10:11:12.123 | 2021-01-02 10:11:12.123456 | 2021-01-02 10:11:12 |
++--------------+----------------------------+---------------------+
+1 row in set (0.00 sec)
+
+mysql> insert into t1 value ( '10:11:13.123', '2021-01-02 10:11:13.123456', '2021-01-02 10:11:13.123456');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from T1;
++--------------+----------------------------+---------------------+
+| t            | dt                         | ts                  |
++--------------+----------------------------+---------------------+
+| 10:11:12.123 | 2021-01-02 10:11:12.123456 | 2021-01-02 10:11:12 |
+| 10:11:13.123 | 2021-01-02 10:11:13.123456 | 2021-01-02 10:11:13 |
++--------------+----------------------------+---------------------+
+
+The SUM() and AVG() aggregate functions do not work with temporal values. (They convert the values to numbers, losing everything after the first nonnumeric character.) To work around this problem, convert to numeric units, perform the aggregate operation, and convert back to a temporal value. Examples:
+Disection of
+SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(time_col))) FROM tbl_name;
 
 
-11.8 Choosing the Right Type for a Column
-------------------------------------------
-For optimum storage, you should try to use the most precise type in all cases. For example, if an integer column is used for values in the range from 1 to 99999, MEDIUMINT UNSIGNED is the best type. Of the types that represent all the required values, this type uses the least amount of storage.
+mysql> select TIME_TO_SEC(t) from t1;
++----------------+
+| TIME_TO_SEC(t) |
++----------------+
+|          36672 |
+|          36673 |
++----------------+
+2 rows in set (0.00 sec)
 
-All basic calculations (+, -, *, and /) with DECIMAL columns are done with precision of 65 decimal (base 10) digits.
-If accuracy is not too important or if speed is the highest priority, the DOUBLE type may be good enough. For high precision, you can always convert to a fixed-point type stored in a BIGINT. This enables you to do all calculations with 64-bit integers and then convert results back to floating-point values as necessary.
+mysql> select sum(TIME_TO_SEC(t)) from t1;
++---------------------+
+| sum(TIME_TO_SEC(t)) |
++---------------------+
+|               73345 |
++---------------------+
+1 row in set (0.01 sec)
 
+mysql> select SEC_TO_TIME(sum(TIME_TO_SEC(t))) from t1;
++----------------------------------+
+| SEC_TO_TIME(sum(TIME_TO_SEC(t))) |
++----------------------------------+
+| 20:22:25                         |
++----------------------------------+
+1 row in set (0.00 sec)
+
+
+Disection of - SELECT FROM_DAYS(SUM(TO_DAYS(date_col))) FROM tbl_name;
+mysql> select TO_DAYS(dt) from t1;
++-------------+
+| TO_DAYS(dt) |
++-------------+
+|      738157 |
+|      738157 |
++-------------+
+2 rows in set (0.01 sec)
+
+mysql> select sum(TO_DAYS(dt)) from t1;
++------------------+
+| sum(TO_DAYS(dt)) |
++------------------+
+|          1476314 |
++------------------+
+1 row in set (0.00 sec)
+
+mysql> select FROM_DAYS(sum(TO_DAYS(dt))) from t1;
++-----------------------------+
+| FROM_DAYS(sum(TO_DAYS(dt))) |
++-----------------------------+
+| 4042-01-04                  |
++-----------------------------+
+1 row in set (0.00 sec)
+
+
+11.2.2 The DATE, DATETIME, and TIMESTAMP Types
+-----------------------------------------------
+The DATE, DATETIME, and TIMESTAMP types are related. This section describes their characteristics, how they are similar, and how they differ. MySQL recognizes DATE, DATETIME, and TIMESTAMP values in several formats, described in Section 9.1.3, “Date and Time Literals”. For the DATE and DATETIME range descriptions, “supported” means that although earlier values might work, there is no guarantee.
+
+The DATE type is used for values with a date part but no time part. MySQL retrieves and displays DATE values in 'YYYY-MM-DD' format. The supported range is '1000-01-01' to '9999-12-31'.
+
+The DATETIME type is used for values that contain both date and time parts. MySQL retrieves and displays DATETIME values in 'YYYY-MM-DD hh:mm:ss' format. The supported range is '1000-01-01 00:00:00' to '9999-12-31 23:59:59'.
+
+The TIMESTAMP data type is used for values that contain both date and time parts. TIMESTAMP has a range of '1970-01-01 00:00:01' UTC to '2038-01-19 03:14:07' UTC.
+
+A DATETIME or TIMESTAMP value can include a trailing fractional seconds part in up to microseconds (6 digits) precision. In particular, any fractional part in a value inserted into a DATETIME or TIMESTAMP column is stored rather than discarded. With the fractional part included, the format for these values is 'YYYY-MM-DD hh:mm:ss[.fraction]', the range for DATETIME values is '1000-01-01 00:00:00.000000' to '9999-12-31 23:59:59.999999', and the range for TIMESTAMP values is '1970-01-01 00:00:01.000000' to '2038-01-19 03:14:07.999999'. The fractional part should always be separated from the rest of the time by a decimal point; no other fractional seconds delimiter is recognized. For information about fractional seconds support in MySQL, see Section 11.2.6, “Fractional Seconds in Time Values”.
+
+The TIMESTAMP and DATETIME data types offer automatic initialization and updating to the current date and time. For more information, see Section 11.2.5, “Automatic Initialization and Updating for TIMESTAMP and DATETIME”.
+
+MySQL converts TIMESTAMP values from the current time zone to UTC for storage, and back from UTC to the current time zone for retrieval. (This does not occur for other types such as DATETIME.) By default, the current time zone for each connection is the server's time. The time zone can be set on a per-connection basis. As long as the time zone setting remains constant, you get back the same value you store. If you store a TIMESTAMP value, and then change the time zone and retrieve the value, the retrieved value is different from the value you stored. This occurs because the same time zone was not used for conversion in both directions. The current time zone is available as the value of the time_zone system variable. For more information, see Section 5.1.15, “MySQL Server Time Zone Support”.
+
+In MySQL 8.0.19 and later, you can specify a time zone offset when inserting a TIMESTAMP or DATETIME value into a table. See Section 9.1.3, “Date and Time Literals”, for more information and examples.
+
+Invalid DATE, DATETIME, or TIMESTAMP values are converted to the “zero” value of the appropriate type ('0000-00-00' or '0000-00-00 00:00:00'), if the SQL mode permits this conversion. The precise behavior depends on which if any of strict SQL mode and the NO_ZERO_DATE SQL mode are enabled;
+
+In MySQL 8.0.22 and later, you can convert TIMESTAMP values to UTC DATETIME values when retrieving them using CAST() with the AT TIME ZONE operator, as shown here:

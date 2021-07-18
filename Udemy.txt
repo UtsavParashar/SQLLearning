@@ -4206,6 +4206,87 @@ from person p1, person p2
 where p1.email = p2.email
 and p1.id > p2.id;
 
+Leetcode -
+There is a table courses with columns: student and class
+
+Please list out all classes which have more than or equal to 5 students.
+
+For example, the table:
+
++---------+------------+
+| student | class      |
++---------+------------+
+| A       | Math       |
+| B       | English    |
+| C       | Math       |
+| D       | Biology    |
+| E       | Math       |
+| F       | Computer   |
+| G       | Math       |
+| H       | Math       |
+| I       | Math       |
++---------+------------+
+Should output:
+
++---------+
+| class   |
++---------+
+| Math    |
++---------+
+
+mysql> create table courses (
+    -> student CHAR(1),
+    -> class VARCHAR(15)
+    -> );
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> insert into courses values
+    -> ('A','Math'),
+    -> ('B','English'),
+    -> ('C','Math'),
+    -> ('D','Biology'),
+    -> ('E','Math'),
+    -> ('F','Computer'),
+    -> ('G','Math'),
+    -> ('H','Math'),
+    -> ('I','Math');
+Query OK, 9 rows affected (0.01 sec)
+Records: 9  Duplicates: 0  Warnings: 0
+
+mysql> select * from courses;
++---------+----------+
+| student | class    |
++---------+----------+
+| A       | Math     |
+| B       | English  |
+| C       | Math     |
+| D       | Biology  |
+| E       | Math     |
+| F       | Computer |
+| G       | Math     |
+| H       | Math     |
+| I       | Math     |
++---------+----------+
+9 rows in set (0.00 sec)
+
+Optimal Sol -
+mysql> select class from courses group by class having count(distinct student) >= 5;
++-------+
+| class |
++-------+
+| Math  |
++-------+
+1 row in set (0.00 sec)
+
+2nd Sol -
+mysql> select class from (select class, count(distinct student) as count from courses group by class having count>=5)as count_table;
++-------+
+| class |
++-------+
+| Math  |
++-------+
+1 row in set (0.00 sec)
+
 
 
 

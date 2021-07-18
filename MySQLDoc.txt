@@ -4936,3 +4936,4 @@ Remember that these rules are only heuristics that provide reasonable guesses as
 ORDER BY properly sorts YEAR values that have 2-digit years.
 
 Some functions like MIN() and MAX() convert a YEAR to a number. This means that a value with a 2-digit year does not work properly with these functions. The fix in this case is to convert the YEAR to 4-digit year format.
+

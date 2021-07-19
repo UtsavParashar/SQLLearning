@@ -4937,3 +4937,340 @@ ORDER BY properly sorts YEAR values that have 2-digit years.
 
 Some functions like MIN() and MAX() convert a YEAR to a number. This means that a value with a 2-digit year does not work properly with these functions. The fix in this case is to convert the YEAR to 4-digit year format.
 
+Revision -
+--------
+Numerical Datatypes - TINYINT, SMALLINT, MEDIUMINT, INT, BIGINT
+FLOAT, REAL, DECIMAL, DOUBLE
+
+Temporal Datatypes - DATE, TIME, DATETIME, TIMESTAMP, YEAR
+
+STRING DATA TYPES:
+------------------
+The string data types are CHAR, VARCHAR, BINARY, VARBINARY, BLOB, TEXT, ENUM, and SET.
+
+For definitions of character string columns (CHAR, VARCHAR, and the TEXT types), MySQL interprets length specifications in character units.
+For definitions of binary string columns (BINARY, VARBINARY, and the BLOB types), MySQL interprets length specifications in byte units.
+
+Column definitions for character string data types CHAR, VARCHAR, the TEXT types, ENUM, SET, and any synonyms) can specify the column character set and collation:
+CHARACTER SET specifies the character set. If desired, a collation for the character set can be specified with the COLLATE attribute, along with any other attributes. For example:
+mysql> create table t( c1 varchar(20) character set utf8, c2 text character set latin1 collate latin1_general_cs );
+
+
+This table definition creates a column named c1 that has a character set of utf8 with the default collation for that character set, and a column named c2 that has a character set of latin1 and a case-sensitive (_cs) collation.
+
+Specifying the CHARACTER SET binary attribute for a character string data type causes the column to be created as the corresponding binary string data type: CHAR becomes BINARY, VARCHAR becomes VARBINARY, and TEXT becomes BLOB. For the ENUM and SET data types, this does not occur; they are created as declared. Suppose that you specify a table using this definition:
+
+CREATE TABLE t
+(
+  c1 VARCHAR(10) CHARACTER SET binary,
+  c2 TEXT CHARACTER SET binary,
+  c3 ENUM('a','b','c') CHARACTER SET binary
+);
+
+The resulting table has this definition:
+
+CREATE TABLE t
+(
+  c1 VARBINARY(10),
+  c2 BLOB,
+  c3 ENUM('a','b','c') CHARACTER SET binary
+);
+
+The BINARY attribute is a nonstandard MySQL extension that is shorthand for specifying the binary (_bin) collation of the column character set (or of the table default character set if no column character set is specified). In this case, comparison and sorting are based on numeric character code values. Suppose that you specify a table using this definition:
+
+CREATE TABLE t
+(
+  c1 VARCHAR(10) CHARACTER SET latin1 BINARY,
+  c2 TEXT BINARY
+) CHARACTER SET utf8mb4
+
+The resulting table has this definition:
+
+CREATE TABLE t (
+  c1 VARCHAR(10) CHARACTER SET latin1 COLLATE latin1_bin,
+  c2 TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin
+) CHARACTER SET utf8mb4;
+
+In MySQL 8.0, this nonstandard use of the BINARY attribute is ambiguous because the utf8mb4 character set has multiple _bin collations. As of MySQL 8.0.17, the BINARY attribute is deprecated and you should expect support for it to be removed in a future version of MySQL. Applications should be adjusted to use an explicit _bin collation instead.
+
+The use of BINARY to specify a data type or character set remains unchanged.
+
+The ASCII attribute is shorthand for CHARACTER SET latin1.
+
+The UNICODE attribute is shorthand for CHARACTER SET ucs2.
+
+11.3.2 The CHAR and VARCHAR Types
+----------------------------------
+The CHAR and VARCHAR types are similar, but differ in the way they are stored and retrieved. They also differ in maximum length and in whether trailing spaces are retained.
+
+The CHAR and VARCHAR types are declared with a length that indicates the maximum number of characters you want to store. For example, CHAR(30) can hold up to 30 characters.
+
+The length of a CHAR column is fixed to the length that you declare when you create the table. The length can be any value from 0 to 255. When CHAR values are stored, they are right-padded with spaces to the specified length. When CHAR values are retrieved, trailing spaces are removed unless the PAD_CHAR_TO_FULL_LENGTH SQL mode is enabled.
+
+Values in VARCHAR columns are variable-length strings. The length can be specified as a value from 0 to 65,535. The effective maximum length of a VARCHAR is subject to the maximum row size (65,535 bytes, which is shared among all columns) and the character set used. See Section 8.4.7, “Limits on Table Column Count and Row Size”.
+
+In contrast to CHAR, VARCHAR values are stored as a 1-byte or 2-byte length prefix plus data. The length prefix indicates the number of bytes in the value. A column uses one length byte if values require no more than 255 bytes, two length bytes if values may require more than 255 bytes.
+
+If strict SQL mode is not enabled and you assign a value to a CHAR or VARCHAR column that exceeds the column's maximum length, the value is truncated to fit and a warning is generated. For truncation of nonspace characters, you can cause an error to occur (rather than a warning) and suppress insertion of the value by using strict SQL mode. See Section 5.1.11, “Server SQL Modes”.
+
+For VARCHAR columns, trailing spaces in excess of the column length are truncated prior to insertion and a warning is generated, regardless of the SQL mode in use. For CHAR columns, truncation of excess trailing spaces from inserted values is performed silently regardless of the SQL mode.
+mysql> CREATE TABLE vc (v VARCHAR(4), c CHAR(4));
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> INSERT INTO vc VALUES ('ab  ', 'ab  ');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT CONCAT('(', v, ')'), CONCAT('(', c, ')') FROM vc;
++---------------------+---------------------+
+| CONCAT('(', v, ')') | CONCAT('(', c, ')') |
++---------------------+---------------------+
+| (ab  )              | (ab)                |
++---------------------+---------------------+
+1 row in set (0.06 sec)
+
+
+11.3.3 The BINARY and VARBINARY Types
+The BINARY and VARBINARY types are similar to CHAR and VARCHAR, except that they store binary strings rather than nonbinary strings. That is, they store byte strings rather than character strings. This means they have the binary character set and collation, and comparison and sorting are based on the numeric values of the bytes in the values.
+
+The permissible maximum length is the same for BINARY and VARBINARY as it is for CHAR and VARCHAR, except that the length for BINARY and VARBINARY is measured in bytes rather than characters.
+
+
+11.3.4 The BLOB and TEXT Types
+A BLOB is a binary large object that can hold a variable amount of data. The four BLOB types are TINYBLOB, BLOB, MEDIUMBLOB, and LONGBLOB. These differ only in the maximum length of the values they can hold. The four TEXT types are TINYTEXT, TEXT, MEDIUMTEXT, and LONGTEXT.
+
+
+11.3.5 The ENUM Type
+
+An ENUM is a string object with a value chosen from a list of permitted values that are enumerated explicitly in the column specification at table creation time.
+
+See Section 11.3.1, “String Data Type Syntax” for ENUM type syntax and length limits.
+
+The ENUM type has these advantages:
+
+Compact data storage in situations where a column has a limited set of possible values. The strings you specify as input values are automatically encoded as numbers. See Section 11.7, “Data Type Storage Requirements” for storage requirements for the ENUM type.
+
+Readable queries and output. The numbers are translated back to the corresponding strings in query results.
+
+mysql> create table t3 (a INT, b ENUM('M','F'));
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> insert into t3 values (1, 'M');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from T3;
++------+------+
+| a    | b    |
++------+------+
+|    1 | M    |
++------+------+
+1 row in set (0.01 sec)
+
+mysql> insert into t3 values (1, 'S');
+ERROR 1265 (01000): Data truncated for column 'b' at row 1
+mysql> select * from T3;
++------+------+
+| a    | b    |
++------+------+
+|    1 | M    |
++------+------+
+1 row in set (0.00 sec)
+
+Enum can be considered similar to symbol type in kdb.
+
+SET:
+A SET is a string object that can have zero or more values, each of which must be chosen from a list of permitted values specified when the table is created. SET column values that consist of multiple set members are specified with members separated by commas (,). A consequence of this is that SET member values should not themselves contain commas.
+
+For example, a column specified as SET('one', 'two') NOT NULL can have any of these values:
+
+mysql> CREATE TABLE myset (col SET('a', 'b', 'c', 'd'));
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> INSERT INTO myset (col) VALUES ('a,d'), ('d,a'), ('a,d,a'), ('a,d,d'), ('d,a,d');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> select * from myset;
++------+
+| col  |
++------+
+| a,d  |
+| a,d  |
+| a,d  |
+| a,d  |
+| a,d  |
++------+
+5 rows in set (0.00 sec)
+
+Difference between set and enum -
+enum can have comma separated values or values other then specified values.
+mysql> CREATE TABLE myenum (col Enum('a', 'b', 'c', 'd'));
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> INSERT INTO myenum (col) VALUES ('a,d'), ('d,a'), ('a,d,a'), ('a,d,d'), ('d,a,d');
+ERROR 1265 (01000): Data truncated for column 'col' at row 1
+mysql> INSERT INTO myenum (col) VALUES ('a,d'), ('b'), ('c'), ('a'), ('d');
+ERROR 1265 (01000): Data truncated for column 'col' at row 1
+mysql> INSERT INTO myenum (col) VALUES ('a'), ('b'), ('c'), ('a'), ('d');
+Query OK, 5 rows affected (0.00 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> select * from myenum;
++------+
+| col  |
++------+
+| a    |
+| b    |
+| c    |
+| a    |
+| d    |
++------+
+5 rows in set (0.00 sec)
+
+
+Chapter 12 Functions and Operators
+-----------------------------------
+Expressions can be used at several points in SQL statements, such as in the ORDER BY or HAVING clauses of SELECT statements, in the WHERE clause of a SELECT, DELETE, or UPDATE statement, or in SET statements. Expressions can be written using values from several sources, such as literal values, column values, NULL, variables, built-in functions and operators, loadable functions, and stored functions (a type of stored object).
+
+This chapter describes the built-in functions and operators that are permitted for writing expressions in MySQL. For information about loadable functions and stored functions, see Section 5.7, “MySQL Server Loadable Functions”, and Section 25.2, “Using Stored Routines”. For the rules describing how the server interprets references to different kinds of functions, see Section 9.2.5, “Function Name Parsing and Resolution”.
+
+An expression that contains NULL always produces a NULL value unless otherwise indicated in the documentation for a particular function or operator.
+
+Note
+By default, there must be no whitespace between a function name and the parenthesis following it. This helps the MySQL parser distinguish between function calls and references to tables or columns that happen to have the same name as a function. However, spaces around function arguments are permitted.
+
+To tell the MySQL server to accept spaces after function names by starting it with the --sql-mode=IGNORE_SPACE option. (See Section 5.1.11, “Server SQL Modes”.) Individual client programs can request this behavior by using the CLIENT_IGNORE_SPACE option for mysql_real_connect(). In either case, all function names become reserved words.
+
+mysql> select MOD(29,9);
++-----------+
+| MOD(29,9) |
++-----------+
+|         2 |
++-----------+
+1 row in set (0.00 sec)
+
+12.1 Built-In Function and Operator Reference - https://dev.mysql.com/doc/refman/8.0/en/built-in-function-reference.html
+---------------------------------------------
+Sample -
+
+Name	Description
+&	    Bitwise AND
+>	    Greater than operator
+>>	    Right shift
+>=	    Greater than or equal operator
+<	    Less than operator
+<>, !=	Not equal operator
+<<	    Left shift
+<=	    Less than or equal operator
+<=>	    NULL-safe equal to operator
+%,      MOD	Modulo operator
+*	    Multiplication operator
++	    Addition operator
+-	    Minus operator
+-	    Change the sign of the argument
+
+Examples of Left shift operator:
+mysql> select 1 << 1;
++--------+
+| 1 << 1 |
++--------+
+|      2 |
++--------+
+1 row in set (0.00 sec)
+
+mysql> select 1 << 2;
++--------+
+| 1 << 2 |
++--------+
+|      4 |
++--------+
+1 row in set (0.00 sec)
+
+mysql> select 1 << 3;
++--------+
+| 1 << 3 |
++--------+
+|      8 |
++--------+
+1 row in set (0.00 sec)
+
+12.2 Loadable Function Reference - https://dev.mysql.com/doc/refman/8.0/en/loadable-function-reference.html
+
+12.3 Type Conversion in Expression Evaluation
+----------------------------------------------
+When an operator is used with operands of different types, type conversion occurs to make the operands compatible. Some conversions occur implicitly. For example, MySQL automatically converts strings to numbers as necessary, and vice versa.
+mysql> select 1+'1';
++-------+
+| 1+'1' |
++-------+
+|     2 |
++-------+
+1 row in set (0.00 sec)
+
+mysql> select '1'+1;
++-------+
+| '1'+1 |
++-------+
+|     2 |
++-------+
+1 row in set (0.00 sec)
+
+mysql> select concat(2, ' test');
++--------------------+
+| concat(2, ' test') |
++--------------------+
+| 2 test             |
++--------------------+
+1 row in set (0.00 sec)
+
+It is also possible to convert a number to a string explicitly using the CAST() function. Conversion occurs implicitly with the CONCAT() function because it expects string arguments.
+mysql> select 38.8, cast(38.8 as char);
++------+--------------------+
+| 38.8 | cast(38.8 as char) |
++------+--------------------+
+| 38.8 | 38.8               |
++------+--------------------+
+1 row in set (0.00 sec)
+
+mysql> select 38.8, concat(38.8);
++------+--------------+
+| 38.8 | concat(38.8) |
++------+--------------+
+| 38.8 | 38.8         |
++------+--------------+
+1 row in set (0.00 sec)
+
+12.5 Flow Control Functions
+---------------------------
+Name	    Description
+CASE	    Case operator
+IF()	    If/else construct
+IFNULL()	Null if/else construct
+NULLIF()	Return NULL if expr1 = expr2
+
+12.20 Aggregate Functions
+-------------------------
+Table 12.25 Aggregate Functions
+
+Name	            Description
+AVG()	            Return the average value of the argument
+BIT_AND()	        Return bitwise AND
+BIT_OR()	        Return bitwise OR
+BIT_XOR()	        Return bitwise XOR
+COUNT()	            Return a count of the number of rows returned
+COUNT(DISTINCT)	    Return the count of a number of different values
+GROUP_CONCAT()	    Return a concatenated string
+JSON_ARRAYAGG()	    Return result set as a single JSON array
+JSON_OBJECTAGG()	Return result set as a single JSON object
+MAX()	            Return the maximum value
+MIN()	            Return the minimum value
+STD()	            Return the population standard deviation
+STDDEV()	        Return the population standard deviation
+STDDEV_POP()	    Return the population standard deviation
+STDDEV_SAMP()	    Return the sample standard deviation
+SUM()	            Return the sum
+VAR_POP()	        Return the population standard variance
+VAR_SAMP()	        Return the sample variance
+VARIANCE()	        Return the population standard variance
+
+12.20.2 GROUP BY Modifiers
+---------------------------

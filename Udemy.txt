@@ -4291,5 +4291,7 @@ mysql> select class from (select class, count(distinct student) as count from co
 
 
 
+
+
 Questions:
 Why is char faster than varchar?

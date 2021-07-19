@@ -5274,3 +5274,277 @@ VARIANCE()	        Return the population standard variance
 
 12.20.2 GROUP BY Modifiers
 ---------------------------
+The GROUP BY clause permits a WITH ROLLUP modifier that causes summary output to include extra rows that represent higher-level (that is, super-aggregate) summary operations. ROLLUP thus enables you to answer questions at multiple levels of analysis with a single query. For example, ROLLUP can be used to provide support for OLAP (Online Analytical Processing) operations.
+
+Suppose that a sales table has year, country, product, and profit columns for recording sales profitability:
+mysql> create table sales
+    -> (
+    -> year INT,
+    -> country VARCHAR(20),
+    -> product VARCHAR(20),
+    -> profit INT
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> insert into sales values (2000, 'IN', 'CHAI', 10000), (2001, 'IN','MASALA', 20000), (2000,'USA','COFFEE',100000);
+Query OK, 3 rows affected (0.00 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from sales;
++------+---------+---------+--------+
+| year | country | product | profit |
++------+---------+---------+--------+
+| 2000 | IN      | CHAI    |  10000 |
+| 2001 | IN      | MASALA  |  20000 |
+| 2000 | USA     | COFFEE  | 100000 |
++------+---------+---------+--------+
+3 rows in set (0.00 sec)
+
+To summarize table contents per year, use a simple GROUP BY like this:
+
+mysql> select year, sum(profit) as profit
+    -> from sales
+    -> group by year;
++------+--------+
+| year | profit |
++------+--------+
+| 2000 | 110000 |
+| 2001 |  20000 |
++------+--------+
+2 rows in set (0.00 sec)
+
+The output shows the total (aggregate) profit for each year. To also determine the total profit summed over all years, you must add up the individual values yourself or run an additional query. Or you can use ROLLUP, which provides both levels of analysis with a single query. Adding a WITH ROLLUP modifier to the GROUP BY clause causes the query to produce another (super-aggregate) row that shows the grand total over all year values:
+
+mysql> select year, sum(profit) as profit from sales group by year WITH ROLLUP;
++------+--------+
+| year | profit |
++------+--------+
+| 2000 | 110000 |
+| 2001 |  20000 |
+| NULL | 130000 |
++------+--------+
+3 rows in set (0.00 sec)
+
+ROLLUP has a more complex effect when there are multiple GROUP BY columns. In this case, each time there is a change in value in any but the last grouping column, the query produces an extra super-aggregate summary row.
+
+For example, without ROLLUP, a summary of the sales table based on year, country, and product might look like this, where the output indicates summary values only at the year/country/product level of analysis:
+and next example consists with ROLLUP.
+
+mysql> select * from sales;
++------+---------+---------+--------+
+| year | country | product | profit |
++------+---------+---------+--------+
+| 2000 | IN      | CHAI    |  10000 |
+| 2001 | IN      | MASALA  |  20000 |
+| 2000 | USA     | COFFEE  | 100000 |
+| 2001 | US      | MASALA  |    100 |
+| 2000 | IN      | COFFEE  |  20000 |
+| 2001 | US      | MASALA  |   2500 |
+| 2000 | IN      | COFFEE  |   2500 |
++------+---------+---------+--------+
+7 rows in set (0.00 sec)
+
+mysql> select year, country, product, sum(profit) as profit from sales group by year, country, product;
++------+---------+---------+--------+
+| year | country | product | profit |
++------+---------+---------+--------+
+| 2000 | IN      | CHAI    |  10000 |
+| 2001 | IN      | MASALA  |  20000 |
+| 2000 | USA     | COFFEE  | 100000 |
+| 2001 | US      | MASALA  |   2600 |
+| 2000 | IN      | COFFEE  |  22500 |
++------+---------+---------+--------+
+5 rows in set (0.00 sec)
+
+mysql> select year, country, product, sum(profit) as profit from sales group by year, country, product with rollup;
++------+---------+---------+--------+
+| year | country | product | profit |
++------+---------+---------+--------+
+| 2000 | IN      | CHAI    |  10000 |
+| 2000 | IN      | COFFEE  |  22500 |
+| 2000 | IN      | NULL    |  32500 |
+| 2000 | USA     | COFFEE  | 100000 |
+| 2000 | USA     | NULL    | 100000 |
+| 2000 | NULL    | NULL    | 132500 |
+| 2001 | IN      | MASALA  |  20000 |
+| 2001 | IN      | NULL    |  20000 |
+| 2001 | US      | MASALA  |   2600 |
+| 2001 | US      | NULL    |   2600 |
+| 2001 | NULL    | NULL    |  22600 |
+| NULL | NULL    | NULL    | 155100 |
++------+---------+---------+--------+
+12 rows in set (0.00 sec)
+
+Now the output includes summary information at four levels of analysis, not just one:
+
+Following each set of product rows for a given year and country, an extra super-aggregate summary row appears showing the total for all products. These rows have the product column set to NULL.
+
+Following each set of rows for a given year, an extra super-aggregate summary row appears showing the total for all countries and products. These rows have the country and products columns set to NULL.
+
+Finally, following all other rows, an extra super-aggregate summary row appears showing the grand total for all years, countries, and products. This row has the year, country, and products columns set to NULL.
+
+The NULL indicators in each super-aggregate row are produced when the row is sent to the client. The server looks at the columns named in the GROUP BY clause following the leftmost one that has changed value. For any column in the result set with a name that matches any of those names, its value is set to NULL. (If you specify grouping columns by column position, the server identifies which columns to set to NULL by position.)
+
+Because the NULL values in the super-aggregate rows are placed into the result set at such a late stage in query processing, you can test them as NULL values only in the select list or HAVING clause. You cannot test them as NULL values in join conditions or the WHERE clause to determine which rows to select. For example, you cannot add WHERE product IS NULL to the query to eliminate from the output all but the super-aggregate rows.
+
+The NULL values do appear as NULL on the client side and can be tested as such using any MySQL client programming interface. However, at this point, you cannot distinguish whether a NULL represents a regular grouped value or a super-aggregate value. To test the distinction, use the GROUPING() function, described later.
+
+Previously, MySQL did not allow the use of DISTINCT or ORDER BY in a query having a WITH ROLLUP option. This restriction is lifted in MySQL 8.0.12 and later. (Bug #87450, Bug #86311, Bug #26640100, Bug #26073513)
+
+For GROUP BY ... WITH ROLLUP queries, to test whether NULL values in the result represent super-aggregate values, the GROUPING() function is available for use in the select list, HAVING clause, and (as of MySQL 8.0.12) ORDER BY clause. For example, GROUPING(year) returns 1 when NULL in the year column occurs in a super-aggregate row, and 0 otherwise. Similarly, GROUPING(country) and GROUPING(product) return 1 for super-aggregate NULL values in the country and product columns, respectively:
+
+mysql> select year, country, product, sum(profit) as profit,
+    -> GROUPING(year) as grp_year,
+    -> GROUPING(country) as grp_country,
+    -> GROUPING(product) as grp_product
+    -> from sales
+    -> GROUP BY year, country, product WITH ROLLUP;
++------+---------+---------+--------+----------+-------------+-------------+
+| year | country | product | profit | grp_year | grp_country | grp_product |
++------+---------+---------+--------+----------+-------------+-------------+
+| 2000 | IN      | CHAI    |  10000 |        0 |           0 |           0 |
+| 2000 | IN      | COFFEE  |  22500 |        0 |           0 |           0 |
+| 2000 | IN      | NULL    |  32500 |        0 |           0 |           1 |
+| 2000 | USA     | COFFEE  | 100000 |        0 |           0 |           0 |
+| 2000 | USA     | NULL    | 100000 |        0 |           0 |           1 |
+| 2000 | NULL    | NULL    | 132500 |        0 |           1 |           1 |
+| 2001 | IN      | MASALA  |  20000 |        0 |           0 |           0 |
+| 2001 | IN      | NULL    |  20000 |        0 |           0 |           1 |
+| 2001 | US      | MASALA  |   2600 |        0 |           0 |           0 |
+| 2001 | US      | NULL    |   2600 |        0 |           0 |           1 |
+| 2001 | NULL    | NULL    |  22600 |        0 |           1 |           1 |
+| NULL | NULL    | NULL    | 155100 |        1 |           1 |           1 |
++------+---------+---------+--------+----------+-------------+-------------+
+
+Instead of displaying the GROUPING() results directly, you can use GROUPING() to substitute labels for super-aggregate NULL values:
+
+mysql> SELECT
+    -> IF(GROUPING(year),'All Years', year) AS year,
+    -> IF(GROUPING(country),'All countries', country) AS country,
+    -> IF(GROUPING(product),'All products', product) AS product,
+    -> SUM(profit) as profit
+    -> FROM sales
+    -> GROUP BY year, country, product WITH ROLLUP;
++-----------+---------------+--------------+--------+
+| year      | country       | product      | profit |
++-----------+---------------+--------------+--------+
+| 2000      | IN            | CHAI         |  10000 |
+| 2000      | IN            | COFFEE       |  22500 |
+| 2000      | IN            | All products |  32500 |
+| 2000      | USA           | COFFEE       | 100000 |
+| 2000      | USA           | All products | 100000 |
+| 2000      | All countries | All products | 132500 |
+| 2001      | IN            | MASALA       |  20000 |
+| 2001      | IN            | All products |  20000 |
+| 2001      | US            | MASALA       |   2600 |
+| 2001      | US            | All products |   2600 |
+| 2001      | All countries | All products |  22600 |
+| All Years | All countries | All products | 155100 |
++-----------+---------------+--------------+--------+
+12 rows in set, 3 warnings (0.01 sec)
+
+NOTE - ABOVE statment is somewhat similar to np.where.
+
+With multiple expression arguments, GROUPING() returns a result representing a bitmask the combines the results for each expression, with the lowest-order bit corresponding to the result for the rightmost expression. For example, GROUPING(year, country, product) is evaluated like this:
+
+  result for GROUPING(product)
++ result for GROUPING(country) << 1
++ result for GROUPING(year) << 2
+
+The result of such a GROUPING() is nonzero if any of the expressions represents a super-aggregate NULL, so you can return only the super-aggregate rows and filter out the regular grouped rows like this:
+
+mysql> select year, country, product, sum(profit) as profit
+    -> from sales
+    -> group by year, country, product with rollup
+    -> having grouping(year, country, product) <> 0;
++------+---------+---------+--------+
+| year | country | product | profit |
++------+---------+---------+--------+
+| 2000 | IN      | NULL    |  32500 |
+| 2000 | USA     | NULL    | 100000 |
+| 2000 | NULL    | NULL    | 132500 |
+| 2001 | IN      | NULL    |  20000 |
+| 2001 | US      | NULL    |   2600 |
+| 2001 | NULL    | NULL    |  22600 |
+| NULL | NULL    | NULL    | 155100 |
++------+---------+---------+--------+
+
+
+The sales table contains no NULL values, so all NULL values in a ROLLUP result represent super-aggregate values. When the data set contains NULL values, ROLLUP summaries may contain NULL values not only in super-aggregate rows, but also in regular grouped rows. GROUPING() enables these to be distinguished. Suppose that table t1 contains a simple data set with two grouping factors for a set of quantity values, where NULL indicates something like “other” or “unknown”:
+
+A simple ROLLUP operation produces these results, in which it is not so easy to distinguish NULL values in super-aggregate rows from NULL values in regular grouped rows:
+
+Using GROUPING() to substitute labels for the super-aggregate NULL values makes the result easier to interpret:
+
+Other Considerations When using ROLLUP
+
+The following discussion lists some behaviors specific to the MySQL implementation of ROLLUP.
+
+Prior to MySQL 8.0.12, when you use ROLLUP, you cannot also use an ORDER BY clause to sort the results. In other words, ROLLUP and ORDER BY were mutually exclusive in MySQL. However, you still have some control over sort order. To work around the restriction that prevents using ROLLUP with ORDER BY and achieve a specific sort order of grouped results, generate the grouped result set as a derived table and apply ORDER BY to it. For example:
+
+After 8.0.12
+mysql> select year, sum(profit) as profit from sales group by year with rollup order by year desc;
++------+--------+
+| year | profit |
++------+--------+
+| 2001 |  22600 |
+| 2000 | 132500 |
+| NULL | 155100 |
++------+--------+
+3 rows in set (0.00 sec)
+
+OR
+mysql> select year, sum(profit) as profit from sales group by year with rollup order by grouping(year) desc;
++------+--------+
+| year | profit |
++------+--------+
+| NULL | 155100 |
+| 2000 | 132500 |
+| 2001 |  22600 |
++------+--------+
+3 rows in set (0.00 sec)
+
+LIMIT can be used to restrict the number of rows returned to the client. LIMIT is applied after ROLLUP, so the limit applies against the extra rows added by ROLLUP. For example:
+
+Using LIMIT with ROLLUP may produce results that are more difficult to interpret, because there is less context for understanding the super-aggregate rows.
+
+mysql> select year, country, product, sum(profit) as profit
+    -> from sales
+    -> group by year, country, product with rollup
+    -> limit 5;
++------+---------+---------+--------+
+| year | country | product | profit |
++------+---------+---------+--------+
+| 2000 | IN      | CHAI    |  10000 |
+| 2000 | IN      | COFFEE  |  22500 |
+| 2000 | IN      | NULL    |  32500 |
+| 2000 | USA     | COFFEE  | 100000 |
+| 2000 | USA     | NULL    | 100000 |
++------+---------+---------+--------+
+
+A MySQL extension permits a column that does not appear in the GROUP BY list to be named in the select list. (For information about nonaggregated columns and GROUP BY, see Section 12.20.3, “MySQL Handling of GROUP BY”.) In this case, the server is free to choose any value from this nonaggregated column in summary rows, and this includes the extra rows added by WITH ROLLUP. For example, in the following query, country is a nonaggregated column that does not appear in the GROUP BY list and values chosen for this column are nondeterministic:
+
+mysql> SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select year, country, sum(profit) as profit from sales group by year with rollup;
++------+---------+--------+
+| year | country | profit |
++------+---------+--------+
+| 2000 | IN      | 132500 |
+| 2001 | IN      |  22600 |
+| NULL | IN      | 155100 |
++------+---------+--------+
+3 rows in set (0.00 sec)
+
+This behavior is permitted when the ONLY_FULL_GROUP_BY SQL mode is not enabled. If that mode is enabled, the server rejects the query as illegal because country is not listed in the GROUP BY clause. With ONLY_FULL_GROUP_BY enabled, you can still execute the query by using the ANY_VALUE() function for nondeterministic-value columns:
+
+mysql> select year, ANY_VALUE(country) as country, sum(profit) as profit from sales group by year with rollup;
++------+---------+--------+
+| year | country | profit |
++------+---------+--------+
+| 2000 | IN      | 132500 |
+| 2001 | IN      |  22600 |
+| NULL | IN      | 155100 |
++------+---------+--------+
+3 rows in set (0.00 sec)

@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="14007636-fa3b-426e-b482-0fe40d24cf85" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MySQLDoc.txt" beforeDir="false" afterPath="$PROJECT_DIR$/MySQLDoc.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Udemy.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Udemy.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -48,13 +46,13 @@
         <counts>
           <entry key="csv" value="13" />
           <entry key="sql" value="124" />
-          <entry key="txt" value="83476" />
+          <entry key="txt" value="83730" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSV" value="11" />
-          <entry key="PLAIN_TEXT" value="83478" />
+          <entry key="PLAIN_TEXT" value="83732" />
           <entry key="SQL" value="124" />
         </counts>
       </usages-collector>
@@ -65,8 +63,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Udemy.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-212">
-              <caret line="3589" column="4" selection-start-line="3589" selection-end-line="3589" selection-end-column="4" />
+            <state relative-caret-position="258">
+              <caret line="1989" selection-start-line="1989" selection-end-line="1989" selection-end-column="66" />
             </state>
           </provider>
         </entry>
@@ -86,8 +84,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="519">
-              <caret line="5251" lean-forward="true" selection-start-line="5251" selection-end-line="5251" />
+            <state relative-caret-position="595">
+              <caret line="5549" column="24" selection-start-line="5549" selection-start-column="24" selection-end-line="5549" selection-end-column="24" />
             </state>
           </provider>
         </entry>
@@ -146,6 +144,7 @@
       <find>INT</find>
       <find>MEDiumINT</find>
       <find>case</find>
+      <find>only_full_group_by</find>
     </findStrings>
     <replaceStrings>
       <replace>|</replace>
@@ -298,15 +297,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Udemy.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-212">
-          <caret line="3589" column="4" selection-start-line="3589" selection-end-line="3589" selection-end-column="4" />
+        <state relative-caret-position="258">
+          <caret line="1989" selection-start-line="1989" selection-end-line="1989" selection-end-column="66" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="519">
-          <caret line="5251" lean-forward="true" selection-start-line="5251" selection-end-line="5251" />
+        <state relative-caret-position="595">
+          <caret line="5549" column="24" selection-start-line="5549" selection-start-column="24" selection-end-line="5549" selection-end-column="24" />
         </state>
       </provider>
     </entry>

@@ -5548,3 +5548,34 @@ mysql> select year, ANY_VALUE(country) as country, sum(profit) as profit from sa
 | NULL | IN      | 155100 |
 +------+---------+--------+
 3 rows in set (0.00 sec)
+
+Why is grouping required?
+Say we want to aggregate data as below
+mysql> select country, year, sum(profit) as profit from sales group by country, year UNION select country, NULL, sum(profit) as profit from sales group by country UNION select NULL, year, sum(profit) as profit from sales group by year UNION select NULL, NULL, sum(profit) as profit from sales;
++---------+------+--------+
+| country | year | profit |
++---------+------+--------+
+| IN      | 2000 |  32500 |
+| IN      | 2001 |  20000 |
+| USA     | 2000 | 100000 |
+| US      | 2001 |   2600 |
+| IN      | NULL |  52500 |
+| USA     | NULL | 100000 |
+| US      | NULL |   2600 |
+| NULL    | 2000 | 132500 |
+| NULL    | 2001 |  22600 |
+| NULL    | NULL | 155100 |
++---------+------+--------+
+10 rows in set (0.00 sec)
+
+Group by Country, year
+Group by Country
+Group by Year
+Sum of all profits
+
+Above query used has two issue:
+1. Select query is applied on same table 4 times, performace hit, memory hit.
+2. Transact Sql code is too much
+
+Hence we can go with Grouping function.
+

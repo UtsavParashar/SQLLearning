@@ -6016,6 +6016,63 @@ similarly if we want to delete all rows except first row for each gender.
 mysql> delete from (select name, gender, id, ROW_NUMBER() OVER (PARTITION BY gender ORDER BY Gender) as row_num from employees) as emp where row_num > 1;
 
 
+RANK AND DENSE_RANK FUNCTION
+----------------------------
+RANK AND DENSE_RANK function are used to provide rank to row, eg, we want to find nth salary from a table by gender.
+Order by clause is mandatory
+partition by clause is optional
+
+Diff between Rank and Dense Rank?
+Rank skips the next number if there is a tie, eg if there is a tie in first two row output will be 1,1,3,4,5
+Dense_Rank does not skip the next number if there is a tie, eg if there is a tie in first two row output will be 1,1,2,3,4
+
+Eg. Get the rank and dense_rank details from Employees table
+
+insert into employees values(6, 'Ramesh', 'Male', 15000);
+select * from Employees;
+
+mysql> select name, salary, gender,
+    -> RANK() over w as ranks,
+    ->     DEnSE_RANK() over w as 'dense_rank' # if we use function name as a varible then it should be within quotes
+    ->     from employees
+    ->     window w as (partition by gender order by salary desc);
++--------+--------+--------+-------+------------+
+| name   | salary | gender | ranks | dense_rank |
++--------+--------+--------+-------+------------+
+| pam    |   5500 | female |     1 |          1 |
+| sara   |   4000 | female |     2 |          2 |
+| ben    |  15000 | male   |     1 |          1 |
+| Ramesh |  15000 | Male   |     1 |          1 |
+| tod    |   6000 | male   |     3 |          2 |
+| mark   |   5000 | male   |     4 |          3 |
++--------+--------+--------+-------+------------+
+
+Get 3rd highest salary for male using Rank
+mysql> select * from(select name, salary, gender,
+    -> rank() over w as sal_rank
+    -> from employees
+    -> window w as (partition by gender order by salary desc)) as emp
+    -> where sal_rank = 3 and gender='male';
++------+--------+--------+----------+
+| name | salary | gender | sal_rank |
++------+--------+--------+----------+
+| tod  |   6000 | male   |        3 |
++------+--------+--------+----------+
+
+
+
+Get Highest salary for female using dense_rank
+mysql> select * from(select name, salary, gender,
+    -> dense_rank() over w as sal_dense_rank
+    -> from employees
+    -> window w as (partition by gender order by salary desc)) as emp
+    -> where sal_dense_rank = 1 and gender='female';
++------+--------+--------+----------------+
+| name | salary | gender | sal_dense_rank |
++------+--------+--------+----------------+
+| pam  |   5500 | female |              1 |
++------+--------+--------+----------------+
+
 
 
 NTILE FUNCTION -

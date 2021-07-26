@@ -4351,6 +4351,36 @@ select * from cinema where (id^1) = (id-1) and description <> 'boring' order by 
 select * from cinema where id%2=1 and description != 'boring' order by rating desc;
 select * from cinema where mod(id,2)=1 and description not like 'boring' order by rating desc;
 
+LeetCode:
+177. Nth Highest Salary
+Write a SQL query to get the nth highest salary from the Employee table.
+
++----+--------+
+| Id | Salary |
++----+--------+
+| 1  | 100    |
+| 2  | 200    |
+| 3  | 300    |
++----+--------+
+For example, given the above Employee table, the nth highest salary where n = 2 is 200. If there is no nth highest salary, then the query should return null.
+
++------------------------+
+| getNthHighestSalary(2) |
++------------------------+
+| 200                    |
++------------------------+
+
+CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT
+BEGIN
+  DECLARE n_avg_sal INT;
+select distinct salary into n_avg_sal from (
+select salary,
+dense_rank() over w as sal_rank
+from employee
+window w as (order by salary desc)
+)as emp where sal_rank=N;
+return n_avg_sal;
+END
 
 
 

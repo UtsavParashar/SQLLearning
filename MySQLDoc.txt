@@ -6073,6 +6073,78 @@ mysql> select * from(select name, salary, gender,
 | pam  |   5500 | female |              1 |
 +------+--------+--------+----------------+
 
+Similarities and Dissimilarities between ROW_NUMBER, RANK AND DENSE FUNCTION:
+-----------------------------------------------------------------------------
+Similarities
+IF there are no duplicates in column which is used with order by, then all 3 functions behaves same i.e they return increasing integer numbers starting from 1.
+ORDER BY is mandatory for all 3 function.
+PARTITION BY is optional for all 3 functions.
+
+mysql> select * from employees;
++------+------+--------+--------+
+| id   | name | gender | salary |
++------+------+--------+--------+
+|    1 | mark | male   |   5000 |
+|    2 | pam  | female |   5500 |
+|    3 | tod  | male   |   6000 |
+|    4 | sara | female |   4000 |
+|    5 | ben  | male   |  15000 |
++------+------+--------+--------+
+5 rows in set (0.00 sec)
+
+mysql> select name, gender, salary,
+    -> row_number() over w as rnum,
+    -> rank() over w as rnk,
+    -> dense_rank() over w as drnk
+    -> from employees
+    -> window w as (order by salary desc);
++------+--------+--------+------+-----+------+
+| name | gender | salary | rnum | rnk | drnk |
++------+--------+--------+------+-----+------+
+| ben  | male   |  15000 |    1 |   1 |    1 |
+| tod  | male   |   6000 |    2 |   2 |    2 |
+| pam  | female |   5500 |    3 |   3 |    3 |
+| mark | male   |   5000 |    4 |   4 |    4 |
+| sara | female |   4000 |    5 |   5 |    5 |
++------+--------+--------+------+-----+------+
+
+
+Dissimilarities:
+When there are duplicates in column which is used with order by, then all 3 functions behaves differently.
+ROW_NUMBER behaves same even with duplicates or without duplicates, it return increasing integer numbers starting from 1. Eg. 1,2, 3,4 ,5
+RANK function return same rank(int value) for duplicates and skips the next value(s).   1,1,3,4,5
+DENSE_RANK function return same rank(int value) for duplicates and does not skip the next value(s). 1,1,2,3,4
+
+mysql> select * from employees;
++------+--------+--------+--------+
+| id   | name   | gender | salary |
++------+--------+--------+--------+
+|    1 | mark   | male   |   5000 |
+|    2 | pam    | female |   5500 |
+|    3 | tod    | male   |   6000 |
+|    4 | sara   | female |   4000 |
+|    5 | ben    | male   |  15000 |
+|    6 | Ramesh | Male   |  15000 |
++------+--------+--------+--------+
+6 rows in set (0.00 sec)
+
+mysql> select name, gender, salary,
+    -> row_number() over w as rnum,
+    -> rank() over w as rnk,
+    -> dense_rank() over w as drnk
+    -> from employees
+    -> window w as (order by salary desc);
++--------+--------+--------+------+-----+------+
+| name   | gender | salary | rnum | rnk | drnk |
++--------+--------+--------+------+-----+------+
+| ben    | male   |  15000 |    1 |   1 |    1 |
+| Ramesh | Male   |  15000 |    2 |   1 |    1 |
+| tod    | male   |   6000 |    3 |   3 |    2 |
+| pam    | female |   5500 |    4 |   4 |    3 |
+| mark   | male   |   5000 |    5 |   5 |    4 |
+| sara   | female |   4000 |    6 |   6 |    5 |
++--------+--------+--------+------+-----+------+
+
 
 
 NTILE FUNCTION -

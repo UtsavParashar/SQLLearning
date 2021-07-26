@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="14007636-fa3b-426e-b482-0fe40d24cf85" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MySQLDoc.txt" beforeDir="false" afterPath="$PROJECT_DIR$/MySQLDoc.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Udemy.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Udemy.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -47,13 +47,13 @@
         <counts>
           <entry key="csv" value="13" />
           <entry key="sql" value="124" />
-          <entry key="txt" value="87018" />
+          <entry key="txt" value="87809" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSV" value="11" />
-          <entry key="PLAIN_TEXT" value="87020" />
+          <entry key="PLAIN_TEXT" value="87811" />
           <entry key="SQL" value="124" />
         </counts>
       </usages-collector>
@@ -64,8 +64,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Udemy.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="82612">
-              <caret line="4348" column="1" selection-start-line="4348" selection-start-column="1" selection-end-line="4348" selection-end-column="1" />
+            <state relative-caret-position="565">
+              <caret line="4382" column="3" selection-start-line="4382" selection-start-column="3" selection-end-line="4382" selection-end-column="3" />
             </state>
           </provider>
         </entry>
@@ -85,8 +85,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="595">
-              <caret line="6054" column="42" selection-start-line="6054" selection-start-column="42" selection-end-line="6054" selection-end-column="42" />
+            <state relative-caret-position="894">
+              <caret line="6117" lean-forward="true" selection-start-line="6117" selection-end-line="6117" />
             </state>
           </provider>
         </entry>
@@ -147,6 +147,7 @@
       <find>case</find>
       <find>only_full_group_by</find>
       <find>MySQL Handling of GROUP BY</find>
+      <find>create function</find>
     </findStrings>
     <replaceStrings>
       <replace>|</replace>
@@ -262,13 +263,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Udemy.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="82612">
-          <caret line="4348" column="1" selection-start-line="4348" selection-start-column="1" selection-end-line="4348" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/te.csv">
       <provider editor-type-id="text-editor">
         <state relative-caret-position="133">
@@ -304,10 +298,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Udemy.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="565">
+          <caret line="4382" column="3" selection-start-line="4382" selection-start-column="3" selection-end-line="4382" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="595">
-          <caret line="6054" column="42" selection-start-line="6054" selection-start-column="42" selection-end-line="6054" selection-end-column="42" />
+        <state relative-caret-position="894">
+          <caret line="6117" lean-forward="true" selection-start-line="6117" selection-end-line="6117" />
         </state>
       </provider>
     </entry>

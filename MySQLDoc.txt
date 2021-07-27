@@ -6146,6 +6146,87 @@ mysql> select name, gender, salary,
 +--------+--------+--------+------+-----+------+
 
 
+Calculate Running Total:
+------------------------
+Get the running total of employees by gender from employees table
+insert into employees values (6, 'Ramesh', 'male', 6000);
+select * from employees;
+
+Two ways of writing the query is
+
+mysql> select name, gender, salary,
+    -> sum(salary) over (partition by gender order by id) as running_sal
+    -> from employees;
++--------+--------+--------+-------------+
+| name   | gender | salary | running_sal |
++--------+--------+--------+-------------+
+| pam    | female |   5500 |        5500 |
+| sara   | female |   4000 |        9500 |
+| mark   | male   |   5000 |        5000 |
+| tod    | male   |   6000 |       11000 |
+| ben    | male   |  15000 |       26000 |
+| Ramesh | male   |   6000 |       32000 |
++--------+--------+--------+-------------+
+6 rows in set (0.01 sec)
+
+mysql> select name, gender, salary,
+    -> sum(salary) over w as running_sal
+    -> from employees
+    -> window w as (partition by gender order by id);
++--------+--------+--------+-------------+
+| name   | gender | salary | running_sal |
++--------+--------+--------+-------------+
+| pam    | female |   5500 |        5500 |
+| sara   | female |   4000 |        9500 |
+| mark   | male   |   5000 |        5000 |
+| tod    | male   |   6000 |       11000 |
+| ben    | male   |  15000 |       26000 |
+| Ramesh | male   |   6000 |       32000 |
++--------+--------+--------+-------------+
+
+In above query, why aren't we using salary along with order by clause but id?
+because the salary column contains duplicates, and if a we use that we can summation of duplicate values added at a time. See the example below
+removing partition by gender to make thing simple.
+
+First running order by id and then order by salary and let's see the difference.
+mysql> select id, name, gender, salary,
+    -> sum(salary) over w as running_sal
+    -> from employees
+    -> window w as (order by id);
++------+--------+--------+--------+-------------+
+| id   | name   | gender | salary | running_sal |
++------+--------+--------+--------+-------------+
+|    1 | mark   | male   |   5000 |        5000 |
+|    2 | pam    | female |   5500 |       10500 |
+|    3 | tod    | male   |   6000 |       16500 |
+|    4 | sara   | female |   4000 |       20500 |
+|    5 | ben    | male   |  15000 |       35500 |
+|    6 | Ramesh | male   |   6000 |       41500 |
++------+--------+--------+--------+-------------+
+6 rows in set (0.01 sec)
+
+mysql> select id, name, gender, salary,
+    -> sum(salary) over w as running_sal
+    -> from employees
+    -> window w as (order by salary);
++------+--------+--------+--------+-------------+
+| id   | name   | gender | salary | running_sal |
++------+--------+--------+--------+-------------+
+|    4 | sara   | female |   4000 |        4000 |
+|    1 | mark   | male   |   5000 |        9000 |
+|    2 | pam    | female |   5500 |       14500 |
+|    3 | tod    | male   |   6000 |       26500 |
+|    6 | Ramesh | male   |   6000 |       26500 |
+|    5 | ben    | male   |  15000 |       41500 |
++------+--------+--------+--------+-------------+
+6 rows in set (0.00 sec)
+
+See the Tod and Ramesh column having duplication in running sum as well.
+
+Hence it is always better to use column with distinct values along with order by clause.
+
+
+
 
 NTILE FUNCTION -
 -----------------

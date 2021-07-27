@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="14007636-fa3b-426e-b482-0fe40d24cf85" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MySQLDoc.txt" beforeDir="false" afterPath="$PROJECT_DIR$/MySQLDoc.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Udemy.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Udemy.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,18 +15,18 @@
     <session id="372817092">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="54" />
+          <entry key="project.closed" value="55" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.1" value="2" />
           <entry key="project.open.time.10" value="4" />
           <entry key="project.open.time.11" value="7" />
-          <entry key="project.open.time.12" value="6" />
+          <entry key="project.open.time.12" value="7" />
           <entry key="project.open.time.13" value="2" />
           <entry key="project.open.time.14" value="2" />
           <entry key="project.open.time.17" value="1" />
           <entry key="project.open.time.8" value="18" />
           <entry key="project.open.time.9" value="12" />
-          <entry key="project.opened" value="55" />
+          <entry key="project.opened" value="56" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -47,13 +47,13 @@
         <counts>
           <entry key="csv" value="13" />
           <entry key="sql" value="124" />
-          <entry key="txt" value="87809" />
+          <entry key="txt" value="88491" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSV" value="11" />
-          <entry key="PLAIN_TEXT" value="87811" />
+          <entry key="PLAIN_TEXT" value="88493" />
           <entry key="SQL" value="124" />
         </counts>
       </usages-collector>
@@ -64,7 +64,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Udemy.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="565">
+            <state relative-caret-position="83258">
               <caret line="4382" column="3" selection-start-line="4382" selection-start-column="3" selection-end-line="4382" selection-end-column="3" />
             </state>
           </provider>
@@ -72,21 +72,21 @@
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/te.csv">
-          <provider editor-type-id="csv-table-editor">
-            <state showInfoPanel="true" fixedHeaders="false" rowLines="3" />
-          </provider>
           <provider selected="true" editor-type-id="csv-text-editor">
             <state relative-caret-position="190">
               <caret line="10" column="28" selection-start-line="10" selection-start-column="28" selection-end-line="10" selection-end-column="28" />
             </state>
+          </provider>
+          <provider editor-type-id="csv-table-editor">
+            <state showInfoPanel="true" fixedHeaders="false" rowLines="3" />
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="894">
-              <caret line="6117" lean-forward="true" selection-start-line="6117" selection-end-line="6117" />
+            <state relative-caret-position="587">
+              <caret line="6224" lean-forward="true" selection-start-line="6224" selection-end-line="6224" />
             </state>
           </provider>
         </entry>
@@ -102,10 +102,10 @@
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/batch-file_output.csv">
+          <provider selected="true" editor-type-id="csv-text-editor" />
           <provider editor-type-id="csv-table-editor">
             <state showInfoPanel="true" fixedHeaders="false" rowLines="3" />
           </provider>
-          <provider selected="true" editor-type-id="csv-text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -169,8 +169,9 @@
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
     <option name="x" value="1440" />
-    <option name="width" value="1366" />
-    <option name="height" value="768" />
+    <option name="y" value="23" />
+    <option name="width" value="1440" />
+    <option name="height" value="745" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -263,12 +264,14 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/te.csv">
-      <provider editor-type-id="text-editor">
-        <state relative-caret-position="133">
-          <caret line="7" column="28" selection-start-line="7" selection-start-column="28" selection-end-line="7" selection-end-column="28" />
+    <entry file="file://$PROJECT_DIR$/Udemy.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="83258">
+          <caret line="4382" column="3" selection-start-line="4382" selection-start-column="3" selection-end-line="4382" selection-end-column="3" />
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/te.csv">
       <provider selected="true" editor-type-id="csv-text-editor">
         <state relative-caret-position="190">
           <caret line="10" column="28" selection-start-line="10" selection-start-column="28" selection-end-line="10" selection-end-column="28" />
@@ -276,6 +279,18 @@
       </provider>
       <provider editor-type-id="csv-table-editor">
         <state showInfoPanel="true" fixedHeaders="false" rowLines="3" />
+      </provider>
+      <provider editor-type-id="text-editor">
+        <state relative-caret-position="133">
+          <caret line="7" column="28" selection-start-line="7" selection-start-column="28" selection-end-line="7" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/te.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="133">
+          <caret line="7" column="42" selection-start-line="7" selection-start-column="42" selection-end-line="7" selection-end-column="42" />
+        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/batch-file.sql">
@@ -291,24 +306,10 @@
       </provider>
       <provider selected="true" editor-type-id="csv-text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/te.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="133">
-          <caret line="7" column="42" selection-start-line="7" selection-start-column="42" selection-end-line="7" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Udemy.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="565">
-          <caret line="4382" column="3" selection-start-line="4382" selection-start-column="3" selection-end-line="4382" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="894">
-          <caret line="6117" lean-forward="true" selection-start-line="6117" selection-end-line="6117" />
+        <state relative-caret-position="587">
+          <caret line="6224" lean-forward="true" selection-start-line="6224" selection-end-line="6224" />
         </state>
       </provider>
     </entry>

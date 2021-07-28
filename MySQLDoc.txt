@@ -6225,7 +6225,23 @@ See the Tod and Ramesh column having duplication in running sum as well.
 
 Hence it is always better to use column with distinct values along with order by clause.
 
-
+Question -
+Find the moving avg salary of employees
+mysql> select id, name, gender, salary,
+    -> avg(salary) over w as avg_sal
+    -> from employees
+    -> window w as (order by id);
++------+--------+--------+--------+-----------+
+| id   | name   | gender | salary | avg_sal   |
++------+--------+--------+--------+-----------+
+|    1 | mark   | male   |   5000 | 5000.0000 |
+|    2 | pam    | female |   5500 | 5250.0000 |
+|    3 | tod    | male   |   6000 | 5500.0000 |
+|    4 | sara   | female |   4000 | 5125.0000 |
+|    5 | ben    | male   |  15000 | 7100.0000 |
+|    6 | Ramesh | male   |   6000 | 6916.6667 |
++------+--------+--------+--------+-----------+
+6 rows in set (0.00 sec)
 
 
 NTILE FUNCTION -

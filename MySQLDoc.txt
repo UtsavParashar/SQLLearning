@@ -5988,6 +5988,8 @@ Get the row numbers by partition and/or by order.
 Order by clause is required
 Partition by clause is optional.
 
+NOTE - PARTITION BY SHOULD ALWAYS BE USED BEFORE ORDER BY ELSE RESULTS IN SYNTAX ERROR.
+
 Syntax - ROW_NUMBER() OVER ([PARTITION BY] ORDER BY Col1, Col2)
 
 mysql> select name, gender, id, ROW_NUMBER() OVER (PARTITION BY gender ORDER BY Gender) as row_num from employees;
@@ -6249,6 +6251,228 @@ NTILE FUNCTION -
 This function divides the number of rows into groups.
 Order by clause if mandatory.
 Partition by clause is optional.
+Distributes the rows into a specified number of groups.
+If the number of rows is not divisible by number of groups, you may have groups of different sizes.
+    - Larger groups come before smaller groups.
+Eg. NTILE(2) of 10 rows divides the rows in 2 Groups(5 in each group)
+    NTILE(3) of 10 rows divides the rows in 3 Groups(4 in first group, 3 in 2nd and 3rd group)
+
+Syntax: NTILE(Number_of_groups) OVER (ORDER BY col1, col2...colN)
+
+Example:
+Divide rows with equal values in groups
+mysql> select Name, Gender, salary,
+    -> NTILE(2) over (order by Salary) as 'Ntile'
+    -> from employees;
++--------+--------+--------+-------+
+| Name   | Gender | salary | Ntile |
++--------+--------+--------+-------+
+| sara   | female |   4000 |     1 |
+| mark   | male   |   5000 |     1 |
+| pam    | female |   5500 |     1 |
+| tod    | male   |   6000 |     2 |
+| Ramesh | male   |   6000 |     2 |
+| ben    | male   |  15000 |     2 |
++--------+--------+--------+-------+
+
+Groups of unequal size:
+mysql> select Name, Gender, salary,
+    -> NTILE(4) over (order by Salary) as 'Ntile'
+    -> from employees;
++--------+--------+--------+-------+
+| Name   | Gender | salary | Ntile |
++--------+--------+--------+-------+
+| sara   | female |   4000 |     1 |
+| mark   | male   |   5000 |     1 |
+| pam    | female |   5500 |     2 |
+| tod    | male   |   6000 |     2 |
+| Ramesh | male   |   6000 |     3 |
+| ben    | male   |  15000 |     4 |
++--------+--------+--------+-------+
+6 rows in set (0.00 sec)
+
+Using partition by:
+mysql> select Name, Gender, salary,
+    -> NTILE(2) over (PARTITION BY gender order by Salary) as 'Ntile'
+    -> from employees;
++--------+--------+--------+-------+
+| Name   | Gender | salary | Ntile |
++--------+--------+--------+-------+
+| sara   | female |   4000 |     1 |
+| pam    | female |   5500 |     2 |
+| mark   | male   |   5000 |     1 |
+| tod    | male   |   6000 |     1 |
+| Ramesh | male   |   6000 |     2 |
+| ben    | male   |  15000 |     2 |
++--------+--------+--------+-------+
+
+LEAD AND LAG FUNCTION
+----------------------
+Lead function is used to access subsequent row data along with the current row data.
+Lag function is used to access previous row data along with the current row data.
+ORDER BY clause is mandatory
+PARTITION BY clause is optional
+
+Syntax:
+LEAD(column_name[,offset,default_value]) OVER (ORDER BY Col1, Col2, ...)
+LEAD(column_name[,offset,default_value]) OVER (ORDER BY Col1, Col2, ...)
+
+mandatory param - column name
+Optional params -
+Offset - Number of rows to lead or lag
+Default_value - The default value to return whern the number of rows to lead or lag goes beyond first row or last row in a table or partition. If default value is not specified NULL is returned.
+
+It is similar to shift function in pandas.
+Consider a column values as an array which is left shifted for LAG and right shifted for LEAD.
+
+Default Behaviour -
+mysql> select Name, Gender, salary,
+    -> LEAD(SALARY) over w as 'lead',
+    -> LAG(SALARY) over w as 'lag'
+    -> from employees
+    -> window w as (order by Salary);
++--------+--------+--------+-------+------+
+| Name   | Gender | salary | lead  | lag  |
++--------+--------+--------+-------+------+
+| sara   | female |   4000 |  5000 | NULL |
+| mark   | male   |   5000 |  5500 | 4000 |
+| pam    | female |   5500 |  6000 | 5000 |
+| tod    | male   |   6000 |  6000 | 5500 |
+| Ramesh | male   |   6000 | 15000 | 6000 |
+| ben    | male   |  15000 |  NULL | 6000 |
++--------+--------+--------+-------+------+
+
+Using OFFSET and DEFAULT_VALUE
+mysql> select Name, Gender, salary,
+    -> LEAD(SALARY, 2, -1) over w as 'lead',
+    -> LAG(SALARY,1,-1) over w as 'lag'
+    -> from employees
+    -> window w as (order by Salary);
++--------+--------+--------+-------+------+
+| Name   | Gender | salary | lead  | lag  |
++--------+--------+--------+-------+------+
+| sara   | female |   4000 |  5500 |   -1 |
+| mark   | male   |   5000 |  6000 | 4000 |
+| pam    | female |   5500 |  6000 | 5000 |
+| tod    | male   |   6000 | 15000 | 5500 |
+| Ramesh | male   |   6000 |    -1 | 6000 |
+| ben    | male   |  15000 |    -1 | 6000 |
++--------+--------+--------+-------+------+
+
+Using Partition BY
+mysql> select Name, Gender, salary,
+    -> LEAD(SALARY, 2, -1) over w as 'lead',
+    -> LAG(SALARY,1,-1) over w as 'lag'
+    -> from employees
+    -> window w as (partition by gender order by Salary);
++--------+--------+--------+-------+------+
+| Name   | Gender | salary | lead  | lag  |
++--------+--------+--------+-------+------+
+| sara   | female |   4000 |    -1 |   -1 |
+| pam    | female |   5500 |    -1 | 4000 |
+| mark   | male   |   5000 |  6000 |   -1 |
+| tod    | male   |   6000 | 15000 | 5000 |
+| Ramesh | male   |   6000 |    -1 | 6000 |
+| ben    | male   |  15000 |    -1 | 6000 |
++--------+--------+--------+-------+------+
+
+
+FIRST_VALUE()
+-------------
+Retrieves the first value from the specified column.
+ORDER BY clause is required.
+PARTITION BY clause is optional.
+
+SYNTAX - FIRST_VALUE(column_name) OVER (ORDER BY col1, col2)
+
+mysql> select Name, Gender, salary,
+    -> FIRST_VALUE(salary) OVER (PARTITION BY gender ORDER BY salary DESC) as 'first_value'
+    -> from employees;
++--------+--------+--------+-------------+
+| Name   | Gender | salary | first_value |
++--------+--------+--------+-------------+
+| pam    | female |   5500 |        5500 |
+| sara   | female |   4000 |        5500 |
+| ben    | male   |  15000 |       15000 |
+| tod    | male   |   6000 |       15000 |
+| Ramesh | male   |   6000 |       15000 |
+| mark   | male   |   5000 |       15000 |
++--------+--------+--------+-------------+
+
+LAST_VALUE() - Similar to first_value which provides last element from the selected fields.
+
+WINDOW FUNCTIONS -
+We have difference categories of window functions -
+Eg.
+Aggregate Functions - AVG, SUM, MIN, MAX, COUNT etc.
+Ranking Functions - RANK, DENSE_RANK, ROW_NUMBER, NTILE etc
+Analytics Function - LEAD, LAG, FIRST_VALUE, LAST_VALUE etc
+
+OVER clause defines the partitioning and ordering of rows(i.e windows) for the above functions to operate on. Hence these functions are called Window functions. The OVER clause accepts the following 3 arguments to define a window for these functions to operate on:
+* Order by - Defines the logical order of the rows
+* Partition by - Divides the query resilt set into partitions. The window function is applied to each partition separately.
+* ROWS and RANGE clause - Further limits the rows within the partition by specifying start and end points within the partition.
+
+The default for ROWS and RANGE clause is
+RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW[ OR UNBOUNDED FOLLOWING]
+    # We will understand   UNBOUNDED PRECEDING AND CURRENT ROW
+
+Initially we were calculating moving average using AVG() and over using below code:
+
+mysql> select id, name, gender, salary,
+    -> avg(salary) over w as avg_sal
+    -> from employees
+    -> window w as (order by id);
++------+--------+--------+--------+-----------+
+| id   | name   | gender | salary | avg_sal   |
++------+--------+--------+--------+-----------+
+|    1 | mark   | male   |   5000 | 5000.0000 |
+|    2 | pam    | female |   5500 | 5250.0000 |
+|    3 | tod    | male   |   6000 | 5500.0000 |
+|    4 | sara   | female |   4000 | 5125.0000 |
+|    5 | ben    | male   |  15000 | 7100.0000 |
+|    6 | Ramesh | male   |   6000 | 6916.6667 |
++------+--------+--------+--------+-----------+
+
+In above code the value of ROWS is default i.e UNBOUNDED PRECEDING(means first row) AND CURRENT ROW, hence we were getting avg between 1st row and current row, but what if we need avg of all salaries in each row, we can use ROWS for that.
+
+mysql> select Name, Gender, salary,
+    -> AVG(salary) OVER w as 'avg_sal',
+    -> COUNT(salary) OVER w as 'count_sal',
+    -> SUM(salary) OVER w as 'sum_sal'
+    -> from employees
+    -> window w as (ORDER BY salary ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING);
++--------+--------+--------+-----------+-----------+-----------+
+| Name   | Gender | salary | avg_sal   | count_sal | sum_sal |
++--------+--------+--------+-----------+-----------+-----------+
+| sara   | female |   4000 | 6916.6667 |         6 |     41500 |
+| mark   | male   |   5000 | 6916.6667 |         6 |     41500 |
+| pam    | female |   5500 | 6916.6667 |         6 |     41500 |
+| tod    | male   |   6000 | 6916.6667 |         6 |     41500 |
+| Ramesh | male   |   6000 | 6916.6667 |         6 |     41500 |
+| ben    | male   |  15000 | 6916.6667 |         6 |     41500 |
++--------+--------+--------+-----------+-----------+-----------+
+
+In above code UNBOUNDED FOLLOWING means the last row.
+
+Similarly if we need to find avg for previous, current and next row we can use 1 PRECEDING AND 1 FOLLOWING.
+mysql> select Name, Gender, salary,
+    -> AVG(salary) OVER w as 'avg_sal',
+    -> COUNT(salary) OVER w as 'count_sal',
+    -> SUM(salary) OVER w as 'sum_sal'
+    -> from employees
+    -> window w as (PARTITION BY gender ORDER BY salary ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING);
++--------+--------+--------+------------+-----------+-----------+
+| Name   | Gender | salary | avg_sal    | count_sal | sum_sal |
++--------+--------+--------+------------+-----------+-----------+
+| sara   | female |   4000 |  4750.0000 |         2 |      9500 |
+| pam    | female |   5500 |  4750.0000 |         2 |      9500 |
+| mark   | male   |   5000 |  5500.0000 |         2 |     11000 |
+| tod    | male   |   6000 |  5666.6667 |         3 |     17000 |
+| Ramesh | male   |   6000 |  9000.0000 |         3 |     27000 |
+| ben    | male   |  15000 | 10500.0000 |         2 |     21000 |
++--------+--------+--------+------------+-----------+-----------+
+
 
 
 

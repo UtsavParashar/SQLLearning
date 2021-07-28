@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="14007636-fa3b-426e-b482-0fe40d24cf85" name="Default Changelist" comment="" />
+    <list default="true" id="14007636-fa3b-426e-b482-0fe40d24cf85" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/MySQLDoc.txt" beforeDir="false" afterPath="$PROJECT_DIR$/MySQLDoc.txt" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,13 +19,13 @@
           <entry key="project.open.time.1" value="2" />
           <entry key="project.open.time.10" value="4" />
           <entry key="project.open.time.11" value="7" />
-          <entry key="project.open.time.12" value="7" />
+          <entry key="project.open.time.12" value="8" />
           <entry key="project.open.time.13" value="2" />
           <entry key="project.open.time.14" value="2" />
           <entry key="project.open.time.17" value="1" />
           <entry key="project.open.time.8" value="18" />
           <entry key="project.open.time.9" value="12" />
-          <entry key="project.opened" value="56" />
+          <entry key="project.opened" value="57" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -44,13 +46,13 @@
         <counts>
           <entry key="csv" value="13" />
           <entry key="sql" value="124" />
-          <entry key="txt" value="88605" />
+          <entry key="txt" value="92094" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSV" value="11" />
-          <entry key="PLAIN_TEXT" value="88607" />
+          <entry key="PLAIN_TEXT" value="92096" />
           <entry key="SQL" value="124" />
         </counts>
       </usages-collector>
@@ -82,8 +84,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="6225" column="88" selection-start-line="6225" selection-start-column="88" selection-end-line="6225" selection-end-column="88" />
+            <state relative-caret-position="508">
+              <caret line="6465" column="57" selection-start-line="6465" selection-start-column="57" selection-end-line="6465" selection-end-column="57" />
             </state>
           </provider>
         </entry>
@@ -165,8 +167,9 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="width" value="1440" />
-    <option name="height" value="900" />
+    <option name="x" value="1440" />
+    <option name="width" value="1366" />
+    <option name="height" value="768" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -241,7 +244,7 @@
       <window_info active="true" anchor="bottom" id="ExcelReader" order="6" visible="true" weight="0.32740742" />
       <window_info anchor="bottom" id="TODO" order="7" />
       <window_info anchor="bottom" id="KDBStudio" order="8" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.40592593" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.40520447" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="11" weight="0.3288889" />
       <window_info anchor="bottom" id="DB Execution Console" order="12" />
@@ -281,13 +284,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/te.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="133">
-          <caret line="7" column="42" selection-start-line="7" selection-start-column="42" selection-end-line="7" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/batch-file.sql">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="57">
@@ -296,15 +292,22 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/batch-file_output.csv">
+      <provider selected="true" editor-type-id="csv-text-editor" />
       <provider editor-type-id="csv-table-editor">
         <state showInfoPanel="true" fixedHeaders="false" rowLines="3" />
       </provider>
-      <provider selected="true" editor-type-id="csv-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/te.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="133">
+          <caret line="7" column="42" selection-start-line="7" selection-start-column="42" selection-end-line="7" selection-end-column="42" />
+        </state>
+      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="6225" column="88" selection-start-line="6225" selection-start-column="88" selection-end-line="6225" selection-end-column="88" />
+        <state relative-caret-position="508">
+          <caret line="6465" column="57" selection-start-line="6465" selection-start-column="57" selection-end-line="6465" selection-end-column="57" />
         </state>
       </provider>
     </entry>

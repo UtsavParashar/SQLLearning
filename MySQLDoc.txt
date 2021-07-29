@@ -5897,6 +5897,7 @@ Partition By - From which column we want to partition the data.
 Over clause in sql server:
 --------------------------
 The over clause along with partition by is used to break up the data into partitions.
+Over clause can be used with PARTITION BY or ORDER BY or BOTH.
 The specified function operates on each partition.
 Syntax: function () OVER (PARTITION BY COL1, COL2)
 
@@ -5966,6 +5967,26 @@ BUT the above code is verbose and requires multiple queries, group by and join.
 Same thing can be achieved by over and partition by in a single query
 
 mysql> select name, gender,
+    -> count(id) over w as gender_total,
+    -> avg(salary) over w as avg_sal,
+    -> max(salary) over w as max_sal,
+    -> min(salary) over w as min_sal
+    -> from employees
+    -> window w as (PARTITION BY gender);
++--------+--------+--------------+-----------+---------+---------+
+| name   | gender | gender_total | avg_sal   | max_sal | min_sal |
++--------+--------+--------------+-----------+---------+---------+
+| pam    | female |            2 | 4750.0000 |    5500 |    4000 |
+| sara   | female |            2 | 4750.0000 |    5500 |    4000 |
+| mark   | male   |            4 | 8000.0000 |   15000 |    5000 |
+| tod    | male   |            4 | 8000.0000 |   15000 |    5000 |
+| ben    | male   |            4 | 8000.0000 |   15000 |    5000 |
+| Ramesh | male   |            4 | 8000.0000 |   15000 |    5000 |
++--------+--------+--------------+-----------+---------+---------+
+
+ANOTHER WAY:
+
+mysql> select name, gender,
     -> count(Gender) over (partition by Gender) as GenderTotal,
     -> AVG(Salary) over (partition by Gender) as AvgSal,
     -> MIN(Salary) over (partition by Gender) as MinSal,
@@ -5980,6 +6001,25 @@ mysql> select name, gender,
 | tod  | male   |           3 | 8666.6667 |   5000 |  15000 |
 | ben  | male   |           3 | 8666.6667 |   5000 |  15000 |
 +------+--------+-------------+-----------+--------+--------+
+
+Using Partiton BY and Order by with Over:
+mysql> select name, gender,
+    -> count(id) over w as gender_total,
+    -> avg(salary) over w as avg_sal,
+    -> max(salary) over w as max_sal,
+    -> min(salary) over w as min_sal
+    -> from employees
+    -> window w as (partition by gender order BY salary);
++--------+--------+--------------+-----------+---------+---------+
+| name   | gender | gender_total | avg_sal   | max_sal | min_sal |
++--------+--------+--------------+-----------+---------+---------+
+| sara   | female |            1 | 4000.0000 |    4000 |    4000 |
+| pam    | female |            2 | 4750.0000 |    5500 |    4000 |
+| mark   | male   |            1 | 5000.0000 |    5000 |    5000 |
+| tod    | male   |            3 | 5666.6667 |    6000 |    5000 |
+| Ramesh | male   |            3 | 5666.6667 |    6000 |    5000 |
+| ben    | male   |            4 | 8000.0000 |   15000 |    5000 |
++--------+--------+--------------+-----------+---------+---------+
 
 
 ROW_Number Function -
@@ -6472,6 +6512,48 @@ mysql> select Name, Gender, salary,
 | Ramesh | male   |   6000 |  9000.0000 |         3 |     27000 |
 | ben    | male   |  15000 | 10500.0000 |         2 |     21000 |
 +--------+--------+--------+------------+-----------+-----------+
+
+Difference between ROWS and RANGE Clause:
+-----------------------------------------
+ROWS and Range clause acts similart when there are not duplicates in the column on which we operate.
+But if there are duplicates, ROWS consider them distinct and gives the proper output but RANGE gives combined output of duplicate rows.
+
+Example:
+mysql> select name, gender, salary,
+    -> sum(salary) over (order by salary ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as rows_running_sal,
+    -> sum(salary) over (order by salary RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as range_running_sal
+    -> from employees
+    -> window w as (partition by gender order BY salary);
++--------+--------+--------+------------------+-------------------+
+| name   | gender | salary | rows_running_sal | range_running_sal |
++--------+--------+--------+------------------+-------------------+
+| sara   | female |   4000 |             4000 |              4000 |
+| mark   | male   |   5000 |             9000 |              9000 |
+| pam    | female |   5500 |            14500 |             14500 |
+| tod    | male   |   6000 |            20500 |             26500 |
+| Ramesh | male   |   6000 |            26500 |             26500 |
+| ben    | male   |  15000 |            41500 |             41500 |
++--------+--------+--------+------------------+-------------------+
+
+Tod and Ramesh have duplicate salary hence rows and range difference can be seen.
+
+Comparing with default running sum without rows and range
+mysql> select name, gender, salary,
+    -> sum(salary) over (order by salary) as default_running_sal,
+    -> sum(salary) over (order by salary ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as rows_running_sal,
+    -> sum(salary) over (order by salary RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as range_running_sal
+    -> from employees
+    -> window w as (partition by gender order BY salary);
++--------+--------+--------+---------------------+------------------+-------------------+
+| name   | gender | salary | default_running_sal | rows_running_sal | range_running_sal |
++--------+--------+--------+---------------------+------------------+-------------------+
+| sara   | female |   4000 |                4000 |             4000 |              4000 |
+| mark   | male   |   5000 |                9000 |             9000 |              9000 |
+| pam    | female |   5500 |               14500 |            14500 |             14500 |
+| tod    | male   |   6000 |               26500 |            20500 |             26500 |
+| Ramesh | male   |   6000 |               26500 |            26500 |             26500 |
+| ben    | male   |  15000 |               41500 |            41500 |             41500 |
++--------+--------+--------+---------------------+------------------+-------------------+
 
 
 

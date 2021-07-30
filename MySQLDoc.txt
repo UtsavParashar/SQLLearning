@@ -6555,6 +6555,63 @@ mysql> select name, gender, salary,
 | ben    | male   |  15000 |               41500 |            41500 |             41500 |
 +--------+--------+--------+---------------------+------------------+-------------------+
 
+LAST_VALUE(column) -
+--------------------
+Retrieves the last value from a specified column
+order by clause is required
+partition by clause is optional
+rows and range clause is optional BUT for LAST_VALUE() to work correctly we many have to explicitly specify a value
+
+LAST_VALUE(col) OVER (ORDER BY col1, col2)
+
+If we do not specify the ROWS/RANGE clause and then default value of ROWS or RANGE is UNBOUNDED PRECEDING AND CURRENT ROW hence the output has last_value till the current row which is current row value or if duplicate then last duplicate value.
+
+mysql> select name, gender, salary,
+    -> LAST_VALUE(name) over (order by salary) as lastval
+    -> from employees;
++--------+--------+--------+---------+
+| name   | gender | salary | lastval |
++--------+--------+--------+---------+
+| sara   | female |   4000 | sara    |
+| mark   | male   |   5000 | mark    |
+| pam    | female |   5500 | pam     |
+| tod    | male   |   6000 | Ramesh  |
+| Ramesh | male   |   6000 | Ramesh  |
+| ben    | male   |  15000 | ben     |
++--------+--------+--------+---------+
+6 rows in set (0.00 sec)
+
+Therefore in order to get the correct last value we will have to use ROWS or RANGE clause.
+
+AND, we get the person with the highest salary
+mysql> select name, gender, salary,
+    -> LAST_VALUE(name) over (order by salary ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as HIGHEST_SALARY
+    -> from employees;
++--------+--------+--------+----------------+
+| name   | gender | salary | HIGHEST_SALARY |
++--------+--------+--------+----------------+
+| sara   | female |   4000 | ben            |
+| mark   | male   |   5000 | ben            |
+| pam    | female |   5500 | ben            |
+| tod    | male   |   6000 | ben            |
+| Ramesh | male   |   6000 | ben            |
+| ben    | male   |  15000 | ben            |
++--------+--------+--------+----------------+
+
+mysql> select name, gender, salary,
+    -> LAST_VALUE(name) over (partition by gender order by salary ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as HIGHEST_SALARY
+    -> from employees;
++--------+--------+--------+----------------+
+| name   | gender | salary | HIGHEST_SALARY |
++--------+--------+--------+----------------+
+| sara   | female |   4000 | pam            |
+| pam    | female |   5500 | pam            |
+| mark   | male   |   5000 | ben            |
+| tod    | male   |   6000 | ben            |
+| Ramesh | male   |   6000 | ben            |
+| ben    | male   |  15000 | ben            |
++--------+--------+--------+----------------+
+
 
 
 

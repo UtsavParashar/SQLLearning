@@ -15,18 +15,18 @@
     <session id="372817092">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="58" />
+          <entry key="project.closed" value="60" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.1" value="2" />
           <entry key="project.open.time.10" value="4" />
           <entry key="project.open.time.11" value="7" />
-          <entry key="project.open.time.12" value="10" />
+          <entry key="project.open.time.12" value="11" />
           <entry key="project.open.time.13" value="2" />
           <entry key="project.open.time.14" value="2" />
           <entry key="project.open.time.17" value="1" />
           <entry key="project.open.time.8" value="18" />
           <entry key="project.open.time.9" value="12" />
-          <entry key="project.opened" value="59" />
+          <entry key="project.opened" value="60" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -47,13 +47,13 @@
         <counts>
           <entry key="csv" value="13" />
           <entry key="sql" value="124" />
-          <entry key="txt" value="93572" />
+          <entry key="txt" value="93578" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSV" value="11" />
-          <entry key="PLAIN_TEXT" value="93574" />
+          <entry key="PLAIN_TEXT" value="93580" />
           <entry key="SQL" value="124" />
         </counts>
       </usages-collector>
@@ -64,8 +64,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Udemy.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="304">
-              <caret line="4416" column="12" selection-start-line="4416" selection-start-column="12" selection-end-line="4416" selection-end-column="12" />
+            <state relative-caret-position="727">
+              <caret line="4457" column="80" selection-start-line="4457" selection-start-column="80" selection-end-line="4457" selection-end-column="80" />
             </state>
           </provider>
         </entry>
@@ -85,7 +85,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-480">
+            <state relative-caret-position="116641">
               <caret line="6139" column="17" selection-start-line="6139" selection-start-column="7" selection-end-line="6139" selection-end-column="17" />
             </state>
           </provider>
@@ -169,9 +169,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="x" value="1440" />
-    <option name="width" value="1366" />
-    <option name="height" value="768" />
+    <option name="width" value="1440" />
+    <option name="height" value="900" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -224,7 +223,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1440" y="0" width="1366" height="768" extended-state="0" />
+    <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.15030211" />
@@ -246,7 +245,7 @@
       <window_info active="true" anchor="bottom" id="ExcelReader" order="6" visible="true" weight="0.32740742" />
       <window_info anchor="bottom" id="TODO" order="7" />
       <window_info anchor="bottom" id="KDBStudio" order="8" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="9" sideWeight="0.49924472" visible="true" weight="0.40296295" />
+      <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.49924472" weight="0.40296295" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5007553" side_tool="true" weight="0.40444446" />
       <window_info anchor="bottom" id="Version Control" order="11" weight="0.3288889" />
       <window_info anchor="bottom" id="DB Execution Console" order="12" />
@@ -264,7 +263,19 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/Udemy.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="727">
+          <caret line="4457" column="80" selection-start-line="4457" selection-start-column="80" selection-end-line="4457" selection-end-column="80" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/te.csv">
+      <provider editor-type-id="text-editor">
+        <state relative-caret-position="133">
+          <caret line="7" column="28" selection-start-line="7" selection-start-column="28" selection-end-line="7" selection-end-column="28" />
+        </state>
+      </provider>
       <provider selected="true" editor-type-id="csv-text-editor">
         <state relative-caret-position="190">
           <caret line="10" column="28" selection-start-line="10" selection-start-column="28" selection-end-line="10" selection-end-column="28" />
@@ -273,9 +284,11 @@
       <provider editor-type-id="csv-table-editor">
         <state showInfoPanel="true" fixedHeaders="false" rowLines="3" />
       </provider>
-      <provider editor-type-id="text-editor">
-        <state relative-caret-position="133">
-          <caret line="7" column="28" selection-start-line="7" selection-start-column="28" selection-end-line="7" selection-end-column="28" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="116641">
+          <caret line="6139" column="17" selection-start-line="6139" selection-start-column="7" selection-end-line="6139" selection-end-column="17" />
         </state>
       </provider>
     </entry>
@@ -296,20 +309,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="133">
           <caret line="7" column="42" selection-start-line="7" selection-start-column="42" selection-end-line="7" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MySQLDoc.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-480">
-          <caret line="6139" column="17" selection-start-line="6139" selection-start-column="7" selection-end-line="6139" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Udemy.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="4416" column="12" selection-start-line="4416" selection-start-column="12" selection-end-line="4416" selection-end-column="12" />
         </state>
       </provider>
     </entry>
